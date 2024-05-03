@@ -1,0 +1,5 @@
+pixsfm_dataset/*
+pixsfm_outputs/*
+
+!pixsfm_dataset/
+!pixsfm_outputs/
