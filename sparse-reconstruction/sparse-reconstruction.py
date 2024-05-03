@@ -32,7 +32,7 @@ def sparse_reconstruction_pipeline():
     print(f"torch.cuda.get_arch_list(): {torch.cuda.get_arch_list()}")
 
     images = Path('pixsfm_dataset/')
-    outputs = Path('pixsfm_outputs/')
+    outputs = Path('output/')
 
     if(outputs.exists()):
         try:
