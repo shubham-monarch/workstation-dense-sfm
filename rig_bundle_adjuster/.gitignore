@@ -1,2 +1,3 @@
 output/*
 .fuse*
+__pycache__/*
