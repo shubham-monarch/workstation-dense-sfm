@@ -147,13 +147,19 @@ if __name__ == "__main__":
     parser.add_argument('--camera_params', type=str, required= True, help='Camera parameters in the opencv format')
     args = parser.parse_args()
     
+    cwd = os.path.dirname(__file__)
+    
+    print(f"cwd: {cwd}")
+
     # path to the images folder
-    input_dir= Path("../pixsfm_dataset")
+    input_dir=  os.path.join(cwd,  "../pixsfm_dataset/") 
     
     # path to the sparse reconstruction output files
-    output_dir= Path("../output/")
+    output_dir= os.path.join(cwd, "../output/")
+    
+    print(f"input_dir: {os.path.abspath(input_dir)}")
 
-    sparse_reconstruction_pipeline( args.svo_dir,
+    sparse_reconstruction_pipeline( Path(args.svo_dir),
                                     args.camera_params, 
-                                    input_dir, 
-                                    output_dir)
+                                    Path(input_dir), 
+                                    Path(output_dir))

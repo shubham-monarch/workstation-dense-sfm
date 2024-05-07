@@ -22,7 +22,7 @@ echo $svo_path
 echo $camera_params
 
 
-srun --gres=gpu:1 --pty \
+srun --gres=gpu:1  \
 	python ../sparse-reconstruction/scripts/sparse-reconstruction.py \
 	--svo_dir="$svo_path" \
 	--camera_params="$camera_params"
