@@ -54,11 +54,15 @@ def parse_svo_data():
 
 
 '''
+:param svo_output: path to the svo files
 :param images: Path to the directory containing the images
 :param outputs: Path to the directory where the output files will be stored
 :param opencv_camera_params: Camera parameters in the opencv format
 '''
-def sparse_reconstruction_pipeline(images, outputs, opencv_camera_params):
+def sparse_reconstruction_pipeline( svo_output,
+                                    opencv_camera_params,
+                                    images, 
+                                    outputs):
     
     print(f"torch.__version__: {torch.__version__}")
     print(f"torch.cuda.get_arch_list(): {torch.cuda.get_arch_list()}")
@@ -136,21 +140,20 @@ def sparse_reconstruction_pipeline(images, outputs, opencv_camera_params):
 #TO-DO : add svo parsing
 
 if __name__ == "__main__":
-    
+   
+
     parser = argparse.ArgumentParser(description='Sparse Reconstruction Pipeline')
     parser.add_argument('--svo_dir', type=str, required=  True, help='Path to the svo directory')
-    parser.add_argument('--input_dir', type=str, required=  True, help='Path to the images directory')
-    parser.add_argument('--output_dir', type=str, required= True, help='Path to the sparse sfm output directory')
     parser.add_argument('--camera_params', type=str, required= True, help='Camera parameters in the opencv format')
     args = parser.parse_args()
-
-    #input_dir = Path('../pixsfm_dataset/')
-    #output_dir = Path('../output/')
     
-    #fx = 1093.2768
-    #fy = 1093.2768
-    #cx = 964.989
-    #cy = 569.276
-    #Camera_params =','.join(map(str, (fx, fy, cx, cy, 0, 0, 0, 0)))
+    # path to the images folder
+    input_dir= Path("../pixsfm_dataset")
+    
+    # path to the sparse reconstruction output files
+    output_dir= Path("../output/")
 
-    sparse_reconstruction_pipeline(args.input_dir, args.output_dir, args.camera_params)
+    sparse_reconstruction_pipeline( args.svo_dir,
+                                    args.camera_params, 
+                                    input_dir, 
+                                    output_dir)

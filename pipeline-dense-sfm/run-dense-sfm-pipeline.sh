@@ -7,16 +7,28 @@
 #SBATCH --job-name=sfm-test 
 
 
-module-load sdks/cuda-11.3
+module load sdks/cuda-11.3
 
 source /home/skumar/e33/bin/activate
 
 # Parse JSON file and extract parameters
-input_path=$(python -c 'import json; config = json.load(open("config.json")); return(config.get("input_path", ""))')
-output_path=$(python -c 'import json; config = json.load(open("config.json")); return(config.get("output_path", ""))')
-camera_intrinsics=$(python -c 'import json; config = json.load(open("config.json")); intrinsics = config.get("camera_intrinsics", []); return(" ".join(str(x) for x in intrinsics))')
 
-srun --gres=gpu:1 --pty python ../sparse-reconstruction/scripts/sparse-reconstruction.py
+
+svo_path=$(python -c 'import json; config = json.load(open("config/config.json")); print(config.get("svo_path", ""))')
+camera_params=$(python -c 'import json; config = json.load(open("config/config.json")); params = config.get("camera_params", []); print(" ".join(str(x) for x in params))')
+
+
+echo $svo_path
+echo $camera_params
+
+
+srun --gres=gpu:1 --pty \
+	python ../sparse-reconstruction/scripts/sparse-reconstruction.py \
+	--svo_dir="$svo_path" \
+	--camera_params="$camera_params"
+
+
+
 #srun --gres=gpu:1 --pty bash rig-bundle-adjuster/rig_ba.sh
 #srun --gres=gpu:1 --pty python ../dense-reconstruction/scripts/dense-reconstruction.py
 
