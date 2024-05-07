@@ -3,7 +3,7 @@ svo_output/*
 !svo_output/
 
 **/__pycache__/
-
 *.pyc
 
+test/*
 *.out
