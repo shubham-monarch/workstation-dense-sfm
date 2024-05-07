@@ -1,8 +1,11 @@
 #You must set $COLMAP_EXE_PATH to
 #the directory containing the COLMAP executables
 COLMAP_EXE_PATH=/usr/local/bin
+#INPUT_PATH=../sparse-reconstruction/output/ref_locked
 INPUT_PATH=../sparse-reconstruction/output/ref_locked
-OUTPUT_PATH=output/
+#OUTPUT_PATH=output/
+OUTPUT_PATH=../rig-bundle-adjuster/output/
+#RIG_CONFIG_PATH=config.json
 RIG_CONFIG_PATH=config.json
 
 echo "INPUT_PATH ===> $INPUT_PATH"

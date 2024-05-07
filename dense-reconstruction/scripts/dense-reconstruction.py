@@ -3,6 +3,7 @@
 import pycolmap 
 from pathlib import Path
 import shutil
+import os
 
 def dense_sfm_pipeline(mvs_path, output_path, image_dir):
 
@@ -21,8 +22,15 @@ def dense_sfm_pipeline(mvs_path, output_path, image_dir):
 
 
 if __name__ == "__main__": 
-    mvs_path = Path("../output/")
-    output_path = Path("../../rig_bundle_adjuster/output/")
-    image_dir = Path("../../sparse-reconstruction/pixsfm_dataset/")
+    #mvs_path = Path("../output/")
+    mvs_path = Path("dense-reconstruction/output/")
+    output_path = Path("rig-bundle-adjuster/output/")
+    image_dir = Path("sparse-reconstruction/pixsfm_dataset/")
+    
+
+    print(f"mvs_path: {os.path.abspath(mvs_path)}")
+    print(f"output_path: {os.path.abspath(output_path)}")
+    print(f"image_dir: {os.path.abspath(image_dir)}")
+
 
     dense_sfm_pipeline(mvs_path, output_path, image_dir)    
