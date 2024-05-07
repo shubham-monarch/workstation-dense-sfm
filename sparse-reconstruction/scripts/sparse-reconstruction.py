@@ -19,7 +19,8 @@ from pathlib import Path
 import os
 import shutil
 import torch 
-import numpy as np      
+import numpy as np     
+import argparse 
 
 # redirect the C++ outputs to notebook cells
 cpp_out = ostream_redirect(stderr=True, stdout=True)
@@ -132,16 +133,24 @@ def sparse_reconstruction_pipeline(images, outputs, opencv_camera_params):
     print(f"K_locked.summary(): {K_locked.summary()}")
 
 
-# TO-DO : convert input/output/camera_params to argparse
+#TO-DO : add svo parsing
+
 if __name__ == "__main__":
     
-    input_dir = Path('../pixsfm_dataset/')
-    output_dir = Path('../output/')
-    
-    fx = 1093.2768
-    fy = 1093.2768
-    cx = 964.989
-    cy = 569.276
-    camera_params =','.join(map(str, (fx, fy, cx, cy, 0, 0, 0, 0)))
+    parser = argparse.ArgumentParser(description='Sparse Reconstruction Pipeline')
+    parser.add_argument('--svo_dir', type=str, required=  True, help='Path to the svo directory')
+    parser.add_argument('--input_dir', type=str, required=  True, help='Path to the images directory')
+    parser.add_argument('--output_dir', type=str, required= True, help='Path to the sparse sfm output directory')
+    parser.add_argument('--camera_params', type=str, required= True, help='Camera parameters in the opencv format')
+    args = parser.parse_args()
 
-    sparse_reconstruction_pipeline(input_dir, output_dir, camera_params)
+    #input_dir = Path('../pixsfm_dataset/')
+    #output_dir = Path('../output/')
+    
+    #fx = 1093.2768
+    #fy = 1093.2768
+    #cx = 964.989
+    #cy = 569.276
+    #Camera_params =','.join(map(str, (fx, fy, cx, cy, 0, 0, 0, 0)))
+
+    sparse_reconstruction_pipeline(args.input_dir, args.output_dir, args.camera_params)
