@@ -1,3 +1,9 @@
 svo_output/* 
 
 !svo_output/
+
+**/__pycache__/
+
+*.pyc
+
+*.out

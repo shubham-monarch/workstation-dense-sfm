@@ -1,3 +1,4 @@
 output/*
 .fuse*
 __pycache__/*
+*.pyc

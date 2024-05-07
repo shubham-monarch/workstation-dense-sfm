@@ -6,7 +6,7 @@
       {
           "camera_id": 1,
           "image_prefix": "left",
-          "rel_tvec": [13, 0, 0],
+          "rel_tvec": [0.13, 0, 0],
 	  "rel_qvec": [0,0,0,1]
       },
       {
