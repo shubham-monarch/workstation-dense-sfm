@@ -92,9 +92,15 @@ The `svo_path` folder should look like this =>
     └── pose
 ```
 
+Execute the main script => 
 `sbatch run-dense-sfm-pipeline.sh`
 
 > Running with the default configuration would generate the dense sfm output at the `pipeline-dense-sfm/dense_sfm_output/` folder
 
+### Some Helpful SLURM commands
 
-
+```
+squeue => see the current SLURM queue
+tail -f slurm-<id>.out => see the <id>.out file in real time
+scancel <id> => cancel id
+```
