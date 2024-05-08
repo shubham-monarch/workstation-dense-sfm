@@ -4,6 +4,7 @@ import pycolmap
 from pathlib import Path
 import shutil
 import os
+import argparse
 
 def dense_sfm_pipeline(mvs_path, output_path, image_dir):
 
@@ -23,14 +24,18 @@ def dense_sfm_pipeline(mvs_path, output_path, image_dir):
 
 if __name__ == "__main__": 
     #mvs_path = Path("../output/")
-    mvs_path = Path("dense-reconstruction/output/")
-    output_path = Path("rig-bundle-adjuster/output/")
-    image_dir = Path("sparse-reconstruction/pixsfm_dataset/")
+    parser = argparse.ArgumentParser(description='Dense Reconstruction Pipeline')
+    parser.add_argument('--mvs_path', type=str, required=  True, help='Path to dense reconstruction output')
+    parser.add_argument('--output_path', type=str, required=  True, help='Path to rig)_bundle_adjuster output')
+    parser.add_argument('--image_dir', type=str, required=  True, help='Path to sparse reconstruction dataset')
+    args = parser.parse_args()
     
+    #mvs_path = Path("dense-reconstruction/output/")
+    #output_path = Path("rig-bundle-adjuster/output/")
+    #image_dir = Path("sparse-reconstruction/pixsfm_dataset/")    
 
-    print(f"mvs_path: {os.path.abspath(mvs_path)}")
-    print(f"output_path: {os.path.abspath(output_path)}")
-    print(f"image_dir: {os.path.abspath(image_dir)}")
+    print(f"mvs_path: {os.path.abspath(Path(args.mvs_path))}")
+    print(f"output_path: {os.path.abspath(Path(args.output_path))}")
+    print(f"image_dir: {os.path.abspath(Path(args.image_dir))}")
 
-
-    dense_sfm_pipeline(mvs_path, output_path, image_dir)    
+    dense_sfm_pipeline(Path(args.mvs_path), Path(args.output_path), Path(args.image_dir))    
