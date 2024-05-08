@@ -26,15 +26,16 @@ This repository implements a `pixsfm` and `COLMAP` based dense 3D-reconstruction
 
 All config files can be found at `pipeline-dense-sfm/config` folder. 
 
-> Recommended to go with the default values used
-
 1. `config.json` file
 ```
 {
-  "svo_path": "svo_output/",     # svo folder location relative to pipeline-dense-sfm folder
+  "svo_path": "svo_output/",     # target svo folder path
   "camera_params": [1093.2768, 1093.2768, 964.989,  569.276, 0, 0, 0, 0],   # [fx, fy, cx, cy, k1, k2, k3,k4]    
-  "dense_sfm_path":"dense_sfm_output/"   # dense sfm output location relative to pipeline-dense-sfm folder 
+  "dense_sfm_path":"dense_sfm_output/"   # dense sfm output path 
 }
+
+> All the paths mentioned in `config.json` would be relative to the `pipeline-dense-sfm` folder
+
 ```
 
 2. `rig.json` file 
@@ -71,11 +72,14 @@ cd workstation-sfm-setup
 cd pipeline-dense-sfm
 ```
 
-- Update the `config/rig.json` with the relative camera poses in the rig 
-- Update the `config/config.json` with svo_path, camera_params and dense_sfm_path (recommended to go with default values)
-- [**Important**] Copy the target `svo` files at the `svo_output` folder files, defaults to `pipeline-dense-sfm/svo_output/` 
+- Update `pipeline-dense-sfm/config/rig.json`
+- Update `pipeline-dense-sfm/config/config.json`
+  - `svo_path`: folder containing the target svo files
+  - `camera-params`: [fx,fy, cx, cy, k1, k2, k3, k4]
+  - `dense_sfm_path`: folder containng the dense reconstruction output
+- [**Important**] Copy the svo files at `svo_path` 
 
-The `svo_output` folder should look like this => 
+The `svo_path` folder should look like this => 
 
 ```
 ├── frame_0
@@ -88,9 +92,9 @@ The `svo_output` folder should look like this =>
     └── pose
 ```
 
-`
-sbatch run-dense-sfm-pipeline.sh`
+`sbatch run-dense-sfm-pipeline.sh`
 
 > Running with the default configuration would generate the dense sfm output at the `pipeline-dense-sfm/dense_sfm_output/` folder
+
 
 
