@@ -30,7 +30,7 @@ cpp_out.__enter__()
 Generates input data for the pixSFM pipeline 
 by processing the output of the svo pipeline
 '''
-def parse_svo_data(src_dir, dst_dir):
+def generate_input_folder(src_dir, dst_dir):
     #src_dir = '../svo_output'
     #dst_dir = 'pixsfm_dataset'
 
@@ -135,9 +135,7 @@ def sparse_reconstruction_pipeline( svo_output,
 
     print(f"K_locked.summary(): {K_locked.summary()}")
 
-
 #TO-DO : add svo parsing
-
 if __name__ == "__main__":
    
     parser = argparse.ArgumentParser(description='Sparse Reconstruction Pipeline')
@@ -145,8 +143,9 @@ if __name__ == "__main__":
     parser.add_argument('--camera_params', type=str, required= True, help='Camera parameters in the opencv format')
     args = parser.parse_args()
     
+    print(f"svo_path: {os.path.abspath(args.svo_dir)}")
+
     cwd = os.path.dirname(__file__)
-    
     print(f"cwd: {cwd}")
 
     # path to the images folder
@@ -155,22 +154,7 @@ if __name__ == "__main__":
     # path to the sparse reconstruction output files
     output_dir= os.path.join(cwd, "../output/")
     
-    print(f"input_dir: {os.path.abspath(input_dir)}")
-    
-
-    #fx = 1093.2768
-    #fy = 1093.276
-    #cx = 964.989
-    #cy = 569.276
-    #camera_param_ =','.join(map(str, (fx, fy, cx, cy, 0, 0, 0, 0)))
-
-
-    #print(f"camera_params: {args.camera_params}")
-    #print(f"type(camera_params): {type(args.camera_params)}")
-
-    #print(f"camera_param_: {camera_param_}")
-    #print(f"type(camera_param_): {type(camera_param_)}")
-    
+    generate_input_folder(Path(args.svo_dir), Path(input_dir))
     sparse_reconstruction_pipeline( Path(args.svo_dir),
                                     args.camera_params, 
                                     Path(input_dir), 
