@@ -28,16 +28,16 @@ All config files can be found at `pipeline-dense-sfm/config` folder.
 
 > Recommended to go with the default values used
 
-1. config.json file
+1. `config.json` file
 ```
 {
-  "svo_path": "svo_output/",     # path to the svo output folder to be used during sfm
+  "svo_path": "svo_output/",     # svo folder location relative to pipeline-dense-sfm folder
   "camera_params": [1093.2768, 1093.2768, 964.989,  569.276, 0, 0, 0, 0],   # [fx, fy, cx, cy, k1, k2, k3,k4]    
-  "dense_sfm_path":"dense_sfm_output/"   # dense sfm output folder
+  "dense_sfm_path":"dense_sfm_output/"   # dense sfm output location relative to pipeline-dense-sfm folder 
 }
 ```
 
-2. rig.json file 
+2. `rig.json` file 
 ```
 [
   {
@@ -64,8 +64,18 @@ All config files can be found at `pipeline-dense-sfm/config` folder.
 
 ### How to use? 
 
-1. `svo_output` folder inside `pipeline-dense-sfm` folder with the target `svo` files. 
-The svo_output folder should look like this => 
+```
+git clone git@github.com:shubham-monarch/workstation-sfm-setup.git
+git checkout dev
+cd workstation-sfm-setup
+cd pipeline-dense-sfm
+```
+
+1. Update the `config/rig.json` with the relative camera poses in the rig 
+2. Update the `config/config.json` with svo_path, camera_params and dense_sfm_path (recommended to go with default values)
+
+3. [Important] Copy the target `svo` files at the `svo_output` folder files, defaults to `pipeline-dense-sfm/svo_output/` 
+The `svo_output` folder should look like this => 
 
 ```
 ├── frame_0
@@ -77,8 +87,7 @@ The svo_output folder should look like this =>
     ├── pointcloud
     └── pose
 ```
-2. Update `config/rig.json` with the relative camera poses in the rig. 
-3. Update the `svo_path` in the config file, defaults to pipeline-dense-sfm/svo_output/
-4. Update the `camera_params` in the config file, defaults to  [1093.2768, 1093.2768, 964.989,  569.276, 0, 0, 0, 0],
-5. Update the `dense_sfm_path` in `config/config.json`
+
+`sbatch run-dense-sfm-pipeline.sh`
+
 
