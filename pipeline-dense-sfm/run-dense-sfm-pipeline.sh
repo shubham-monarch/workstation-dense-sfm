@@ -33,9 +33,11 @@ source /home/skumar/e6/bin/activate
 # SPARSE RECONSTRUCTION
 
 SPARSE_RECONSTRUCTION_LOC="../sparse-reconstruction"
+SPARSE_DATA_LOC="${SPARSE_RECONSTRUCTION_LOC}/pixsfm-dataset/"
 python "$(pwd)/${SPARSE_RECONSTRUCTION_LOC}/scripts/sparse-reconstruction.py" \
       --svo_dir="$svo_path" \
        --camera_params="$camera_params"
+
 
 # RIG BUNDLE ADJUSTMENT
 
@@ -58,6 +60,16 @@ $COLMAP_EXE_PATH/colmap rig_bundle_adjuster \
 	--BundleAdjustment.refine_extrinsics 1 \
 	--BundleAdjustment.max_num_iterations 100 \
 	--estimate_rig_relative_poses False
+
+
+# DENSE RECONSTRUCTION
+
+DENSE_RECONSTRUCTION_LOC="../dense-reconstruction"
+python "$(pwd)/${DENSE_RECONSTRUCTION_LOC}/scripts/dense-reconstruction.py" \
+    --mvs_path="$dense_sfm_path" \
+    --output_path="$RIG_OUTPUT_PATH" \
+	--image_dir="$SPARSE_DATA_LOC" \
+
 
 
 #bash ../rig-bundle-adjuster/rig_ba.sh
