@@ -7,40 +7,29 @@
 #SBATCH --job-name=sfm-test 
 
 
-#module load sdks/cuda-11.3
+module load sdks/cuda-11.3
 
-#source /home/skumar/e33/bin/activate
+source /home/skumar/e33/bin/activate
 
 # Parse JSON file and extract parameters
-
-
 svo_path=$(python -c 'import json; config = json.load(open("config/config.json")); print(config.get("svo_path", ""))')
 camera_params=$(python -c 'import json; config = json.load(open("config/config.json")); params = config.get("camera_params", []); print(",".join(str(x) for x in params))')
 dense_sfm_path=$(python -c 'import json; config = json.load(open("config/config.json")); print(config.get("dense_sfm_path", ""))')
 
 
-#echo $svo_path
-#echo $camera_params
 
 
-#srun --gres=gpu:1  \
-#	python ../sparse-reconstruction/scripts/sparse-reconstruction.py \
-#	--svo_dir="$svo_path" \
-#	--camera_params="$camera_params"
-
-
-source /home/skumar/e6/bin/activate
-
-# SPARSE RECONSTRUCTION
+# ========== SPARSE RECONSTRUCTION ====================
 
 SPARSE_RECONSTRUCTION_LOC="../sparse-reconstruction"
 SPARSE_DATA_LOC="${SPARSE_RECONSTRUCTION_LOC}/pixsfm_dataset/"
-python "$(pwd)/${SPARSE_RECONSTRUCTION_LOC}/scripts/sparse-reconstruction.py" \
-      --svo_dir="$svo_path" \
-       --camera_params="$camera_params"
+srun --gres=gpu:1 \
+	python "$(pwd)/${SPARSE_RECONSTRUCTION_LOC}/scripts/sparse-reconstruction.py" \
+      	--svo_dir="$svo_path" \
+	--camera_params="$camera_params"
 
 
-# RIG BUNDLE ADJUSTMENT
+# ========= RIG BUNDLE ADJUSTMENT =====================
 
 COLMAP_EXE_PATH=/usr/local/bin
 RIG_BUNDLE_ADJUSTER_LOC="../rig-bundle-adjuster"
@@ -63,19 +52,19 @@ $COLMAP_EXE_PATH/colmap rig_bundle_adjuster \
 	--estimate_rig_relative_poses False
 
 
-# DENSE RECONSTRUCTION
+# ====== DENSE RECONSTRUCTION =======================
 
 DENSE_RECONSTRUCTION_LOC="../dense-reconstruction"
-python "$(pwd)/${DENSE_RECONSTRUCTION_LOC}/scripts/dense-reconstruction.py" \
-    --mvs_path="$dense_sfm_path" \
-    --output_path="$RIG_OUTPUT_PATH" \
+srun --gres=gpu:1 \
+	python "$(pwd)/${DENSE_RECONSTRUCTION_LOC}/scripts/dense-reconstruction.py" \
+    	--mvs_path="$dense_sfm_path" \
+    	--output_path="$RIG_OUTPUT_PATH" \
 	--image_dir="$SPARSE_DATA_LOC" \
 
 
 
 #bash ../rig-bundle-adjuster/rig_ba.sh
 
-#echo "RIG_INPUT_PATH ===> $RIG_INPUT_PATH"
 
 #srun --gres=gpu:1 --pty bash rig-bundle-adjuster/rig_ba.sh
 #srun --gres=gpu:1 --pty python ../dense-reconstruction/scripts/dense-reconstruction.py
