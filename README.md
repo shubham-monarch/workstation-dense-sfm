@@ -1,4 +1,4 @@
-.
+```.
 ├── dense-reconstruction
 │   ├── output
 │   └── scripts
@@ -15,5 +15,5 @@
     │   ├── left
     │   └── right
     └── scripts
-
+```
 16 directories
