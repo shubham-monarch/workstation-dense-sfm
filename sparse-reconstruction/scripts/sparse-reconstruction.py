@@ -66,16 +66,14 @@ def sparse_reconstruction_pipeline( svo_output,
     
     print(f"torch.__version__: {torch.__version__}")
     print(f"torch.cuda.get_arch_list(): {torch.cuda.get_arch_list()}")
+    #print(f"camera_params: {opencv_camera_params}")
     
-    print(f"camera_params: {opencv_camera_params}")
-    #images = Path('pixsfm_dataset/')
-    #outputs = Path('output/')
-
+    
     if(outputs.exists()):
         try:
             #outputs.rmdir()
             shutil.rmtree(outputs)
-            print(f"{outputs} removed")
+            print(f"{os.path.abspath(outputs)} removed")
         except OSError as e:
             print(f"An error occurred while deleting the directory: {e}")
 
@@ -160,13 +158,20 @@ if __name__ == "__main__":
     print(f"input_dir: {os.path.abspath(input_dir)}")
     
 
-    fx = 1093.2768
-    fy = 1093.276
-    cx = 964.989
-    cy = 569.276
-    camera_param_ =','.join(map(str, (fx, fy, cx, cy, 0, 0, 0, 0)))
+    #fx = 1093.2768
+    #fy = 1093.276
+    #cx = 964.989
+    #cy = 569.276
+    #camera_param_ =','.join(map(str, (fx, fy, cx, cy, 0, 0, 0, 0)))
 
+
+    #print(f"camera_params: {args.camera_params}")
+    #print(f"type(camera_params): {type(args.camera_params)}")
+
+    #print(f"camera_param_: {camera_param_}")
+    #print(f"type(camera_param_): {type(camera_param_)}")
+    
     sparse_reconstruction_pipeline( Path(args.svo_dir),
-                                    camera_param_, 
+                                    args.camera_params, 
                                     Path(input_dir), 
                                     Path(output_dir))
