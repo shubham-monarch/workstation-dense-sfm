@@ -1,6 +1,6 @@
 {
   "svo_path": "svo_output/",
   "camera_params": [1093.2768, 1093.2768, 964.989,  569.276, 0, 0, 0, 0],
-  "dense_sfm_path":"dense_sfm_output"
+  "dense_sfm_path":"dense_sfm_output/"
 }
 

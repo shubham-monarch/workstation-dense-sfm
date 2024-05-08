@@ -16,6 +16,7 @@
 
 svo_path=$(python -c 'import json; config = json.load(open("config/config.json")); print(config.get("svo_path", ""))')
 camera_params=$(python -c 'import json; config = json.load(open("config/config.json")); params = config.get("camera_params", []); print(",".join(str(x) for x in params))')
+dense_sfm_path=$(python -c 'import json; config = json.load(open("config/config.json")); print(config.get("dense_sfm_path", ""))')
 
 
 #echo $svo_path
@@ -33,7 +34,7 @@ source /home/skumar/e6/bin/activate
 # SPARSE RECONSTRUCTION
 
 SPARSE_RECONSTRUCTION_LOC="../sparse-reconstruction"
-SPARSE_DATA_LOC="${SPARSE_RECONSTRUCTION_LOC}/pixsfm-dataset/"
+SPARSE_DATA_LOC="${SPARSE_RECONSTRUCTION_LOC}/pixsfm_dataset/"
 python "$(pwd)/${SPARSE_RECONSTRUCTION_LOC}/scripts/sparse-reconstruction.py" \
       --svo_dir="$svo_path" \
        --camera_params="$camera_params"
