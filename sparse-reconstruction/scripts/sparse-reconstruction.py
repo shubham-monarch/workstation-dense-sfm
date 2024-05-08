@@ -30,9 +30,9 @@ cpp_out.__enter__()
 Generates input data for the pixSFM pipeline 
 by processing the output of the svo pipeline
 '''
-def parse_svo_data():
-    src_dir = '../svo_output'
-    dst_dir = 'pixsfm_dataset'
+def parse_svo_data(src_dir, dst_dir):
+    #src_dir = '../svo_output'
+    #dst_dir = 'pixsfm_dataset'
 
     # Create 'left' and 'right' directories inside 'dataset'
     os.makedirs(os.path.join(dst_dir, 'left'), exist_ok=True)
@@ -66,7 +66,8 @@ def sparse_reconstruction_pipeline( svo_output,
     
     print(f"torch.__version__: {torch.__version__}")
     print(f"torch.cuda.get_arch_list(): {torch.cuda.get_arch_list()}")
-
+    
+    print(f"camera_params: {opencv_camera_params}")
     #images = Path('pixsfm_dataset/')
     #outputs = Path('output/')
 
@@ -141,7 +142,6 @@ def sparse_reconstruction_pipeline( svo_output,
 
 if __name__ == "__main__":
    
-
     parser = argparse.ArgumentParser(description='Sparse Reconstruction Pipeline')
     parser.add_argument('--svo_dir', type=str, required=  True, help='Path to the svo directory')
     parser.add_argument('--camera_params', type=str, required= True, help='Camera parameters in the opencv format')
@@ -158,8 +158,15 @@ if __name__ == "__main__":
     output_dir= os.path.join(cwd, "../output/")
     
     print(f"input_dir: {os.path.abspath(input_dir)}")
+    
+
+    fx = 1093.2768
+    fy = 1093.276
+    cx = 964.989
+    cy = 569.276
+    camera_param_ =','.join(map(str, (fx, fy, cx, cy, 0, 0, 0, 0)))
 
     sparse_reconstruction_pipeline( Path(args.svo_dir),
-                                    args.camera_params, 
+                                    camera_param_, 
                                     Path(input_dir), 
                                     Path(output_dir))
