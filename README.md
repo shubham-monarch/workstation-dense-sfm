@@ -71,10 +71,10 @@ cd workstation-sfm-setup
 cd pipeline-dense-sfm
 ```
 
-1. Update the `config/rig.json` with the relative camera poses in the rig 
-2. Update the `config/config.json` with svo_path, camera_params and dense_sfm_path (recommended to go with default values)
+- Update the `config/rig.json` with the relative camera poses in the rig 
+- Update the `config/config.json` with svo_path, camera_params and dense_sfm_path (recommended to go with default values)
+- [**Important**] Copy the target `svo` files at the `svo_output` folder files, defaults to `pipeline-dense-sfm/svo_output/` 
 
-3. [Important] Copy the target `svo` files at the `svo_output` folder files, defaults to `pipeline-dense-sfm/svo_output/` 
 The `svo_output` folder should look like this => 
 
 ```
@@ -88,6 +88,9 @@ The `svo_output` folder should look like this =>
     └── pose
 ```
 
-`sbatch run-dense-sfm-pipeline.sh`
+`
+sbatch run-dense-sfm-pipeline.sh`
+
+> Running with the default configuration would generate the dense sfm output at the `pipeline-dense-sfm/dense_sfm_output/` folder
 
 
