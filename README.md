@@ -95,8 +95,13 @@ The folder at the `svo_path` folder should look like this =>
 
 Note => The above diagram is meant to be the representation of a typical `svo` output folder. The dense-sfm pipeline doesn't need the `pointcloud` and the `pose` sub-folders. Only the `images` folder is required.
 
-Execute the main script => 
-`sbatch run-dense-sfm-pipeline.sh`
+
+Activate the python virtual environment and execute the main script => ss
+```
+source ../e33/bin/activate
+sbatch run-dense-sfm-pipeline.sh
+```
+
 
 > Running with the default configuration would generate the dense sfm output at the `pipeline-dense-sfm/dense_sfm_output/` folder
 
