@@ -9,7 +9,7 @@
 
 module load sdks/cuda-11.3
 
-source /home/skumar/e33/bin/activate
+source /WorkSpaces/SFM/e33/bin/activate
 
 # Parse JSON file and extract parameters
 svo_path=$(python -c 'import json; config = json.load(open("config/config.json")); print(config.get("svo_path", ""))')
