@@ -81,6 +81,7 @@ cd pipeline-dense-sfm
 
 The folder at the `svo_path` folder should look like this => 
 
+
 ```
 ├── frame_0
 │   ├── images
@@ -91,6 +92,8 @@ The folder at the `svo_path` folder should look like this =>
     ├── pointcloud
     └── pose
 ```
+
+Note => The above diagram is meant to be the representation of a typical `svo` output folder. The dense-sfm pipeline doesn't need the `pointcloud` and the `pose` sub-folders. Only the `images` folder is required.
 
 Execute the main script => 
 `sbatch run-dense-sfm-pipeline.sh`
