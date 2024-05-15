@@ -29,7 +29,7 @@ All config files can be found at `pipeline-dense-sfm/config` folder.
 1. `config.json` file
 ```
 {
-  "svo_path": "svo_output/",     # target svo folder path
+  "svo_path": "svo_output/",     # t  
   "camera_params": [1093.2768, 1093.2768, 964.989,  569.276, 0, 0, 0, 0],   # [fx, fy, cx, cy, k1, k2, k3,k4]    
   "dense_sfm_path":"dense_sfm_output/"   # dense sfm output path 
 }
@@ -77,9 +77,9 @@ cd pipeline-dense-sfm
   - `svo_path`: folder containing the target svo files
   - `camera-params`: [fx,fy, cx, cy, k1, k2, k3, k4]
   - `dense_sfm_path`: folder containng the dense reconstruction output
-- [**Important**] Copy the svo files at `svo_path` 
+- [**Important**] Copy the input files (i.e. `svo` files) at the `svo_path` location 
 
-The `svo_path` folder should look like this => 
+The folder at the `svo_path` folder should look like this => 
 
 ```
 ├── frame_0
