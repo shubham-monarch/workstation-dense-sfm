@@ -8,6 +8,8 @@ import json
 import sys
 import argparse
 import warnings
+from pathlib import Path
+
 
 def parse_camera_parameters(zed):
     calibration_params = zed.get_camera_information().camera_configuration.calibration_parameters
@@ -15,7 +17,7 @@ def parse_camera_parameters(zed):
     settings_dict = {
     'left_fx' : calibration_params.left_cam.fx,
     'left_fy' : calibration_params.left_cam.fy,
-    'left_cx' : calibration_params.left_cam.cx,
+    'left_cx' : calibration_params.left_cam.cx, 
     'left_cy' : calibration_params.left_cam.cy,
     'left_disto' : calibration_params.left_cam.disto.tolist(), # numpy array Distortion factor : [ k1, k2, p1, p2, k3 ]. Radial (k1,k2,k3) and Tangential (p1,p2) distortion.
 
@@ -73,6 +75,11 @@ def get_pose(zed,zed_pose, zed_sensors):
 
 def main(filepath, num_frames, dir_path):
 
+    filepath = os.path.abspath(filepath)
+    dir_path = os.path.abspath(dir_path)
+
+    print(f"filepath: {filepath}")
+    print(f"num_frames: {num_frames}")
     print("Reading SVO file: {0}".format(filepath))
 
     input_type = sl.InputType()
@@ -184,4 +191,4 @@ if __name__ == "__main__":
     print(f"num_frames: {args.num_frames}")
     print(f"output_dir: {args.output_dir}")
     
-    main(args.svo_path, args.num_frames, args.output_dir)
+    main(Path(args.svo_path), args.num_frames, Path(args.output_dir))

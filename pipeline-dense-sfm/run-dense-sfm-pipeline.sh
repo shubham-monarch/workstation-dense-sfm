@@ -7,14 +7,14 @@
 #SBATCH --job-name=sfm-test 
 
 
-module load sdks/cuda-11.3
+#module load sdks/cuda-11.3
 
 source /WorkSpaces/SFM/e33/bin/activate
 #source /home/skumar/e7/bin/activate
 
 # Parsing SVO params
 svo_filename=$(python -c 'import json; config = json.load(open("config/config.json")); print(config.get("svo_filename", ""))')
-svo_num_frames=$(python -c 'import json; config = json.load(open("config/config.json")); print(config.get("svo_num_sframes", ""))')
+svo_num_frames=$(python -c 'import json; config = json.load(open("config/config.json")); print(config.get("svo_num_frames", ""))')
 
 # Parsing camera params
 camera_params=$(python -c 'import json; config = json.load(open("config/config.json")); params = config.get("camera_params", []); print(",".join(str(x) for x in params))')
@@ -30,11 +30,18 @@ SVO_OUTPUT="svo_output/"
 SVO_NUM_FRAMES=$svo_num_frames
 SVO_FOLDER_LOC="../svo-processing"
 
+echo "SVO_NUM_FRAMES: $SVO_NUM_FRAMES"
+echo "SVO_FILE_NAME: $SVO_FILE_NAME"
+echo "SVO_OUTPUT: $SVO_OUTPUT"
+
+
+rm -rf $SVO_OUTPUT
+
 srun --gres=gpu:1 \
 	python "$(pwd)/${SVO_FOLDER_LOC}/scripts/svo_to_pointcloud.py" \
-      	--svo_path=$SVO_FILE_NAME \
-		--num_frames=$SVO_NUM_FRAMES \
-		--output_dir="$SVO_OUTPUT"
+      	--svo_path=$SVO_INPUT \
+	--num_frames=$SVO_NUM_FRAMES \
+	--output_dir="$SVO_OUTPUT"
 
 
 
@@ -42,10 +49,12 @@ srun --gres=gpu:1 \
 
 SPARSE_RECONSTRUCTION_LOC="../sparse-reconstruction"
 SPARSE_DATA_LOC="${SPARSE_RECONSTRUCTION_LOC}/pixsfm_dataset/"
+SPARSE_RECONSTRUCTION_INPUT="svo_output"
+
 srun --gres=gpu:1 \
 	python "$(pwd)/${SPARSE_RECONSTRUCTION_LOC}/scripts/sparse-reconstruction.py" \
-      	--svo_dir="$svo_output" \
-		--camera_params="$camera_params"
+      	--svo_dir=$SPARSE_RECONSTRUCTION_INPUT \
+	--camera_params="$camera_params"
 
 
 # ========= RIG BUNDLE ADJUSTMENT =====================
@@ -87,4 +96,4 @@ srun --gres=gpu:1 \
 
 #srun --gres=gpu:1 --pty bash rig-bundle-adjuster/rig_ba.sh
 #srun --gres=gpu:1 --pty python ../dense-reconstruction/scripts/dense-reconstruction.py
-
+'
