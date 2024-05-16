@@ -10,12 +10,31 @@
 module load sdks/cuda-11.3
 
 source /WorkSpaces/SFM/e33/bin/activate
+#source /home/skumar/e7/bin/activate
 
-# Parse JSON file and extract parameters
-svo_path=$(python -c 'import json; config = json.load(open("config/config.json")); print(config.get("svo_path", ""))')
+# Parsing SVO params
+svo_filename=$(python -c 'import json; config = json.load(open("config/config.json")); print(config.get("svo_filename", ""))')
+svo_num_frames=$(python -c 'import json; config = json.load(open("config/config.json")); print(config.get("svo_num_sframes", ""))')
+
+# Parsing camera params
 camera_params=$(python -c 'import json; config = json.load(open("config/config.json")); params = config.get("camera_params", []); print(",".join(str(x) for x in params))')
+
+# Parsing pipeline params
 dense_sfm_path=$(python -c 'import json; config = json.load(open("config/config.json")); print(config.get("dense_sfm_path", ""))')
 
+
+# ========== SVO PROCESSING ====================
+SVO_FILE_NAME="../svo-processing"
+SVO_INPUT="input/$svo_filename"
+SVO_OUTPUT="svo_output/"
+SVO_NUM_FRAMES=$svo_num_frames
+SVO_FOLDER_LOC="../svo-processing"
+
+srun --gres=gpu:1 \
+	python "$(pwd)/${SVO_FOLDER_LOC}/scripts/svo_to_pointcloud.py" \
+      	--svo_path=$SVO_FILE_NAME \
+		--num_frames=$SVO_NUM_FRAMES \
+		--output_dir="$SVO_OUTPUT"
 
 
 
@@ -25,8 +44,8 @@ SPARSE_RECONSTRUCTION_LOC="../sparse-reconstruction"
 SPARSE_DATA_LOC="${SPARSE_RECONSTRUCTION_LOC}/pixsfm_dataset/"
 srun --gres=gpu:1 \
 	python "$(pwd)/${SPARSE_RECONSTRUCTION_LOC}/scripts/sparse-reconstruction.py" \
-      	--svo_dir="$svo_path" \
-	--camera_params="$camera_params"
+      	--svo_dir="$svo_output" \
+		--camera_params="$camera_params"
 
 
 # ========= RIG BUNDLE ADJUSTMENT =====================
