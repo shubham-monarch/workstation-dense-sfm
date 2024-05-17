@@ -72,28 +72,14 @@ cd workstation-sfm-setup
 cd pipeline-dense-sfm
 ```
 
+- Put the `svo` file inside `pipeline-dense-sfm/input/` folder
 - Update `pipeline-dense-sfm/config/rig.json`
 - Update `pipeline-dense-sfm/config/config.json`
-  - `svo_path`: folder containing the target svo files
+  - `svo_filename`: name of the svo file inside `pipeline-dense-sfm/input` folder
+  - `svo_num_frames`: number of frames to extract from the svo file
   - `camera-params`: [fx,fy, cx, cy, k1, k2, k3, k4]
   - `dense_sfm_path`: folder containng the dense reconstruction output
-- [**Important**] Copy the input files (i.e. `svo` files) at the `svo_path` location 
 
-The folder at the `svo_path` folder should look like this => 
-
-
-```
-├── frame_0
-│   ├── images
-│   ├── pointcloud
-│   └── pose
-└── frame_1
-    ├── images
-    ├── pointcloud
-    └── pose
-```
-
-Note => The above diagram is meant to be the representation of a typical `svo` output folder. The dense-sfm pipeline doesn't need the `pointcloud` and the `pose` sub-folders. Only the `images` folder is required.
 
 
 Activate the python virtual environment and execute the main script => ss
