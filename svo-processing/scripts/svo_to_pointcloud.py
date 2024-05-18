@@ -150,8 +150,8 @@ def main(filepath, num_frames, dir_path):
             print("Writing images")
             zed.retrieve_image(image, sl.VIEW.LEFT)
             zed.retrieve_image(image_r, sl.VIEW.RIGHT)
-            image.write( os.path.join(output_dir, 'left_image.png') )
-            image_r.write( os.path.join(output_dir, 'right_image.png') )
+            image.write( os.path.join(output_dir, 'left_image.jpg') )
+            image_r.write( os.path.join(output_dir, 'right_image.jpg') )
 
             # retrive and write point cloud
             print("Writing point cloud of resolution")

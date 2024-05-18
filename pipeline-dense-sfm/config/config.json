@@ -1,6 +1,6 @@
 {
   "svo_filename": "front_2023-11-03-10-51-17.svo",
-  "svo_num_frames": 50,
+  "svo_num_frames": 25,
   "camera_params": [1093.2768, 1093.2768, 964.989,  569.276, 0, 0, 0, 0],
   "dense_sfm_path":"dense_sfm_output/"
 }

@@ -22,6 +22,8 @@ camera_params=$(python -c 'import json; config = json.load(open("config/config.j
 # Parsing pipeline params
 dense_sfm_path=$(python -c 'import json; config = json.load(open("config/config.json")); print(config.get("dense_sfm_path", ""))')
 
+: '
+
 
 # ========== SVO PROCESSING ====================
 SVO_FILE_NAME="../svo-processing"
@@ -35,7 +37,16 @@ echo "SVO_FILE_NAME: $SVO_FILE_NAME"
 echo "SVO_OUTPUT: $SVO_OUTPUT"
 
 
+
 rm -rf $SVO_OUTPUT
+
+python "$(pwd)/${SVO_FOLDER_LOC}/scripts/svo_to_pointcloud.py" \
+	--svo_path=$SVO_INPUT \
+	--num_frames=$SVO_NUM_FRAMES \
+	--output_dir="$SVO_OUTPUT"
+
+
+
 
 srun --gres=gpu:1 \
 	python "$(pwd)/${SVO_FOLDER_LOC}/scripts/svo_to_pointcloud.py" \
@@ -43,7 +54,7 @@ srun --gres=gpu:1 \
 	--num_frames=$SVO_NUM_FRAMES \
 	--output_dir="$SVO_OUTPUT"
 
-
+'
 
 # ========== SPARSE RECONSTRUCTION ====================
 
@@ -51,11 +62,19 @@ SPARSE_RECONSTRUCTION_LOC="../sparse-reconstruction"
 SPARSE_DATA_LOC="${SPARSE_RECONSTRUCTION_LOC}/pixsfm_dataset/"
 SPARSE_RECONSTRUCTION_INPUT="svo_output"
 
+: '
+python "$(pwd)/${SPARSE_RECONSTRUCTION_LOC}/scripts/sparse-reconstruction.py" \
+    --svo_dir=$SPARSE_RECONSTRUCTION_INPUT \
+	--camera_params="$camera_params"
+
+
+
 srun --gres=gpu:1 \
 	python "$(pwd)/${SPARSE_RECONSTRUCTION_LOC}/scripts/sparse-reconstruction.py" \
       	--svo_dir=$SPARSE_RECONSTRUCTION_INPUT \
 	--camera_params="$camera_params"
 
+'
 
 # ========= RIG BUNDLE ADJUSTMENT =====================
 
@@ -77,9 +96,9 @@ $COLMAP_EXE_PATH/colmap rig_bundle_adjuster \
 	--BundleAdjustment.refine_extra_params 0 \
 	--BundleAdjustment.refine_extrinsics 1 \
 	--BundleAdjustment.max_num_iterations 100 \
-	--estimate_rig_relative_poses False
+#	--estimate_rig_relative_poses False
 
-
+: '
 # ====== DENSE RECONSTRUCTION =======================
 
 DENSE_RECONSTRUCTION_LOC="../dense-reconstruction"
@@ -96,4 +115,6 @@ srun --gres=gpu:1 \
 
 #srun --gres=gpu:1 --pty bash rig-bundle-adjuster/rig_ba.sh
 #srun --gres=gpu:1 --pty python ../dense-reconstruction/scripts/dense-reconstruction.py
+
+
 '
