@@ -9,20 +9,17 @@
 
 #module load sdks/cuda-11.3
 
-source /WorkSpaces/SFM/e33/bin/activate
+#source /WorkSpaces/SFM/e33/bin/activate
 #source /home/skumar/e7/bin/activate
 
 # Parsing SVO params
 svo_filename=$(python -c 'import json; config = json.load(open("config/config.json")); print(config.get("svo_filename", ""))')
-svo_num_frames=$(python -c 'import json; config = json.load(open("config/config.json")); print(config.get("svo_num_frames", ""))')
-
-# Parsing camera params
-camera_params=$(python -c 'import json; config = json.load(open("config/config.json")); params = config.get("camera_params", []); print(",".join(str(x) for x in params))')
+svo_percentage=$(python -c 'import json; config = json.load(open("config/config.json")); print(config.get("svo_percentage", ""))')
 
 # Parsing pipeline params
 dense_sfm_path=$(python -c 'import json; config = json.load(open("config/config.json")); print(config.get("dense_sfm_path", ""))')
 
-: '
+
 
 
 # ========== SVO PROCESSING ====================
@@ -42,12 +39,12 @@ rm -rf $SVO_OUTPUT
 
 python "$(pwd)/${SVO_FOLDER_LOC}/scripts/svo_to_pointcloud.py" \
 	--svo_path=$SVO_INPUT \
-	--num_frames=$SVO_NUM_FRAMES \
+	--svo_percentage=$svo_percentage\
 	--output_dir="$SVO_OUTPUT"
 
 
 
-
+: '
 srun --gres=gpu:1 \
 	python "$(pwd)/${SVO_FOLDER_LOC}/scripts/svo_to_pointcloud.py" \
       	--svo_path=$SVO_INPUT \
@@ -61,21 +58,23 @@ srun --gres=gpu:1 \
 SPARSE_RECONSTRUCTION_LOC="../sparse-reconstruction"
 SPARSE_DATA_LOC="${SPARSE_RECONSTRUCTION_LOC}/pixsfm_dataset/"
 SPARSE_RECONSTRUCTION_INPUT="svo_output"
+ZED_PATH="input/$svo_filename"
 
-: '
+
 python "$(pwd)/${SPARSE_RECONSTRUCTION_LOC}/scripts/sparse-reconstruction.py" \
     --svo_dir=$SPARSE_RECONSTRUCTION_INPUT \
-	--camera_params="$camera_params"
+	--zed_path=$ZED_PATH
 
 
-
+: '
 srun --gres=gpu:1 \
 	python "$(pwd)/${SPARSE_RECONSTRUCTION_LOC}/scripts/sparse-reconstruction.py" \
-      	--svo_dir=$SPARSE_RECONSTRUCTION_INPUT \
+    --svo_dir=$SPARSE_RECONSTRUCTION_INPUT \
 	--camera_params="$camera_params"
 
 '
 
+: '
 # ========= RIG BUNDLE ADJUSTMENT =====================
 
 COLMAP_EXE_PATH=/usr/local/bin
@@ -97,6 +96,7 @@ $COLMAP_EXE_PATH/colmap rig_bundle_adjuster \
 	--BundleAdjustment.refine_extrinsics 1 \
 	--BundleAdjustment.max_num_iterations 100 \
 #	--estimate_rig_relative_poses False
+'
 
 : '
 # ====== DENSE RECONSTRUCTION =======================

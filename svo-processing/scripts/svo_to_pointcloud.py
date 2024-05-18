@@ -73,13 +73,13 @@ def get_pose(zed,zed_pose, zed_sensors):
     return pose_dict
 
 
-def main(filepath, num_frames, dir_path):
+def main(filepath, svo_percentage, dir_path):
 
     filepath = os.path.abspath(filepath)
     dir_path = os.path.abspath(dir_path)
 
     print(f"filepath: {filepath}")
-    print(f"num_frames: {num_frames}")
+    print(f"svo_percentage: {svo_percentage}")
     print("Reading SVO file: {0}".format(filepath))
 
     input_type = sl.InputType()
@@ -124,6 +124,11 @@ def main(filepath, num_frames, dir_path):
     # number of frames in the recording
     nb_frames = zed.get_svo_number_of_frames()
     #nb_frames = 5
+
+    num_frames = int(nb_frames * svo_percentage / 100)
+
+    print(f"********** mx_frames in svo : {nb_frames} ************")
+    print(f"********** num_frames: {num_frames} ******************")
 
     if num_frames > nb_frames:
         warnings.warn("num_frames > max frames in the svo file", category=Warning)
@@ -183,12 +188,12 @@ if __name__ == "__main__":
 
     parser = argparse.ArgumentParser(description='Script to process a SVO file')
     parser.add_argument('--svo_path', type=str, required = True, help='target svo file path')
-    parser.add_argument('--num_frames', type=int, required = True, help='number of frames to be extracted')
+    parser.add_argument('--svo_percentage', type=int, required = True, help='number of frames to be extracted')
     parser.add_argument('--output_dir', type=str, required = True, help='output directory path')
     args = parser.parse_args()  
     
     print(f"svo_path: {args.svo_path}")
-    print(f"num_frames: {args.num_frames}")
+    print(f"svo_precentage: {args.svo_percentage}")
     print(f"output_dir: {args.output_dir}")
     
-    main(Path(args.svo_path), args.num_frames, Path(args.output_dir))
+    main(Path(args.svo_path), args.svo_percentage, Path(args.output_dir))
