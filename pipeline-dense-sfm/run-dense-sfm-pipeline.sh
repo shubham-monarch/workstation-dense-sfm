@@ -7,9 +7,9 @@
 #SBATCH --job-name=sfm-test 
 
 
-#module load sdks/cuda-11.3
+module load sdks/cuda-11.3
 
-#source /WorkSpaces/SFM/e33/bin/activate
+source /WorkSpaces/SFM/e33/bin/activate
 #source /home/skumar/e7/bin/activate
 
 # Parsing SVO params
@@ -37,6 +37,7 @@ echo "SVO_OUTPUT: $SVO_OUTPUT"
 
 rm -rf $SVO_OUTPUT
 
+srun --gres=gpu:1 \
 python "$(pwd)/${SVO_FOLDER_LOC}/scripts/svo_to_pointcloud.py" \
 	--svo_path=$SVO_INPUT \
 	--svo_percentage=$svo_percentage\
@@ -44,14 +45,6 @@ python "$(pwd)/${SVO_FOLDER_LOC}/scripts/svo_to_pointcloud.py" \
 
 
 
-: '
-srun --gres=gpu:1 \
-	python "$(pwd)/${SVO_FOLDER_LOC}/scripts/svo_to_pointcloud.py" \
-      	--svo_path=$SVO_INPUT \
-	--num_frames=$SVO_NUM_FRAMES \
-	--output_dir="$SVO_OUTPUT"
-
-'
 
 # ========== SPARSE RECONSTRUCTION ====================
 
@@ -61,20 +54,13 @@ SPARSE_RECONSTRUCTION_INPUT="svo_output"
 ZED_PATH="input/$svo_filename"
 
 
+srun --gres=gpu:1 \
 python "$(pwd)/${SPARSE_RECONSTRUCTION_LOC}/scripts/sparse-reconstruction.py" \
     --svo_dir=$SPARSE_RECONSTRUCTION_INPUT \
 	--zed_path=$ZED_PATH
 
 
-: '
-srun --gres=gpu:1 \
-	python "$(pwd)/${SPARSE_RECONSTRUCTION_LOC}/scripts/sparse-reconstruction.py" \
-    --svo_dir=$SPARSE_RECONSTRUCTION_INPUT \
-	--camera_params="$camera_params"
 
-'
-
-: '
 # ========= RIG BUNDLE ADJUSTMENT =====================
 
 COLMAP_EXE_PATH=/usr/local/bin
@@ -96,9 +82,7 @@ $COLMAP_EXE_PATH/colmap rig_bundle_adjuster \
 	--BundleAdjustment.refine_extrinsics 1 \
 	--BundleAdjustment.max_num_iterations 100 \
 #	--estimate_rig_relative_poses False
-'
 
-: '
 # ====== DENSE RECONSTRUCTION =======================
 
 DENSE_RECONSTRUCTION_LOC="../dense-reconstruction"
@@ -110,11 +94,6 @@ srun --gres=gpu:1 \
 
 
 
-#bash ../rig-bundle-adjuster/rig_ba.sh
 
 
-#srun --gres=gpu:1 --pty bash rig-bundle-adjuster/rig_ba.sh
-#srun --gres=gpu:1 --pty python ../dense-reconstruction/scripts/dense-reconstruction.py
-
-
-'
+echo "****************************** DONE ************************"
