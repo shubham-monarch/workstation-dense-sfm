@@ -73,13 +73,13 @@ def get_pose(zed,zed_pose, zed_sensors):
     return pose_dict
 
 
-def main(filepath, svo_percentage, dir_path):
+def main(filepath, start, end, dir_path):
 
     filepath = os.path.abspath(filepath)
     dir_path = os.path.abspath(dir_path)
 
     print(f"filepath: {filepath}")
-    print(f"svo_percentage: {svo_percentage}")
+    print(f"start: {start}% end: {end}%")
     print("Reading SVO file: {0}".format(filepath))
 
     input_type = sl.InputType()
@@ -125,18 +125,27 @@ def main(filepath, svo_percentage, dir_path):
     nb_frames = zed.get_svo_number_of_frames()
     #nb_frames = 5
 
-    num_frames = int(nb_frames * svo_percentage / 100)
+    num_frames = int(nb_frames * (end-start) / 100)
 
     print(f"********** mx_frames in svo : {nb_frames} ************")
     print(f"********** num_frames: {num_frames} ******************")
 
-    if num_frames > nb_frames:
-        warnings.warn("num_frames > max frames in the svo file", category=Warning)
-        num_frames = nb_frames
+    #if num_frames > nb_frames:
+    #    warnings.warn("num_frames > max frames in the svo file", category=Warning)
+    #    num_frames = nb_frames
+
+    if  end > 100:
+        print("end percent >= 100% ==> returning!")
+        return
+    
+    if start < 0:
+        print("start percent < 0% ==> returning!")
+        return
+    
 
     # main loop
     while True: # change to True
-        print("Doing {}".format(i))
+        #print("Doing {}".format(i))
         # path for images
         output_dir = os.path.join(dir_path, "frame_{}/images".format(i) )
         pc_dir = os.path.join(dir_path, "frame_{}/pointcloud".format(i) )
@@ -150,6 +159,14 @@ def main(filepath, svo_percentage, dir_path):
         if zed.grab(runtime_parameters) == sl.ERROR_CODE.SUCCESS:
 
             svo_position = zed.get_svo_position()
+
+            if svo_position < (nb_frames * start / 100):
+                #print(f"Skipping frame {i}")
+                i = i + 1
+                continue        
+
+            if svo_position >= (nb_frames * end / 100):
+                break
 
             # A new image is available if grab() returns SUCCESS
             print("Writing images")
@@ -175,9 +192,9 @@ def main(filepath, svo_percentage, dir_path):
                 json.dump(settings_dict, outfile)
             
             # Check if we have reached the end of the video
-            if svo_position >= (num_frames - 1):  # End of SVO
-                sys.stdout.write("\nSVO end has been reached. Exiting now.\n")
-                break
+            #if svo_position >= (num_frames - 1):  # End of SVO
+            #    sys.stdout.write("\nSVO end has been reached. Exiting now.\n")
+            #    break
 
         i = i + 1
 
@@ -188,12 +205,14 @@ if __name__ == "__main__":
 
     parser = argparse.ArgumentParser(description='Script to process a SVO file')
     parser.add_argument('--svo_path', type=str, required = True, help='target svo file path')
-    parser.add_argument('--svo_percentage', type=int, required = True, help='number of frames to be extracted')
+    parser.add_argument('--start_percentage', type=int, required = True, help='number of frames to be extracted')
+    parser.add_argument('--end_percentage', type=int, required = True, help='number of frames to be extracted')
     parser.add_argument('--output_dir', type=str, required = True, help='output directory path')
     args = parser.parse_args()  
     
     print(f"svo_path: {args.svo_path}")
-    print(f"svo_precentage: {args.svo_percentage}")
+    print(f"start: {args.start_percentage}")
+    print(f"end: {args.end_percentage}")
     print(f"output_dir: {args.output_dir}")
     
-    main(Path(args.svo_path), args.svo_percentage, Path(args.output_dir))
+    main(Path(args.svo_path), args.start_percentage, args.end_percentage , Path(args.output_dir))

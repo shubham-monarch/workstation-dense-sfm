@@ -7,18 +7,18 @@
 #SBATCH --job-name=sfm-test 
 
 
-module load sdks/cuda-11.3
+#module load sdks/cuda-11.3
 
-source /WorkSpaces/SFM/e33/bin/activate
-#source /home/skumar/e7/bin/activate
+#source /WorkSpaces/SFM/e33/bin/activate
+source /home/skumar/e6/bin/activate
 
 # Parsing SVO params
 svo_filename=$(python -c 'import json; config = json.load(open("config/config.json")); print(config.get("svo_filename", ""))')
-svo_percentage=$(python -c 'import json; config = json.load(open("config/config.json")); print(config.get("svo_percentage", ""))')
+svo_start_percentage=$(python -c 'import json; config = json.load(open("config/config.json")); print(config.get("svo_start_percentage", ""))')
+svo_end_percentage=$(python -c 'import json; config = json.load(open("config/config.json")); print(config.get("svo_end_percentage", ""))')
 
 # Parsing pipeline params
 dense_sfm_path=$(python -c 'import json; config = json.load(open("config/config.json")); print(config.get("dense_sfm_path", ""))')
-
 
 
 
@@ -26,24 +26,24 @@ dense_sfm_path=$(python -c 'import json; config = json.load(open("config/config.
 SVO_FILE_NAME="../svo-processing"
 SVO_INPUT="input/$svo_filename"
 SVO_OUTPUT="svo_output/"
-SVO_NUM_FRAMES=$svo_num_frames
+SVO_START=$svo_start_percentage
+SVO_END=$svo_end_percentage
 SVO_FOLDER_LOC="../svo-processing"
 
-echo "SVO_NUM_FRAMES: $SVO_NUM_FRAMES"
+echo "SVO_START: $SVO_START"
+echo "SVO_END: $SVO_END"
 echo "SVO_FILE_NAME: $SVO_FILE_NAME"
 echo "SVO_OUTPUT: $SVO_OUTPUT"
 
 
-
 rm -rf $SVO_OUTPUT
 
-srun --gres=gpu:1 \
+#srun --gres=gpu:1 \
 python "$(pwd)/${SVO_FOLDER_LOC}/scripts/svo_to_pointcloud.py" \
 	--svo_path=$SVO_INPUT \
-	--svo_percentage=$svo_percentage\
+	--start_percentage=$SVO_START\
+	--end_percentage=$SVO_END\
 	--output_dir="$SVO_OUTPUT"
-
-
 
 
 # ========== SPARSE RECONSTRUCTION ====================
@@ -53,19 +53,21 @@ SPARSE_DATA_LOC="${SPARSE_RECONSTRUCTION_LOC}/pixsfm_dataset/"
 SPARSE_RECONSTRUCTION_INPUT="svo_output"
 ZED_PATH="input/$svo_filename"
 
-
-srun --gres=gpu:1 \
+#srun --gres=gpu:1 \
 python "$(pwd)/${SPARSE_RECONSTRUCTION_LOC}/scripts/sparse-reconstruction.py" \
     --svo_dir=$SPARSE_RECONSTRUCTION_INPUT \
 	--zed_path=$ZED_PATH
-
 
 
 # ========= RIG BUNDLE ADJUSTMENT =====================
 
 COLMAP_EXE_PATH=/usr/local/bin
 RIG_BUNDLE_ADJUSTER_LOC="../rig-bundle-adjuster"
-RIG_INPUT_PATH="${SPARSE_RECONSTRUCTION_LOC}/output/ref_locked"
+RIG_INPUT_PATH="${SPARSE_RECONSTRUCTION_LOC}/output/ref_locked/"
+#RIG_INPUT_PATH=$(realpath "$RIG_INPUT_PATH")
+
+echo "RIG_INPUT_PATH: $RIG_INPUT_PATH"
+
 RIG_OUTPUT_PATH="${RIG_BUNDLE_ADJUSTER_LOC}/output/"
 RIG_CONFIG_PATH="config/rig.json"
 
@@ -81,17 +83,17 @@ $COLMAP_EXE_PATH/colmap rig_bundle_adjuster \
 	--BundleAdjustment.refine_extra_params 0 \
 	--BundleAdjustment.refine_extrinsics 1 \
 	--BundleAdjustment.max_num_iterations 100 \
-#	--estimate_rig_relative_poses False
+	--estimate_rig_relative_poses False
 
 # ====== DENSE RECONSTRUCTION =======================
 
+
 DENSE_RECONSTRUCTION_LOC="../dense-reconstruction"
-srun --gres=gpu:1 \
+#srun --gres=gpu:1 \
 	python "$(pwd)/${DENSE_RECONSTRUCTION_LOC}/scripts/dense-reconstruction.py" \
     	--mvs_path="$dense_sfm_path" \
     	--output_path="$RIG_OUTPUT_PATH" \
 	--image_dir="$SPARSE_DATA_LOC" \
-
 
 
 
