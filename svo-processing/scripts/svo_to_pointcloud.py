@@ -145,15 +145,6 @@ def main(filepath, start, end, dir_path):
 
     # main loop
     while True: # change to True
-        #print("Doing {}".format(i))
-        # path for images
-        output_dir = os.path.join(dir_path, "frame_{}/images".format(i) )
-        pc_dir = os.path.join(dir_path, "frame_{}/pointcloud".format(i) )
-        pose_dir = os.path.join(dir_path, "frame_{}/pose".format(i) )
-        os.makedirs( output_dir, exist_ok=True )
-        os.makedirs( pc_dir, exist_ok=True )
-        os.makedirs( pose_dir, exist_ok=True )
-
 
         # Grab an image, a RuntimeParameters object must be given to grab()
         if zed.grab(runtime_parameters) == sl.ERROR_CODE.SUCCESS:
@@ -167,6 +158,14 @@ def main(filepath, start, end, dir_path):
 
             if svo_position >= (nb_frames * end / 100):
                 break
+            
+            output_dir = os.path.join(dir_path, "frame_{}/images".format(i) )
+            pc_dir = os.path.join(dir_path, "frame_{}/pointcloud".format(i) )
+            pose_dir = os.path.join(dir_path, "frame_{}/pose".format(i) )
+            os.makedirs( output_dir, exist_ok=True )
+            os.makedirs( pc_dir, exist_ok=True )
+            os.makedirs( pose_dir, exist_ok=True )
+
 
             # A new image is available if grab() returns SUCCESS
             print("Writing images")
