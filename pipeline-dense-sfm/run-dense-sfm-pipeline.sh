@@ -10,7 +10,7 @@
 #module load sdks/cuda-11.3
 
 #source /WorkSpaces/SFM/e33/bin/activate
-source /home/skumar/e6/bin/activate
+#source /home/skumar/e6/bin/activate
 
 # Parsing SVO params
 svo_filename=$(python -c 'import json; config = json.load(open("config/config.json")); print(config.get("svo_filename", ""))')
@@ -53,10 +53,12 @@ SPARSE_DATA_LOC="${SPARSE_RECONSTRUCTION_LOC}/pixsfm_dataset/"
 SPARSE_RECONSTRUCTION_INPUT="svo_output"
 ZED_PATH="input/$svo_filename"
 
+
 #srun --gres=gpu:1 \
 python "$(pwd)/${SPARSE_RECONSTRUCTION_LOC}/scripts/sparse-reconstruction.py" \
     --svo_dir=$SPARSE_RECONSTRUCTION_INPUT \
 	--zed_path=$ZED_PATH
+
 
 
 # ========= RIG BUNDLE ADJUSTMENT =====================
@@ -82,20 +84,20 @@ $COLMAP_EXE_PATH/colmap rig_bundle_adjuster \
 	--BundleAdjustment.refine_principal_point 0 \
 	--BundleAdjustment.refine_extra_params 0 \
 	--BundleAdjustment.refine_extrinsics 1 \
-	--BundleAdjustment.max_num_iterations 100 \
+	--BundleAdjustment.max_num_iterations 500 \
 	--estimate_rig_relative_poses False
+
+
 
 # ====== DENSE RECONSTRUCTION =======================
 
-
+rm -rf $dense_sfm_path
 DENSE_RECONSTRUCTION_LOC="../dense-reconstruction"
 #srun --gres=gpu:1 \
 	python "$(pwd)/${DENSE_RECONSTRUCTION_LOC}/scripts/dense-reconstruction.py" \
     	--mvs_path="$dense_sfm_path" \
     	--output_path="$RIG_OUTPUT_PATH" \
 	--image_dir="$SPARSE_DATA_LOC" \
-
-
 
 
 echo "****************************** DONE ************************"

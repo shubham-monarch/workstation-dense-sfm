@@ -159,6 +159,7 @@ def main(filepath, start, end, dir_path):
             if svo_position >= (nb_frames * end / 100):
                 break
             
+            print(f"processing {i}th frame out of {num_frames}")
             output_dir = os.path.join(dir_path, "frame_{}/images".format(i) )
             pc_dir = os.path.join(dir_path, "frame_{}/pointcloud".format(i) )
             pose_dir = os.path.join(dir_path, "frame_{}/pose".format(i) )
@@ -174,7 +175,10 @@ def main(filepath, start, end, dir_path):
             image.write( os.path.join(output_dir, 'left_image.jpg') )
             image_r.write( os.path.join(output_dir, 'right_image.jpg') )
 
+            
+            
             # retrive and write point cloud
+            '''
             print("Writing point cloud of resolution")
             zed.retrieve_measure(pointcloud, sl.MEASURE.XYZRGBA, sl.MEM.CPU)
             pointcloud.write( os.path.join(pc_dir, 'pointcloud.ply') )
@@ -189,7 +193,8 @@ def main(filepath, start, end, dir_path):
             settings_filepath = os.path.join(pose_dir, 'settings.json')
             with open(settings_filepath, 'w') as outfile:
                 json.dump(settings_dict, outfile)
-            
+            '''
+
             # Check if we have reached the end of the video
             #if svo_position >= (num_frames - 1):  # End of SVO
             #    sys.stdout.write("\nSVO end has been reached. Exiting now.\n")
