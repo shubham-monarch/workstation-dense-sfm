@@ -9,54 +9,20 @@ import sys
 import argparse
 import warnings
 from pathlib import Path
-
-
-def parse_camera_parameters(zed):
-    calibration_params = zed.get_camera_information().camera_configuration.calibration_parameters
-    
-    settings_dict = {
-    'left_fx' : calibration_params.left_cam.fx,
-    'left_fy' : calibration_params.left_cam.fy,
-    'left_cx' : calibration_params.left_cam.cx, 
-    'left_cy' : calibration_params.left_cam.cy,
-    'left_disto' : calibration_params.left_cam.disto.tolist(), # numpy array Distortion factor : [ k1, k2, p1, p2, k3 ]. Radial (k1,k2,k3) and Tangential (p1,p2) distortion.
-
-    'right_fx' : calibration_params.right_cam.fx,
-    'right_fy' : calibration_params.right_cam.fy,
-    'right_cx' : calibration_params.right_cam.cx,
-    'right_cy' : calibration_params.right_cam.cy,
-    'right_disto' : calibration_params.right_cam.disto.tolist(),
-
-    #'translation':calibration_params.T.tolist(),
-    #'rotation':calibration_params.R.tolist(),
-    
-    'stereo_transform' : calibration_params.stereo_transform.m.tolist(),
-    'resolution_width':zed.get_camera_information().camera_configuration.resolution.width,
-    'resolution_height':zed.get_camera_information().camera_configuration.resolution.height,
-    'fps' : zed.get_camera_information().camera_configuration.fps,    
-    'num_frames':zed.get_svo_number_of_frames(),
-    'timestamp':zed.get_timestamp(sl.TIME_REFERENCE.CURRENT).get_milliseconds(),
-    'depth_confidence_threshold':zed.get_runtime_parameters().confidence_threshold,
-    'depth_min_range':zed.get_init_parameters().depth_minimum_distance,
-    'depth_max_range':zed.get_init_parameters().depth_maximum_distance,
-    'sdk_version':zed.get_sdk_version()
-
-    }
-    return settings_dict
-
-
+import coloredlogs, logging
+from tqdm import tqdm
 
 def main(filepath, start, end, dir_path):
 
     filepath = os.path.abspath(filepath)
     dir_path = os.path.abspath(dir_path)
 
-    print(f"filepath: {filepath}")
-    print(f"start: {start}% end: {end}%")
-    print("Reading SVO file: {0}".format(filepath))
+    logging.debug(f"filepath: {filepath}")
+    logging.debug(f"start: {start}% end: {end}%")
 
     input_type = sl.InputType()
     input_type.set_from_svo_file(filepath)
+
     init = sl.InitParameters(input_t=input_type, svo_real_time_mode=False)
     init.coordinate_units = sl.UNIT.METER   
 
@@ -68,128 +34,43 @@ def main(filepath, start, end, dir_path):
 
     runtime_parameters = sl.RuntimeParameters()
 
-    # initialize images and point cloud
-    i = 0
     image = sl.Mat()
     image_r = sl.Mat()
-    pointcloud = sl.Mat()
-
-
-    # Enable positional tracking with default parameters
-    py_transform = sl.Transform()  # First create a Transform object for TrackingParameters object
-    tracking_parameters = sl.PositionalTrackingParameters(_init_pos=py_transform)
-    err = zed.enable_positional_tracking(tracking_parameters)
-    if err != sl.ERROR_CODE.SUCCESS:
-        print(repr(status))
-        exit(1)
-
-    zed_pose = sl.Pose()
-    zed_sensors = sl.SensorsData()
-
-
-    # set up output directory and delete old output
-    print("clear old output")
+    
+    logging.debug(f"Trying to delete the {dir_path} directory")
     try:
         shutil.rmtree(dir_path)
+        logging.debug("Cleared the {dir_path} directory!")
     except OSError as e:
-        print("Error: %s : %s" % (dir_path, e.strerror))
+        logging.error("Error: %s : %s" % (dir_path, e.strerror))
 
-    # number of frames in the recording
-    nb_frames = zed.get_svo_number_of_frames()
-    #nb_frames = 5
-
-    num_frames = int(nb_frames * (end-start) / 100)
-
-    print(f"********** mx_frames in svo : {nb_frames} ************")
-    print(f"********** num_frames: {num_frames} ******************")
-
-    #if num_frames > nb_frames:
-    #    warnings.warn("num_frames > max frames in the svo file", category=Warning)
-    #    num_frames = nb_frames
-
-    if  end > 100:
-        print("end percent >= 100% ==> returning!")
-        return
-    
-    if start < 0:
-        print("start percent < 0% ==> returning!")
-        return
-    
-
-    # main loop
-    while True: # change to True
-
-        # Grab an image, a RuntimeParameters object must be given to grab()
+    for frame_idx in tqdm(range(start, end)):
         if zed.grab(runtime_parameters) == sl.ERROR_CODE.SUCCESS:
-
-            svo_position = zed.get_svo_position()
-
-            if svo_position < (nb_frames * start / 100):
-                #print(f"Skipping frame {i}")
-                i = i + 1
-                continue        
-
-            if svo_position >= (nb_frames * end / 100):
-                break
-            
-            #print(f"processing {i}th frame out of {num_frames}")
-            output_dir = os.path.join(dir_path, "frame_{}/images".format(i) )
-            pc_dir = os.path.join(dir_path, "frame_{}/pointcloud".format(i) )
-            pose_dir = os.path.join(dir_path, "frame_{}/pose".format(i) )
+            zed.set_svo_position(frame_idx)
+            # create the outputm directory
+            output_dir = os.path.join(dir_path, "frame_{}/images".format(i) )    
             os.makedirs( output_dir, exist_ok=True )
-            os.makedirs( pc_dir, exist_ok=True )
-            os.makedirs( pose_dir, exist_ok=True )
-
-
-            # A new image is available if grab() returns SUCCESS
-            #print("Writing images")
+            # reading and writing the images to the output directory
             zed.retrieve_image(image, sl.VIEW.LEFT)
             zed.retrieve_image(image_r, sl.VIEW.RIGHT)
             image.write( os.path.join(output_dir, 'left_image.jpg') )
             image_r.write( os.path.join(output_dir, 'right_image.jpg') )
-
-            
-            
-            # retrive and write point cloud
-            '''
-            print("Writing point cloud of resolution")
-            zed.retrieve_measure(pointcloud, sl.MEASURE.XYZRGBA, sl.MEM.CPU)
-            pointcloud.write( os.path.join(pc_dir, 'pointcloud.ply') )
-
-            # retrieve and write pose
-            pose_dict = get_pose(zed, zed_pose, zed_sensors)
-            pose_filepath = os.path.join(pose_dir, 'pose.json')
-            with open(pose_filepath, 'w') as outfile:
-                json.dump(pose_dict, outfile)
-
-            settings_dict = parse_camera_parameters(zed)
-            settings_filepath = os.path.join(pose_dir, 'settings.json')
-            with open(settings_filepath, 'w') as outfile:
-                json.dump(settings_dict, outfile)
-            '''
-
-            # Check if we have reached the end of the video
-            #if svo_position >= (num_frames - 1):  # End of SVO
-            #    sys.stdout.write("\nSVO end has been reached. Exiting now.\n")
-            #    break
-
-        i = i + 1
-
-    # Close the camera
     zed.close()
 
 if __name__ == "__main__":
 
+    coloredlogs.install(level="DEBUG", force=True)  # install a handler on the root logger
+
     parser = argparse.ArgumentParser(description='Script to process a SVO file')
     parser.add_argument('--svo_path', type=str, required = True, help='target svo file path')
-    parser.add_argument('--start_percentage', type=int, required = True, help='number of frames to be extracted')
-    parser.add_argument('--end_percentage', type=int, required = True, help='number of frames to be extracted')
+    parser.add_argument('--start_frame', type=int, required = True, help='number of frames to be extracted')
+    parser.add_argument('--end_frame', type=int, required = True, help='number of frames to be extracted')
     parser.add_argument('--output_dir', type=str, required = True, help='output directory path')
     args = parser.parse_args()  
     
-    print(f"svo_path: {args.svo_path}")
-    print(f"start: {args.start_percentage}")
-    print(f"end: {args.end_percentage}")
-    print(f"output_dir: {args.output_dir}")
-    
+    logging.debug(f"svo_path: {args.svo_path}")
+    logging.debug(f"start_frame: {args.start_frame}")
+    logging.debug(f"end_frame: {args.end_frame}")
+    logging.debug(f"output_dir: {args.output_dir}")
+
     main(Path(args.svo_path), args.start_percentage, args.end_percentage , Path(args.output_dir))
