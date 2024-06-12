@@ -89,6 +89,11 @@ $COLMAP_EXE_PATH/colmap rig_bundle_adjuster \
 
 
 
+if [ $? -ne 0 ]; then
+    echo "Bundle adjustment did not converge. Exiting."
+    exit 1
+fi
+
 # ====== DENSE RECONSTRUCTION =======================
 
 rm -rf $dense_sfm_path
