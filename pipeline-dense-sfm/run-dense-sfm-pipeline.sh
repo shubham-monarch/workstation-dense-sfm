@@ -7,10 +7,10 @@
 #SBATCH --job-name=sfm-test 
 
 
-#module load sdks/cuda-11.3
+module load sdks/cuda-11.3
 
-#source /WorkSpaces/SFM/e33/bin/activate
-source /home/skumar/e6/bin/activate
+source /WorkSpaces/SFM/e33/bin/activate
+#source /home/skumar/e6/bin/activate
 
 # Parsing SVO params
 svo_filename=$(python -c 'import json; config = json.load(open("config/config.json")); print(config.get("svo_filename", ""))')
@@ -41,10 +41,9 @@ rm -rf $SVO_OUTPUT
 #srun --gres=gpu:1 \
 python "$(pwd)/${SVO_FOLDER_LOC}/scripts/svo_to_pointcloud.py" \
 	--svo_path=$SVO_INPUT \
-	--start_percentage=$SVO_START\
-	--end_percentage=$SVO_END\
+	--start_frame=$SVO_START\
+	--end_frame=$SVO_END\
 	--output_dir="$SVO_OUTPUT"
-
 
 # ========== SPARSE RECONSTRUCTION ====================
 
@@ -86,6 +85,20 @@ $COLMAP_EXE_PATH/colmap rig_bundle_adjuster \
 	--BundleAdjustment.refine_extrinsics 1 \
 	--BundleAdjustment.max_num_iterations 500 \
 	--estimate_rig_relative_poses False
+
+exit_status=$?
+
+RED='\033[0;31m'
+GREEN='\033[0;32m'
+NC='\033[0m' # No Color
+
+
+if [ $exit_status -ne 0 ]; then
+    echo -e "${RED}Bundle adjustment did not converge. Exiting.${NC}"
+    exit 1
+else
+    echo -e "${GREEN}Bundle adjustment converged.${NC}"
+fi
 
 
 # ====== DENSE RECONSTRUCTION =======================
