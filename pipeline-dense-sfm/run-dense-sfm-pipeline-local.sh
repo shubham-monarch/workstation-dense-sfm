@@ -86,6 +86,19 @@ $COLMAP_EXE_PATH/colmap rig_bundle_adjuster \
 	--BundleAdjustment.max_num_iterations 500 \
 	--estimate_rig_relative_poses False
 
+exit_status=$?
+
+RED='\033[0;31m'
+GREEN='\033[0;32m'
+NC='\033[0m' # No Color
+
+
+if [ $exit_status -ne 0 ]; then
+    echo -e "${RED}Bundle adjustment did not converge. Exiting.${NC}"
+    exit 1
+else
+    echo -e "${GREEN}Bundle adjustment converged.${NC}"
+fi
 
 
 # ====== DENSE RECONSTRUCTION =======================
