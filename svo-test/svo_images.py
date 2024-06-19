@@ -69,14 +69,15 @@ if __name__ == '__main__':
 	coloredlogs.install(level="DEBUG", force=True)  # install a handler on the root logger
 	
 	svo_files = []
-	svo_folder = "blueberry-frogmore-1A/"
-	logging.info("Inside the main function")
+	svo_folder = "escalon"
+	num_svo_files_to_process = 10
+
 	# Recursively iterate over all the files in the directory and its subdirectories
 	for root, dirs, files in os.walk(svo_folder):
 		for filename in files:
 			svo_files.append(os.path.join(root, filename))
 
-	random.shuffle(svo_files)		
+	random.shuffle(svo_files)			
 
 	for file in svo_files:	
 		try:

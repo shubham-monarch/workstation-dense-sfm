@@ -41,10 +41,9 @@ rm -rf $SVO_OUTPUT
 #srun --gres=gpu:1 \
 python "$(pwd)/${SVO_FOLDER_LOC}/scripts/svo_to_pointcloud.py" \
 	--svo_path=$SVO_INPUT \
-	--start_percentage=$SVO_START\
-	--end_percentage=$SVO_END\
+	--start_frame=$SVO_START\
+	--end_frame=$SVO_END\
 	--output_dir="$SVO_OUTPUT"
-
 
 # ========== SPARSE RECONSTRUCTION ====================
 

@@ -1,6 +1,5 @@
 #!/usr/bin/env python3
 
-
 import pyzed.sl as sl
 import os
 import shutil
@@ -14,20 +13,24 @@ from tqdm import tqdm
 
 def main(filepath, start, end, dir_path):
 
+    # logging.debug("Inside the main function!")
+
     filepath = os.path.abspath(filepath)
     dir_path = os.path.abspath(dir_path)
 
-    logging.debug(f"filepath: {filepath}")
-    logging.debug(f"start: {start}% end: {end}%")
+    logging.debug(f"svo: {filepath}")
+    logging.debug(f"start_idx: {start} end_idx: {end}")
 
     input_type = sl.InputType()
     input_type.set_from_svo_file(filepath)
+
 
     init = sl.InitParameters(input_t=input_type, svo_real_time_mode=False)
     init.coordinate_units = sl.UNIT.METER   
 
     zed = sl.Camera()
     status = zed.open(init)
+    logging.debug(f"Total frames: {zed.get_svo_number_of_frames()}")
     if status != sl.ERROR_CODE.SUCCESS:
         print(repr(status))
         exit()
@@ -47,8 +50,9 @@ def main(filepath, start, end, dir_path):
     for frame_idx in tqdm(range(start, end)):
         if zed.grab(runtime_parameters) == sl.ERROR_CODE.SUCCESS:
             zed.set_svo_position(frame_idx)
+            # logging.debug(f"Processing {frame_idx}th frame!")
             # create the outputm directory
-            output_dir = os.path.join(dir_path, "frame_{}/images".format(i) )    
+            output_dir = os.path.join(dir_path, "frame_{}/images".format(frame_idx) )    
             os.makedirs( output_dir, exist_ok=True )
             # reading and writing the images to the output directory
             zed.retrieve_image(image, sl.VIEW.LEFT)
@@ -73,4 +77,4 @@ if __name__ == "__main__":
     logging.debug(f"end_frame: {args.end_frame}")
     logging.debug(f"output_dir: {args.output_dir}")
 
-    main(Path(args.svo_path), args.start_percentage, args.end_percentage , Path(args.output_dir))
+    main(Path(args.svo_path), args.start_frame, args.end_frame , Path(args.output_dir))
