@@ -29,10 +29,12 @@ All config files can be found at `pipeline-dense-sfm/config` folder.
 1. `config.json` file
 ```
 {
-  "svo_path": "svo_output/",     # t  
-  "camera_params": [1093.2768, 1093.2768, 964.989,  569.276, 0, 0, 0, 0],   # [fx, fy, cx, cy, k1, k2, k3,k4]    
-  "dense_sfm_path":"dense_sfm_output/"   # dense sfm output path 
+  "svo_filename": "front_2024-02-13-07-52-14.svo",
+  "svo_start_percentage": 193,
+  "svo_end_percentage": 338,
+  "dense_sfm_path":"front_2024-02-13-07-52-14"
 }
+
 
 > All the paths mentioned in `config.json` would be relative to the `pipeline-dense-sfm` folder
 
