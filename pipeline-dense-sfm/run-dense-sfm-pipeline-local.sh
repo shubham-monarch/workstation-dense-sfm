@@ -21,7 +21,6 @@ svo_last_frame_idx=$(python -c 'import json; config = json.load(open("config/con
 dense_sfm_path=$(python -c 'import json; config = json.load(open("config/config.json")); print(config.get("dense_sfm_path", ""))')
 
 
-
 # ========== SVO PROCESSING ====================
 SVO_FILE_NAME="../svo-processing"
 SVO_INPUT="input/$svo_filename"
