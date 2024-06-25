@@ -9,5 +9,10 @@
 test/*
 *.out
 *.fuse*
-*.svo
+*.svo*
 *.txt
+*.zip
+
+# custom 
+**/o1/*
+

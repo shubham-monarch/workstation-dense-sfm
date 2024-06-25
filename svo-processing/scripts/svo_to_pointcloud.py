@@ -45,11 +45,13 @@ def main(filepath, start, end, dir_path):
         shutil.rmtree(dir_path)
         logging.debug("Cleared the {dir_path} directory!")
     except OSError as e:
-        logging.error("Error: %s : %s" % (dir_path, e.strerror))
+        logging.warning("Warning: %s : %s" % (dir_path, e.strerror))
 
     for frame_idx in tqdm(range(start, end)):
         if zed.grab(runtime_parameters) == sl.ERROR_CODE.SUCCESS:
             zed.set_svo_position(frame_idx)
+            if frame_idx == start:
+                continue
             # logging.debug(f"Processing {frame_idx}th frame!")
             # create the outputm directory
             output_dir = os.path.join(dir_path, "frame_{}/images".format(frame_idx) )    
