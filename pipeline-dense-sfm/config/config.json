@@ -1,7 +1,7 @@
 {
   "svo_filename": "front_2024-02-13-07-52-14.svo",
-  "svo_start_percentage": 193,
-  "svo_end_percentage": 338,
+  "svo_first_frame_idx": 193,
+  "svo_last_frame_idx": 338,
   "dense_sfm_path":"front_2024-02-13-07-52-14"
 }
 
