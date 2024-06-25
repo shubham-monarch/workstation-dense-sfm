@@ -76,10 +76,9 @@ cd pipeline-dense-sfm
 - Update `pipeline-dense-sfm/config/rig.json`
 - Update `pipeline-dense-sfm/config/config.json`
   - `svo_filename`: name of the svo file inside `pipeline-dense-sfm/input` folder
-  - `svo_num_frames`: number of frames to extract from the svo file
-  - `camera-params`: [fx,fy, cx, cy, k1, k2, k3, k4]
+  - `svo_start_percentage`: svo % start point
+  - `svo_end_percentage`: svo % end point
   - `dense_sfm_path`: folder containng the dense reconstruction output
-
 
 
 Activate the python virtual environment and execute the main script => ss
