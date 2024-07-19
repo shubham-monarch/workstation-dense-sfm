@@ -11,12 +11,12 @@ from pathlib import Path
 import coloredlogs, logging
 from tqdm import tqdm
 
-def main(filepath, start, end, dir_path):
+def main(filepath, start, end, dir_path_, svo_step = 1):
 
     # logging.debug("Inside the main function!")
 
     filepath = os.path.abspath(filepath)
-    dir_path = os.path.abspath(dir_path)
+    dir_path = os.path.abspath(dir_path_)
 
     logging.debug(f"svo: {filepath}")
     logging.debug(f"start_idx: {start} end_idx: {end}")
@@ -47,7 +47,7 @@ def main(filepath, start, end, dir_path):
     except OSError as e:
         logging.warning("Warning: %s : %s" % (dir_path, e.strerror))
 
-    for frame_idx in tqdm(range(start, end)):
+    for frame_idx in tqdm(range(start, end, svo_step)):
         if zed.grab(runtime_parameters) == sl.ERROR_CODE.SUCCESS:
             zed.set_svo_position(frame_idx)
             if frame_idx == start:
@@ -79,4 +79,4 @@ if __name__ == "__main__":
     logging.debug(f"end_frame: {args.end_frame}")
     logging.debug(f"output_dir: {args.output_dir}")
 
-    main(Path(args.svo_path), args.start_frame, args.end_frame , Path(args.output_dir))
+    main(Path(args.svo_path), args.start_frame, args.end_frame , Path(args.output_dir), svo_step =2)

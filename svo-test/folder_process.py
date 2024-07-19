@@ -19,8 +19,8 @@ import random
 
 
 
-def run_zed_pipeline(svo_file): 	
-
+def run_zed_pipeline(svo_file, svo_step_cnt=2): 	
+	logging.warning(f"Processing {svo_file}")
 	# FOLDER CREATION / DELETION FOR SVO FILE
 	# svo_filename = os.path.basename(svo_file)
 	ZED_BASE_FOLDER = "svo_images"
@@ -54,15 +54,15 @@ def run_zed_pipeline(svo_file):
 	runtime_parameters.enable_fill_mode	= True
 	
 	total_svo_frames = zed.get_svo_number_of_frames()
-	for i in tqdm(range(0, total_svo_frames - 1)):
+	for i in tqdm(range(0, total_svo_frames - 1, svo_step_cnt)):
 		if zed.grab(runtime_parameters) == sl.ERROR_CODE.SUCCESS:
 			
 			# logging.debug(f"Processing {i}th frame!s")
 			zed.set_svo_position(i)	
 			zed.retrieve_image(image_l, sl.VIEW.LEFT) # Retrieve left image
 			image_l.write( os.path.join(ZED_IMAGES_DIR , f'left_{i}.png') )
-			if i > 400:
-				break
+			# if i > 400:
+			# 	break
 	zed.close()
 
 
@@ -71,8 +71,8 @@ if __name__ == '__main__':
 	coloredlogs.install(level="DEBUG", force=True)  # install a handler on the root logger
 	
 	svo_files = []
-	svo_folder = "escalon"
-	num_svo_files_to_process = 60
+	svo_folder = "miscellaneous"
+	# num_svo_files_to_process = 60
 
 	# Recursively iterate over all the files in the directory and its subdirectories
 	for root, dirs, files in os.walk(svo_folder):
@@ -83,10 +83,10 @@ if __name__ == '__main__':
 
 	for counter,file in enumerate(svo_files):	
 		try:
-			run_zed_pipeline(file)
+			run_zed_pipeline(file, svo_step_cnt=2)
 		except Exception as e:
 			logging.error(f"Error in processing {file} : {e}")
 			continue
-		if counter > num_svo_files_to_process:
-			break
+		# if counter > num_svo_files_to_process:
+		# 	break
 

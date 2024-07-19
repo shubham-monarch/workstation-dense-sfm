@@ -13,6 +13,14 @@ test/*
 *.txt
 *.zip
 
-# custom 
-**/o1/*
+# custom folders
+**/o1/** 
+stereo-fusion/*
 
+
+
+*.bin
+*.ply
+*.png
+*.jpg
+*.jpeg
