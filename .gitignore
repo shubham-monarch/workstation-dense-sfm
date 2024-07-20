@@ -17,6 +17,9 @@ test/*
 **/o1/** 
 stereo-fusion/*
 
+output/*
+input/*
+
 
 
 *.bin
