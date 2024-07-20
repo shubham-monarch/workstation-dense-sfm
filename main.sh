@@ -1,14 +1,14 @@
 #!/bin/bash
 
 
-# python virtual environment check
+# [VIRTUAL ENV CHECK]
 if [[ "$VIRTUAL_ENV" == "" ]]
 then
     echo "No virtual environment found. Terminating script."
     exit 1
 fi
 
-# Parsing config/config.json
+# [PARSING CONFIG/CONFIG.JSON]
 SVO_FILENAME=$(python -c '
 import json
 config = json.load(open("config/config.json"))
@@ -37,33 +37,11 @@ echo "SVO_END_IDX: $SVO_END_IDX"
 echo "==============================="
 echo -e "\n"
 
-# exit 1
-
 INPUT_DIR="input" 
 OUTPUT_DIR="output"
-
-# SVO_DIR="${INPUT_DIR}/svo-files" 
-# SPARSE_RECON_BASE_DIR="${INPUT_DIR}/sparse-reconstruction"
-
-
-
-# ========== SVO PROCESSING ====================
-# SVO_FILE_NAME="../svo-processing"
-# SVO_INPUT="input/$svo_filename"
-# SVO_OUTPUT="svo_output/"
-# # SVO_START=$svo_first_frame_idx
-# # SVO_END=$svo_last_frame_idx
-# SVO_FOLDER_LOC="../svo-processing"
-
-# echo "SVO_START: $SVO_START"
-# echo "SVO_END: $SVO_END"
-# echo "SVO_FILE_NAME: $SVO_FILE_NAME"
-# echo "SVO_OUTPUT: $SVO_OUTPUT"
-
-
-# rm -rf $SVO_OUTPUT
-
 PIPELINE_SCRIPTS_DIR="scripts"
+
+# [SVO -> STEOREO IMAGES]
 
 SVO_INPUT_DIR="${INPUT_DIR}/svo-files"
 SVO_OUTPUT_DIR="${OUTPUT_DIR}/stereo-images"
@@ -81,21 +59,12 @@ echo "SVO_OUTPUT_PATH: $SVO_OUTPUT_PATH"
 echo "==============================="
 echo -e "\n"
 
-# exit 1
-
-# python "$(pwd)/${SVO_FOLDER_LOC}/scripts/svo_to_pointcloud.py" \
-# 	--svo_path=$SVO_INPUT \
-# 	--start_frame=$SVO_START\
-# 	--end_frame=$SVO_END\
-# 	--output_dir="$SVO_OUTPUT"
-
 
 python "${PIPELINE_SCRIPTS_DIR}/svo_to_pointcloud.py" \
 	--svo_path=$SVO_INPUT_PATH\
 	--start_frame=$SVO_START_IDX\
 	--end_frame=$SVO_END_IDX\
 	--output_dir=$SVO_OUTPUT_PATH
-
 
 
 exit 1
