@@ -39,14 +39,15 @@ echo -e "\n"
 
 INPUT_DIR="input" 
 OUTPUT_DIR="output"
+SVO_FILENAME_WITH_IDX="${SVO_FILENAME}_${SVO_START_IDX}_${SVO_END_IDX}"
 PIPELINE_SCRIPTS_DIR="scripts"
 
-# [SVO -> STEREO IMAGES]
+# [SVO FILE ==> STEREO IMAGES]
 SVO_INPUT_DIR="${INPUT_DIR}/svo-files"
 SVO_OUTPUT_DIR="${OUTPUT_DIR}/stereo-images"
 
 SVO_FILE_PATH="${SVO_INPUT_DIR}/${SVO_FILENAME}"
-SVO_IMAGES_DIR="${SVO_OUTPUT_DIR}/${SVO_FILENAME}_${SVO_START_IDX}_${SVO_END_IDX}"
+SVO_IMAGES_DIR="${SVO_OUTPUT_DIR}/${SVO_FILENAME_WITH_IDX}"
 
 echo -e "\n"
 echo "==============================="
@@ -59,40 +60,23 @@ echo "==============================="
 echo -e "\n"
 
 
-python "${PIPELINE_SCRIPTS_DIR}/svo_to_pointcloud.py" \
+python3 "${PIPELINE_SCRIPTS_DIR}/svo_to_pointcloud.py" \
 	--svo_path=$SVO_FILE_PATH\
 	--start_frame=$SVO_START_IDX\
 	--end_frame=$SVO_END_IDX\
 	--output_dir=$SVO_IMAGES_DIR
 
 
-# exit 1
+# [SVO STEREO IMAGES ==> SPARSE RECONSTRUCTION]
+SPARSE_RECON_INPUT_DIR="${INPUT_DIR}/sparse-reconstruction/${SVO_FILENAME_WITH_IDX}"
+SPARSE_RECON_OUTPUT_DIR="${OUTPUT_DIR}/sparse-reconstruction/${SVO_FILENAME_WITH_IDX}"
 
-# ========== SPARSE RECONSTRUCTION ====================
-
-# SPARSE_RECONSTRUCTION_LOC="../sparse-reconstruction"
-# SPARSE_DATA_LOC="${SPARSE_RECONSTRUCTION_LOC}/pixsfm_dataset/"
-# SPARSE_RECONSTRUCTION_INPUT="svo_output"
-# ZED_PATH="input/$svo_filename"
-
-# SPARSE_RECON_INPUT_DIR="${SVO_OUTPUT_PATH}"
-# SPARSE_RECON_DIR="${INPUT_DIR}/sparse-reconstruction/${SVO_FILENAME}_${SVO_START_IDX}_${SVO_END_IDX}"
-SPARSE_RECON_INPUT_DIR="${INPUT_DIR}/sparse-reconstruction/${SVO_FILENAME}_${SVO_START_IDX}_${SVO_END_IDX}"
-# SPARSE_RECON_OUTPUT_DIR="${OUTPUT_DIR}/sparse-reconstruction/${SVO_FILENAME}_${SVO_START_IDX}_${SVO_END_IDX}"
-
-
-
-# #srun --gres=gpu:1 \
-# python "$(pwd)/${SPARSE_RECONSTRUCTION_LOC}/scripts/sparse-reconstruction.py" \
-#     --svo_dir=$SPARSE_RECONSTRUCTION_INPUT \
-# 	--zed_path=$ZED_PATH
-
-python "$(pwd)/${SPARSE_RECONSTRUCTION_LOC}/scripts/sparse-reconstruction.py" \
+python3 "$(pwd)/${SPARSE_RECONSTRUCTION_LOC}/scripts/sparse-reconstruction.py" \
     --svo_images=$SVO_IMAGES_DIR \
 	--input_dir=$SPARSE_RECON_INPUT_DIR \
+	--output_dir=$SPARSE_RECON_OUTPUT_DIR \
 	--svo_file=$SVO_FILE_PATH  
 
-exit 1
 
 # ========= RIG BUNDLE ADJUSTMENT =====================
 

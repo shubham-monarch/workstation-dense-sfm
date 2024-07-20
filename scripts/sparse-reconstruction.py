@@ -199,7 +199,7 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser(description='Sparse Reconstruction Pipeline')
     parser.add_argument('--svo_images', type=str, required=  True, help='Path to the svo -> stereoimages')
     parser.add_argument('--input_dir', type=str, required=  True, help='Path to the sparse-reconstruction input folder')
-    # parser.add_argument('--output', type=str, required=  True, help='Path to the output directory')
+    parser.add_argument('--output_dir', type=str, required=  True, help='Path to the output directory')
     parser.add_argument('--svo_file', type=str, required=  True, help='Path to the svo file')
     args = parser.parse_args()
     
@@ -227,6 +227,6 @@ if __name__ == "__main__":
     #                                 Path(input_dir), 
     #                                 Path(output_dir))
 
-    # sparse_reconstruction_pipeline( zed_camera_params, 
-    #                                 Path(args.workspace),
-    #                                 Path(args.output))
+    sparse_reconstruction_pipeline( zed_camera_params, 
+                                    Path(args.input_dir),
+                                    Path(args.output_dir))
