@@ -24,6 +24,8 @@ import argparse
 import pyzed.sl as sl
 import logging, coloredlogs
 
+import utils
+
 # redirect the C++ outputs to notebook cells
 cpp_out = ostream_redirect(stderr=True, stdout=True)
 cpp_out.__enter__()
@@ -65,15 +67,20 @@ def generate_input_folder(src_dir, dst_dir):
 
     logging.warning(f"src_dir: {src_dir}")
     logging.warning(f"dst_dir: {dst_dir}")
-    return
 
-    if(dst_dir.exists()):
-        try:
-            #outputs.rmdir()
-            shutil.rmtree(dst_dir)
-            print(f"{os.path.abspath(dst_dir)} removed")
-        except OSError as e:
-            print(f"An error occurred while deleting the directory: {e}")
+    utils.delete_folders([dst_dir])
+    utils.create_folders([dst_dir])
+
+    # return
+
+    # if(dst_dir.exists()):
+    #     try:
+    #         #outputs.rmdir()
+    #         shutil.rmtree(dst_dir)
+    #         print(f"{os.path.abspath(dst_dir)} removed")
+    #     except OSError as e:
+    #         print(f"An error occurred while deleting the directory: {e}")
+
 
 
     # Create 'left' and 'right' directories inside 'dataset'
@@ -182,18 +189,22 @@ def sparse_reconstruction_pipeline( opencv_camera_params,
 if __name__ == "__main__":
    
     coloredlogs.install(level="DEBUG", force=True)  # install a handler on the root logger
+    
+    logging.warning(f"[sparse-recosntruction.py]")
     # parser = argparse.ArgumentParser(description='Sparse Reconstruction Pipeline')
     # parser.add_argument('--svo_dir', type=str, required=  True, help='Path to the svo directory')
     # parser.add_argument('--zed_path', type=str, required= True, help='Path to the zed dataset')
     # args = parser.parse_args()
     
     parser = argparse.ArgumentParser(description='Sparse Reconstruction Pipeline')
-    parser.add_argument('--workspace', type=str, required=  True, help='Path to the workspace directory')
-    parser.add_argument('--input', type=str, required=  True, help='Path to the svo -> stereo folder')
-    parser.add_argument('--output', type=str, required=  True, help='Path to the output directory')
+    parser.add_argument('--svo_images', type=str, required=  True, help='Path to the svo -> stereoimages')
+    parser.add_argument('--input_dir', type=str, required=  True, help='Path to the sparse-reconstruction input folder')
+    # parser.add_argument('--output', type=str, required=  True, help='Path to the output directory')
     parser.add_argument('--svo_file', type=str, required=  True, help='Path to the svo file')
     args = parser.parse_args()
     
+    # logging.debug()
+    logging.warning(f"args: {args}")
 
     # print(f"svo_path: {os.path.abspath(args.svo_dir)}")
 
@@ -207,7 +218,7 @@ if __name__ == "__main__":
     # output_dir= os.path.join(cwd, "../output/")
     
     # generate_input_folder(Path(args.svo_dir), Path(input_dir))
-    generate_input_folder(Path(args.input), Path(args.workspace))
+    generate_input_folder(Path(args.svo_images), Path(args.input_dir))
     
     zed_camera_params = get_zed_camera_params(args.svo_file)
     
@@ -216,6 +227,6 @@ if __name__ == "__main__":
     #                                 Path(input_dir), 
     #                                 Path(output_dir))
 
-    sparse_reconstruction_pipeline( zed_camera_params, 
-                                    args.workspace,
-                                    args.output)
+    # sparse_reconstruction_pipeline( zed_camera_params, 
+    #                                 Path(args.workspace),
+    #                                 Path(args.output))

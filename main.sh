@@ -41,36 +41,32 @@ INPUT_DIR="input"
 OUTPUT_DIR="output"
 PIPELINE_SCRIPTS_DIR="scripts"
 
-# [SVO -> STEOREO IMAGES]
-
+# [SVO -> STEREO IMAGES]
 SVO_INPUT_DIR="${INPUT_DIR}/svo-files"
 SVO_OUTPUT_DIR="${OUTPUT_DIR}/stereo-images"
 
-SVO_INPUT_PATH="${SVO_INPUT_DIR}/${SVO_FILENAME}"
-SVO_OUTPUT_PATH="${SVO_OUTPUT_DIR}/${SVO_FILENAME}_${SVO_START_IDX}_${SVO_END_IDX}"
-# SVO_OUTPUT_PATH="${SVO_OUTPUT_DIR}/${SVO_FILENAME}_${SVO_START_IDX}_${SVO_END_IDX}"
+SVO_FILE_PATH="${SVO_INPUT_DIR}/${SVO_FILENAME}"
+SVO_IMAGES_DIR="${SVO_OUTPUT_DIR}/${SVO_FILENAME}_${SVO_START_IDX}_${SVO_END_IDX}"
 
 echo -e "\n"
 echo "==============================="
 echo "[SVO PROCESSING --> EXTRACTING IMAGES]"
 echo "SVO_INPUT_DIR: $SVO_INPUT_DIR"
 echo "SVO_OUTPUT_DIR: $SVO_OUTPUT_DIR"
-echo "SVO_INPUT_PATH: $SVO_INPUT_PATH"
-echo "SVO_OUTPUT_PATH: $SVO_OUTPUT_PATH"
+echo "SVO_FILE_PATH: $SVO_FILE_PATH"
+echo "SVO_IMAGES_DIR: $SVO_IMAGES_DIR"
 echo "==============================="
 echo -e "\n"
 
 
 python "${PIPELINE_SCRIPTS_DIR}/svo_to_pointcloud.py" \
-	--svo_path=$SVO_INPUT_PATH\
+	--svo_path=$SVO_FILE_PATH\
 	--start_frame=$SVO_START_IDX\
 	--end_frame=$SVO_END_IDX\
-	--output_dir=$SVO_OUTPUT_PATH
+	--output_dir=$SVO_IMAGES_DIR
 
 
-
-
-exit 1
+# exit 1
 
 # ========== SPARSE RECONSTRUCTION ====================
 
@@ -80,9 +76,9 @@ exit 1
 # ZED_PATH="input/$svo_filename"
 
 # SPARSE_RECON_INPUT_DIR="${SVO_OUTPUT_PATH}"
-SPARSE_RECON_DIR="${INPUT_DIR}/sparse-reconstruction/${SVO_FILENAME}_${SVO_START_IDX}_${SVO_END_IDX}"
-SPARSE_RECON_INPUT_DIR="${SVO_OUTPUT_PATH}"
-SPARSE_RECON_OUTPUT_DIR="${OUTPUT_DIR}/sparse-reconstruction/${SVO_FILENAME}_${SVO_START_IDX}_${SVO_END_IDX}"
+# SPARSE_RECON_DIR="${INPUT_DIR}/sparse-reconstruction/${SVO_FILENAME}_${SVO_START_IDX}_${SVO_END_IDX}"
+SPARSE_RECON_INPUT_DIR="${INPUT_DIR}/sparse-reconstruction/${SVO_FILENAME}_${SVO_START_IDX}_${SVO_END_IDX}"
+# SPARSE_RECON_OUTPUT_DIR="${OUTPUT_DIR}/sparse-reconstruction/${SVO_FILENAME}_${SVO_START_IDX}_${SVO_END_IDX}"
 
 
 
@@ -92,10 +88,9 @@ SPARSE_RECON_OUTPUT_DIR="${OUTPUT_DIR}/sparse-reconstruction/${SVO_FILENAME}_${S
 # 	--zed_path=$ZED_PATH
 
 python "$(pwd)/${SPARSE_RECONSTRUCTION_LOC}/scripts/sparse-reconstruction.py" \
-    --workspace=$SPARSE_RECON_DIR \
-	--input=$SPARSE_RECON_INPUT_DIR \
-	--output=$SPARSE_RECON_OUTPUT_DIR \
-	--svo_file=$SVO_INPUT_PATH 
+    --svo_images=$SVO_IMAGES_DIR \
+	--input_dir=$SPARSE_RECON_INPUT_DIR \
+	--svo_file=$SVO_FILE_PATH  
 
 exit 1
 
