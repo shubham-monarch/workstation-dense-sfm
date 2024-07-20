@@ -22,6 +22,7 @@ import torch
 import numpy as np     
 import argparse 
 import pyzed.sl as sl
+import logging,coloredlogs
 
 # redirect the C++ outputs to notebook cells
 cpp_out = ostream_redirect(stderr=True, stdout=True)
@@ -101,8 +102,8 @@ def sparse_reconstruction_pipeline( svo_output,
                                     images, 
                                     outputs):
     
-    print(f"torch.__version__: {torch.__version__}")
-    print(f"torch.cuda.get_arch_list(): {torch.cuda.get_arch_list()}")
+    logging.debug(f"torch.__version__: {torch.__version__}")
+    logging.debug(f"torch.cuda.get_arch_list(): {torch.cuda.get_arch_list()}")
     #print(f"camera_params: {opencv_camera_params}")
     
     
@@ -122,7 +123,7 @@ def sparse_reconstruction_pipeline( svo_output,
     raw_dir = outputs / "raw"
     ref_dir_locked = outputs / "ref_locked"
 
-    print(f"{os.listdir(images)}")
+    # print(f"{os.listdir(images)}")
 
     feature_conf = extract_features.confs['superpoint_aachen']
     matcher_conf = match_features.confs['superglue']
@@ -132,6 +133,11 @@ def sparse_reconstruction_pipeline( svo_output,
 
     references_left = sorted(references_left, key=lambda x: int(x.split('/')[-1].split('_')[1]))
     references_right = sorted(references_right, key=lambda x: int(x.split('/')[-1].split('_')[1]))
+
+    # logging.warning("[references_left]=> ")
+    # for img in references_left:
+    #     logging.info(f"{img}\n")
+    # logging.info(f"{references_left}\n")
 
 
     references = references_left + references_right
@@ -168,24 +174,26 @@ def sparse_reconstruction_pipeline( svo_output,
 
     K_locked, sfm_outputs_not_locked = sfm.reconstruction(ref_dir_locked, images, sfm_pairs, features, matches, **hloc_args_not_locked)
 
-    print("Sparse reconstruction finished!")
+    logging.info("Sparse reconstruction finished!")
 
-    print(f"K_locked.summary(): {K_locked.summary()}")
+    logging.info(f"K_locked.summary(): {K_locked.summary()}")
 
 
 
 #TO-DO : add svo parsing
 if __name__ == "__main__":
    
+    coloredlogs.install(level="DEBUG", force=True)  # install a handler on the root logger
+
     parser = argparse.ArgumentParser(description='Sparse Reconstruction Pipeline')
     parser.add_argument('--svo_dir', type=str, required=  True, help='Path to the svo directory')
-    parser.add_argument('--zed_path', type=str, required= True, help='Path to the zed dataset')
+    parser.add_argument('--zed_path', type=str, help='Path to the zed dataset')
     args = parser.parse_args()
     
-    print(f"svo_path: {os.path.abspath(args.svo_dir)}")
+    # logging.info(f"svo_path: {os.path.abspath(args.svo_dir)}")
 
     cwd = os.path.dirname(__file__)
-    print(f"cwd: {cwd}")
+    # print(f"cwd: {cwd}")
 
     # path to the images folder
     input_dir=  os.path.join(cwd,  "../pixsfm_dataset/") 
@@ -193,9 +201,14 @@ if __name__ == "__main__":
     # path to the sparse reconstruction output files
     output_dir= os.path.join(cwd, "../output/")
     
-    generate_input_folder(Path(args.svo_dir), Path(input_dir))
+    # generate_input_folder(Path(args.svo_dir), Path(input_dir))
     
-    zed_camera_params = get_zed_camera_params(args.zed_path)
+    # zed_camera_params = None
+    fx = 1093.2768
+    fy = 1093.2768
+    cx = 964.989
+    cy = 569.276
+    zed_camera_params =','.join(map(str, (fx, fy, cx, cy, 0, 0, 0, 0)))
     
     sparse_reconstruction_pipeline( Path(args.svo_dir),
                                     zed_camera_params, 
