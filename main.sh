@@ -123,17 +123,15 @@ $COLMAP_EXE_PATH/colmap rig_bundle_adjuster \
 	--estimate_rig_relative_poses False
 
 
-exit 1
+# TODO: [ADD RBA FAILURE-CHECK]
 
-# ====== DENSE RECONSTRUCTION =======================
-
+# [DENSE RECONSTRUCTION]
 # rm -rf $dense_sfm_path
-# DENSE_RECONSTRUCTION_LOC="../dense-reconstruction"
-# #srun --gres=gpu:1 \
-# 	python "$(pwd)/${DENSE_RECONSTRUCTION_LOC}/scripts/dense-reconstruction.py" \
-#     	--mvs_path="$dense_sfm_path" \
-#     	--output_path="$RIG_OUTPUT_PATH" \
-# 	--image_dir="$SPARSE_DATA_LOC" \
+DENSE_RECON_OUTPUT_DIR="${PIPELINE_OUTPUT_DIR}/dense-reconstruction/${SVO_FILENAME_WITH_IDX}"
+
+python "${PIPELINE_SCRIPT_DIR}/dense-reconstruction.py" \
+	--mvs_path="$DENSE_RECON_OUTPUT_DIR" \
+	--output_path="$RBA_OUTPUT_DIR" \
+	--image_dir="$SPARSE_RECON_INPUT_DIR" \
 
 
-# echo "****************************** DONE ************************"
