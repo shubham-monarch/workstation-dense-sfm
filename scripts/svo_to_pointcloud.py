@@ -18,8 +18,8 @@ def main(filepath, start, end, dir_path_, svo_step = 1):
     filepath = os.path.abspath(filepath)
     dir_path = os.path.abspath(dir_path_)
 
-    logging.debug(f"svo: {filepath}")
-    logging.debug(f"start_idx: {start} end_idx: {end}")
+    logging.info(f"svo: {filepath}")
+    logging.info(f"start_idx: {start} end_idx: {end}")
 
     input_type = sl.InputType()
     input_type.set_from_svo_file(filepath)
@@ -30,7 +30,7 @@ def main(filepath, start, end, dir_path_, svo_step = 1):
 
     zed = sl.Camera()
     status = zed.open(init)
-    logging.debug(f"Total frames: {zed.get_svo_number_of_frames()}")
+    # logging.warn(f"Total frames: {zed.get_svo_number_of_frames()}")
     if status != sl.ERROR_CODE.SUCCESS:
         print(repr(status))
         exit()
@@ -40,10 +40,10 @@ def main(filepath, start, end, dir_path_, svo_step = 1):
     image = sl.Mat()
     image_r = sl.Mat()
     
-    logging.debug(f"Trying to delete the {dir_path} directory")
+    logging.warning(f"Trying to delete the {dir_path} directory")
     try:
         shutil.rmtree(dir_path)
-        logging.debug("Cleared the {dir_path} directory!")
+        logging.warning(f"Cleared the {dir_path} directory!")
     except OSError as e:
         logging.warning("Warning: %s : %s" % (dir_path, e.strerror))
 
@@ -72,11 +72,13 @@ if __name__ == "__main__":
     parser.add_argument('--start_frame', type=int, required = True, help='number of frames to be extracted')
     parser.add_argument('--end_frame', type=int, required = True, help='number of frames to be extracted')
     parser.add_argument('--output_dir', type=str, required = True, help='output directory path')
+    parser.add_argument('--svo_step', type=int, required = False, default = 2, help='frame skipping frequency')  
     args = parser.parse_args()  
     
     logging.debug(f"svo_path: {args.svo_path}")
     logging.debug(f"start_frame: {args.start_frame}")
     logging.debug(f"end_frame: {args.end_frame}")
     logging.debug(f"output_dir: {args.output_dir}")
+    logging.debug(f"svo_step: {args.svo_step}")
 
     main(Path(args.svo_path), args.start_frame, args.end_frame , Path(args.output_dir), svo_step =2)
