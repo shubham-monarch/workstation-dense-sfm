@@ -22,6 +22,7 @@ import torch
 import numpy as np     
 import argparse 
 import pyzed.sl as sl
+import logging, coloredlogs
 
 # redirect the C++ outputs to notebook cells
 cpp_out = ostream_redirect(stderr=True, stdout=True)
@@ -62,6 +63,10 @@ def generate_input_folder(src_dir, dst_dir):
     #src_dir = '../svo_output'
     #dst_dir = 'pixsfm_dataset'
 
+    logging.warning(f"src_dir: {src_dir}")
+    logging.warning(f"dst_dir: {dst_dir}")
+    return
+
     if(dst_dir.exists()):
         try:
             #outputs.rmdir()
@@ -96,8 +101,7 @@ def generate_input_folder(src_dir, dst_dir):
 :param outputs: Path to the directory where the output files will be stored
 :param opencv_camera_params: Camera parameters in the opencv format
 '''
-def sparse_reconstruction_pipeline( svo_output,
-                                    opencv_camera_params,
+def sparse_reconstruction_pipeline( opencv_camera_params,
                                     images, 
                                     outputs):
     
@@ -177,27 +181,41 @@ def sparse_reconstruction_pipeline( svo_output,
 #TO-DO : add svo parsing
 if __name__ == "__main__":
    
+    coloredlogs.install(level="DEBUG", force=True)  # install a handler on the root logger
+    # parser = argparse.ArgumentParser(description='Sparse Reconstruction Pipeline')
+    # parser.add_argument('--svo_dir', type=str, required=  True, help='Path to the svo directory')
+    # parser.add_argument('--zed_path', type=str, required= True, help='Path to the zed dataset')
+    # args = parser.parse_args()
+    
     parser = argparse.ArgumentParser(description='Sparse Reconstruction Pipeline')
-    parser.add_argument('--svo_dir', type=str, required=  True, help='Path to the svo directory')
-    parser.add_argument('--zed_path', type=str, required= True, help='Path to the zed dataset')
+    parser.add_argument('--workspace', type=str, required=  True, help='Path to the workspace directory')
+    parser.add_argument('--input', type=str, required=  True, help='Path to the svo -> stereo folder')
+    parser.add_argument('--output', type=str, required=  True, help='Path to the output directory')
+    parser.add_argument('--svo_file', type=str, required=  True, help='Path to the svo file')
     args = parser.parse_args()
     
-    print(f"svo_path: {os.path.abspath(args.svo_dir)}")
 
-    cwd = os.path.dirname(__file__)
-    print(f"cwd: {cwd}")
+    # print(f"svo_path: {os.path.abspath(args.svo_dir)}")
+
+    # cwd = os.path.dirname(__file__)
+    # print(f"cwd: {cwd}")
 
     # path to the images folder
-    input_dir=  os.path.join(cwd,  "../pixsfm_dataset/") 
+    # input_dir=  os.path.join(cwd,  "../pixsfm_dataset/") 
     
     # path to the sparse reconstruction output files
-    output_dir= os.path.join(cwd, "../output/")
+    # output_dir= os.path.join(cwd, "../output/")
     
-    generate_input_folder(Path(args.svo_dir), Path(input_dir))
+    # generate_input_folder(Path(args.svo_dir), Path(input_dir))
+    generate_input_folder(Path(args.input), Path(args.workspace))
     
-    zed_camera_params = get_zed_camera_params(args.zed_path)
+    zed_camera_params = get_zed_camera_params(args.svo_file)
     
-    sparse_reconstruction_pipeline( Path(args.svo_dir),
-                                    zed_camera_params, 
-                                    Path(input_dir), 
-                                    Path(output_dir))
+    # sparse_reconstruction_pipeline( Path(args.svo_dir),
+    #                                 zed_camera_params, 
+    #                                 Path(input_dir), 
+    #                                 Path(output_dir))
+
+    sparse_reconstruction_pipeline( zed_camera_params, 
+                                    args.workspace,
+                                    args.output)

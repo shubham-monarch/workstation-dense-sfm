@@ -47,7 +47,8 @@ SVO_INPUT_DIR="${INPUT_DIR}/svo-files"
 SVO_OUTPUT_DIR="${OUTPUT_DIR}/stereo-images"
 
 SVO_INPUT_PATH="${SVO_INPUT_DIR}/${SVO_FILENAME}"
-SVO_OUTPUT_PATH="${SVO_OUTPUT_DIR}/${SVO_FILENAME}"
+SVO_OUTPUT_PATH="${SVO_OUTPUT_DIR}/${SVO_FILENAME}_${SVO_START_IDX}_${SVO_END_IDX}"
+# SVO_OUTPUT_PATH="${SVO_OUTPUT_DIR}/${SVO_FILENAME}_${SVO_START_IDX}_${SVO_END_IDX}"
 
 echo -e "\n"
 echo "==============================="
@@ -67,22 +68,36 @@ python "${PIPELINE_SCRIPTS_DIR}/svo_to_pointcloud.py" \
 	--output_dir=$SVO_OUTPUT_PATH
 
 
+
+
 exit 1
 
 # ========== SPARSE RECONSTRUCTION ====================
 
-SPARSE_RECONSTRUCTION_LOC="../sparse-reconstruction"
-SPARSE_DATA_LOC="${SPARSE_RECONSTRUCTION_LOC}/pixsfm_dataset/"
-SPARSE_RECONSTRUCTION_INPUT="svo_output"
-ZED_PATH="input/$svo_filename"
+# SPARSE_RECONSTRUCTION_LOC="../sparse-reconstruction"
+# SPARSE_DATA_LOC="${SPARSE_RECONSTRUCTION_LOC}/pixsfm_dataset/"
+# SPARSE_RECONSTRUCTION_INPUT="svo_output"
+# ZED_PATH="input/$svo_filename"
+
+# SPARSE_RECON_INPUT_DIR="${SVO_OUTPUT_PATH}"
+SPARSE_RECON_DIR="${INPUT_DIR}/sparse-reconstruction/${SVO_FILENAME}_${SVO_START_IDX}_${SVO_END_IDX}"
+SPARSE_RECON_INPUT_DIR="${SVO_OUTPUT_PATH}"
+SPARSE_RECON_OUTPUT_DIR="${OUTPUT_DIR}/sparse-reconstruction/${SVO_FILENAME}_${SVO_START_IDX}_${SVO_END_IDX}"
 
 
-#srun --gres=gpu:1 \
+
+# #srun --gres=gpu:1 \
+# python "$(pwd)/${SPARSE_RECONSTRUCTION_LOC}/scripts/sparse-reconstruction.py" \
+#     --svo_dir=$SPARSE_RECONSTRUCTION_INPUT \
+# 	--zed_path=$ZED_PATH
+
 python "$(pwd)/${SPARSE_RECONSTRUCTION_LOC}/scripts/sparse-reconstruction.py" \
-    --svo_dir=$SPARSE_RECONSTRUCTION_INPUT \
-	--zed_path=$ZED_PATH
+    --workspace=$SPARSE_RECON_DIR \
+	--input=$SPARSE_RECON_INPUT_DIR \
+	--output=$SPARSE_RECON_OUTPUT_DIR \
+	--svo_file=$SVO_INPUT_PATH 
 
-
+exit 1
 
 # ========= RIG BUNDLE ADJUSTMENT =====================
 
