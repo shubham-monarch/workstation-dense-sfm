@@ -130,9 +130,14 @@ $COLMAP_EXE_PATH/colmap rig_bundle_adjuster \
 
 DENSE_RECON_OUTPUT_DIR="${PIPELINE_OUTPUT_DIR}/dense-reconstruction/${SVO_FILENAME_WITH_IDX}"
 
-python "${PIPELINE_SCRIPT_DIR}/dense-reconstruction.py" \
-	--mvs_path="$DENSE_RECON_OUTPUT_DIR" \
-	--output_path="$RBA_OUTPUT_DIR" \
-	--image_dir="$SPARSE_RECON_INPUT_DIR" \
+start_time=$(date +%s) # Capture start time
 
+python3 "${PIPELINE_SCRIPT_DIR}/dense-reconstruction.py" \
+  --mvs_path="$DENSE_RECON_OUTPUT_DIR" \
+  --output_path="$RBA_OUTPUT_DIR" \
+  --image_dir="$SPARSE_RECON_INPUT_DIR"
 
+end_time=$(date +%s) # Capture end time
+duration=$((end_time - start_time)) # Calculate duration
+
+echo "Time taken for dense-reconstruction: $duration seconds"
