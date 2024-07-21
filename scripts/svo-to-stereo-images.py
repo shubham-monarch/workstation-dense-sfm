@@ -18,7 +18,7 @@ def main(filepath, start, end, dir_path_, svo_step = 1):
     filepath = os.path.abspath(filepath)
     dir_path = os.path.abspath(dir_path_)
 
-    logging.info(f"svo: {filepath}")
+    logging.info(f"svo_file: {filepath}")
     logging.info(f"start_idx: {start} end_idx: {end}")
 
     input_type = sl.InputType()
@@ -81,8 +81,8 @@ if __name__ == "__main__":
     # logging.debug(f"output_dir: {args.output_dir}")
     # logging.debug(f"svo_step: {args.svo_step}")
 
-    logging.debug(f"[svo-to-stereo-images.py]")
+    logging.warning(f"[svo-to-stereo-images.py]")
     for key, value in vars(args).items():
-        logging.warning(f"{key}: {value}")
+        logging.info(f"{key}: {value}")
     
     main(Path(args.svo_path), args.start_frame, args.end_frame , Path(args.output_dir), args.svo_step)

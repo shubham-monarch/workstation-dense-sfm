@@ -38,21 +38,24 @@ echo "==============================="
 echo -e "\n"
 
 
-# [PIPELINE PARAMS]
-SVO_FILENAME_WITH_IDX="${SVO_FILENAME}_${SVO_START_IDX}_${SVO_END_IDX}"
+# [GLOBAL PARAMS]
+EXIT_FAILURE=1
+EXIT_SUCCESS=0
 COLMAP_EXE_PATH=/usr/local/bin
 
+# [PIPELINE PARAMS]
 PIPELINE_SCRIPT_DIR="scripts"
 PIPELINE_CONFIG_DIR="config"
 PIPELINE_INPUT_DIR="input" 
 PIPELINE_OUTPUT_DIR="output"
 
-EXIT_FAILURE=1
-EXIT_SUCCESS=0
+SVO_FILENAME_WITH_IDX="${SVO_FILENAME}_${SVO_START_IDX}_${SVO_END_IDX}"
+
+# extract 1 out of every 4 frames
+SVO_STEP=4 
 
 
-
-# [SVO FILE ==> STEREO IMAGES]
+# [STEP #1 --> EXTRACT STEREO-IMAGES FROM SVO FILE]
 SVO_INPUT_DIR="${PIPELINE_INPUT_DIR}/svo-files"
 SVO_OUTPUT_DIR="${PIPELINE_OUTPUT_DIR}/stereo-images"
 
@@ -75,13 +78,13 @@ python3 "${PIPELINE_SCRIPT_DIR}/svo-to-stereo-images.py" \
 	--start_frame=$SVO_START_IDX \
 	--end_frame=$SVO_END_IDX \
 	--output_dir=$SVO_IMAGES_DIR \
-	--svo_step=4
+	--svo_step=$SVO_STEP
 
+exit $EXIT_SUCCESS	
 
-# [SVO STEREO IMAGES ==> SPARSE RECONSTRUCTION]
+# [STEP #2 --> SPARSE-RECONSTRUCTION FROM STEREO-IMAGES]
 SPARSE_RECON_INPUT_DIR="${PIPELINE_INPUT_DIR}/sparse-reconstruction/${SVO_FILENAME_WITH_IDX}"
 SPARSE_RECON_OUTPUT_DIR="${PIPELINE_OUTPUT_DIR}/sparse-reconstruction/${SVO_FILENAME_WITH_IDX}"
-
 
 echo -e "\n"
 echo "==============================="
@@ -98,7 +101,7 @@ python3 "${PIPELINE_SCRIPT_DIR}/sparse-reconstruction.py" \
 	--svo_file=$SVO_FILE_PATH  
 
 
-# [RIG BUNDLE ADJUSTMENT]
+# [STEP #3 --> RIG-BUNDLE-ADJUSTMENT]
 RBA_INPUT_DIR="${SPARSE_RECON_OUTPUT_DIR}/ref_locked/"
 RBA_OUTPUT_DIR="${PIPELINE_OUTPUT_DIR}/rig-bundle-adjustment/${SVO_FILENAME_WITH_IDX}"
 RBA_CONFIG_PATH="${PIPELINE_CONFIG_DIR}/rig.json"
@@ -126,7 +129,7 @@ $COLMAP_EXE_PATH/colmap rig_bundle_adjuster \
 	--BundleAdjustment.max_num_iterations 500 \
 	--estimate_rig_relative_poses False
 
-# [RBA CONVERGE CHECK]
+# [RBA CONVERGENCE CHECK]
 if [ $? -ne 0 ]; then
     echo -e "\n"
 	echo "==============================="
@@ -136,10 +139,10 @@ if [ $? -ne 0 ]; then
 	exit $EXIT_FAILURE
 fi
 
-# [DENSE RECONSTRUCTION]
+# [STEP #4 --> DENSE RECONSTRUCTION]
 DENSE_RECON_OUTPUT_DIR="${PIPELINE_OUTPUT_DIR}/dense-reconstruction/${SVO_FILENAME_WITH_IDX}"
 
-START_TIME=$(date +%s) # Capture start time
+START_TIME=$(date +%s) 
 
 python3 "${PIPELINE_SCRIPT_DIR}/dense-reconstruction.py" \
   --mvs_path="$DENSE_RECON_OUTPUT_DIR" \
@@ -151,7 +154,7 @@ DURATION=$((END_TIME - START_TIME))
 
 echo -e "\n"
 echo "==============================="
-echo "Time taken for dense-reconstruction: ${DURATION} seconds"
+echo "Time taken for dense-reconstruction: ${DURATION/ 60} minutes"
 echo "==============================="
 echo -e "\n"
 	
