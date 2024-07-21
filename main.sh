@@ -47,6 +47,9 @@ PIPELINE_CONFIG_DIR="config"
 PIPELINE_INPUT_DIR="input" 
 PIPELINE_OUTPUT_DIR="output"
 
+EXIT_FAILURE=1
+EXIT_SUCCESS=0
+
 
 
 # [SVO FILE ==> STEREO IMAGES]
@@ -72,7 +75,7 @@ python3 "${PIPELINE_SCRIPT_DIR}/svo-to-stereo-images.py" \
 	--start_frame=$SVO_START_IDX \
 	--end_frame=$SVO_END_IDX \
 	--output_dir=$SVO_IMAGES_DIR \
-	--svo_step=2
+	--svo_step=4
 
 
 # [SVO STEREO IMAGES ==> SPARSE RECONSTRUCTION]
@@ -123,21 +126,33 @@ $COLMAP_EXE_PATH/colmap rig_bundle_adjuster \
 	--BundleAdjustment.max_num_iterations 500 \
 	--estimate_rig_relative_poses False
 
-
-# TODO: [ADD RBA FAILURE-CHECK]
+# [RBA CONVERGE CHECK]
+if [ $? -ne 0 ]; then
+    echo -e "\n"
+	echo "==============================="
+	echo "RBA FAILED ==> EXITING PIPELINE!"
+    echo "==============================="
+	echo -e "\n"
+	exit $EXIT_FAILURE
+fi
 
 # [DENSE RECONSTRUCTION]
-
 DENSE_RECON_OUTPUT_DIR="${PIPELINE_OUTPUT_DIR}/dense-reconstruction/${SVO_FILENAME_WITH_IDX}"
 
-start_time=$(date +%s) # Capture start time
+START_TIME=$(date +%s) # Capture start time
 
 python3 "${PIPELINE_SCRIPT_DIR}/dense-reconstruction.py" \
   --mvs_path="$DENSE_RECON_OUTPUT_DIR" \
   --output_path="$RBA_OUTPUT_DIR" \
   --image_dir="$SPARSE_RECON_INPUT_DIR"
 
-end_time=$(date +%s) # Capture end time
-duration=$((end_time - start_time)) # Calculate duration
+END_TIME=$(date +%s)
+DURATION=$((END_TIME - START_TIME)) 
 
-echo "Time taken for dense-reconstruction: $duration seconds"
+echo -e "\n"
+echo "==============================="
+echo "Time taken for dense-reconstruction: ${DURATION} seconds"
+echo "==============================="
+echo -e "\n"
+	
+exit $EXIT_SUCCESS

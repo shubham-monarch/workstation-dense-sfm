@@ -185,8 +185,11 @@ if __name__ == "__main__":
     parser.add_argument('--svo_file', type=str, required=  True, help='Path to the svo file')
     args = parser.parse_args()
     
-    logging.warning(f"[sparse-reconstruction.py] args: {args}")
-
+    # logging.warning(f"[sparse-reconstruction.py] args: {args}")
+    # Assuming args is parsed using argparse
+    for key, value in vars(args).items():
+        logging.warning(f"{key}: {value}")
+    
     generate_input_folder(Path(args.svo_images), Path(args.input_dir))
     
     zed_camera_params = get_zed_camera_params(args.svo_file)

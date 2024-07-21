@@ -75,10 +75,14 @@ if __name__ == "__main__":
     parser.add_argument('--svo_step', type=int, required = False, default = 1, help='frame skipping frequency')  
     args = parser.parse_args()  
     
-    logging.debug(f"svo_path: {args.svo_path}")
-    logging.debug(f"start_frame: {args.start_frame}")
-    logging.debug(f"end_frame: {args.end_frame}")
-    logging.debug(f"output_dir: {args.output_dir}")
-    logging.debug(f"svo_step: {args.svo_step}")
+    # logging.debug(f"svo_path: {args.svo_path}")
+    # logging.debug(f"start_frame: {args.start_frame}")
+    # logging.debug(f"end_frame: {args.end_frame}")
+    # logging.debug(f"output_dir: {args.output_dir}")
+    # logging.debug(f"svo_step: {args.svo_step}")
 
+    logging.debug(f"[svo-to-stereo-images.py]")
+    for key, value in vars(args).items():
+        logging.warning(f"{key}: {value}")
+    
     main(Path(args.svo_path), args.start_frame, args.end_frame , Path(args.output_dir), args.svo_step)
