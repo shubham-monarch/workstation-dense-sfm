@@ -67,11 +67,11 @@ echo "==============================="
 echo -e "\n"
 
 
-# python3 "${PIPELINE_SCRIPT_DIR}/svo_to_pointcloud.py" \
-# 	--svo_path=$SVO_FILE_PATH\
-# 	--start_frame=$SVO_START_IDX\
-# 	--end_frame=$SVO_END_IDX\
-# 	--output_dir=$SVO_IMAGES_DIR
+python3 "${PIPELINE_SCRIPT_DIR}/svo_to_pointcloud.py" \
+	--svo_path=$SVO_FILE_PATH\
+	--start_frame=$SVO_START_IDX\
+	--end_frame=$SVO_END_IDX\
+	--output_dir=$SVO_IMAGES_DIR
 
 
 # [SVO STEREO IMAGES ==> SPARSE RECONSTRUCTION]
@@ -87,11 +87,11 @@ echo "SPARSE_RECON_OUTPUT_DIR: $SPARSE_RECON_OUTPUT_DIR"
 echo "==============================="
 echo -e "\n"
 
-# python3 "${PIPELINE_SCRIPT_DIR}/sparse-reconstruction.py" \
-#     --svo_images=$SVO_IMAGES_DIR \
-# 	--input_dir=$SPARSE_RECON_INPUT_DIR \
-# 	--output_dir=$SPARSE_RECON_OUTPUT_DIR \
-# 	--svo_file=$SVO_FILE_PATH  
+python3 "${PIPELINE_SCRIPT_DIR}/sparse-reconstruction.py" \
+    --svo_images=$SVO_IMAGES_DIR \
+	--input_dir=$SPARSE_RECON_INPUT_DIR \
+	--output_dir=$SPARSE_RECON_OUTPUT_DIR \
+	--svo_file=$SVO_FILE_PATH  
 
 
 # [RIG BUNDLE ADJUSTMENT]
@@ -126,7 +126,7 @@ $COLMAP_EXE_PATH/colmap rig_bundle_adjuster \
 # TODO: [ADD RBA FAILURE-CHECK]
 
 # [DENSE RECONSTRUCTION]
-# rm -rf $dense_sfm_path
+
 DENSE_RECON_OUTPUT_DIR="${PIPELINE_OUTPUT_DIR}/dense-reconstruction/${SVO_FILENAME_WITH_IDX}"
 
 python "${PIPELINE_SCRIPT_DIR}/dense-reconstruction.py" \
