@@ -19,7 +19,7 @@ stereo-fusion/*
 
 output/*
 input/*
-
+config/*
 
 
 *.bin

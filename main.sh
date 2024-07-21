@@ -67,11 +67,12 @@ echo "==============================="
 echo -e "\n"
 
 
-python3 "${PIPELINE_SCRIPT_DIR}/svo_to_pointcloud.py" \
-	--svo_path=$SVO_FILE_PATH\
-	--start_frame=$SVO_START_IDX\
-	--end_frame=$SVO_END_IDX\
-	--output_dir=$SVO_IMAGES_DIR
+python3 "${PIPELINE_SCRIPT_DIR}/svo-to-stereo-images.py" \
+	--svo_path=$SVO_FILE_PATH \
+	--start_frame=$SVO_START_IDX \
+	--end_frame=$SVO_END_IDX \
+	--output_dir=$SVO_IMAGES_DIR \
+	--svo_step=2
 
 
 # [SVO STEREO IMAGES ==> SPARSE RECONSTRUCTION]
