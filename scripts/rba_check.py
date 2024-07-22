@@ -88,6 +88,10 @@ def check_results(rba_folder: str) -> bool:
         rel_pose = calculate_relative_pose(e_lw, e_rw)
         rig_ba_rel_poses.append(rel_pose)
 
+    logging.warning(f"Printing relative poses after RBA -->")
+    for pose in rig_ba_rel_poses[:10]:
+        logging.info(f"{pose[:3]}")
+
     flag = check_ba_convergence(rig_ba_rel_poses)
     logging.warning(f"flag: {flag}")
     return flag
