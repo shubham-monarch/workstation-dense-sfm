@@ -40,13 +40,14 @@ def main(filepath, start, end, dir_path_, svo_step = 1):
     image = sl.Mat()
     image_r = sl.Mat()
     
-    logging.warning(f"Trying to delete the {dir_path} directory")
+    logging.info(f"Trying to delete the {dir_path} directory")
     try:
         shutil.rmtree(dir_path)
-        logging.warning(f"Cleared the {dir_path} directory!")
+        logging.info(f"Cleared the {dir_path} directory!")
     except OSError as e:
         logging.warning("Warning: %s : %s" % (dir_path, e.strerror))
 
+    logging.info(f"Extracting {(end - start)/ svo_step} stereo-images from the SVO file!")
     for frame_idx in tqdm(range(start, end, svo_step)):
         if zed.grab(runtime_parameters) == sl.ERROR_CODE.SUCCESS:
             zed.set_svo_position(frame_idx)

@@ -51,8 +51,8 @@ PIPELINE_OUTPUT_DIR="output"
 
 SVO_FILENAME_WITH_IDX="${SVO_FILENAME}_${SVO_START_IDX}_${SVO_END_IDX}"
 
-# extract 1 out of every 4 frames
-SVO_STEP=4 
+# extracting 1 frame / {SVO_STEP} frames
+SVO_STEP=2
 
 
 # [STEP #1 --> EXTRACT STEREO-IMAGES FROM SVO FILE]
@@ -79,8 +79,6 @@ python3 "${PIPELINE_SCRIPT_DIR}/svo-to-stereo-images.py" \
 	--end_frame=$SVO_END_IDX \
 	--output_dir=$SVO_IMAGES_DIR \
 	--svo_step=$SVO_STEP
-
-exit $EXIT_SUCCESS	
 
 # [STEP #2 --> SPARSE-RECONSTRUCTION FROM STEREO-IMAGES]
 SPARSE_RECON_INPUT_DIR="${PIPELINE_INPUT_DIR}/sparse-reconstruction/${SVO_FILENAME_WITH_IDX}"
@@ -138,6 +136,13 @@ if [ $? -ne 0 ]; then
 	echo -e "\n"
 	exit $EXIT_FAILURE
 fi
+
+# [LOGGING RBA RESULTS]
+python3 "${PIPELINE_SCRIPT_DIR}/rba.py" \
+	--rba_output=$RBA_OUTPUT_DIR
+
+exit 1
+
 
 # [STEP #4 --> DENSE RECONSTRUCTION]
 DENSE_RECON_OUTPUT_DIR="${PIPELINE_OUTPUT_DIR}/dense-reconstruction/${SVO_FILENAME_WITH_IDX}"

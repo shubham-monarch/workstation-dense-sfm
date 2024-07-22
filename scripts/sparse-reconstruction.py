@@ -103,15 +103,15 @@ def sparse_reconstruction_pipeline( opencv_camera_params,
     #print(f"camera_params: {opencv_camera_params}")
     
     
-    if(outputs.exists()):
-        try:
-            #outputs.rmdir()
-            shutil.rmtree(outputs)
-            print(f"{os.path.abspath(outputs)} removed")
-        except OSError as e:
-            print(f"An error occurred while deleting the directory: {e}")
+    # if(outputs.exists()):
+    #     try:
+    #         shutil.rmtree(outputs)
+    #         logging.info(f"{os.path.abspath(outputs)} removed")
+    #     except OSError as e:
+    #         logging.error(f"An error occurred while deleting the directory: {e}")
 
-
+    utils.delete_folders([outputs])
+    
     sfm_pairs = outputs / 'pairs-sfm.txt'
     loc_pairs = outputs / 'pairs-loc.txt'
     features = outputs / 'features.h5'
@@ -165,9 +165,8 @@ def sparse_reconstruction_pipeline( opencv_camera_params,
 
     K_locked, sfm_outputs_not_locked = sfm.reconstruction(ref_dir_locked, images, sfm_pairs, features, matches, **hloc_args_not_locked)
 
-    print("Sparse reconstruction finished!")
-
-    print(f"K_locked.summary(): {K_locked.summary()}")
+    logging.info("Sparse reconstruction finished!")
+    logging.info(f"K_locked.summary(): {K_locked.summary()}")
 
 
 
@@ -188,12 +187,12 @@ if __name__ == "__main__":
     # logging.warning(f"[sparse-reconstruction.py] args: {args}")
     # Assuming args is parsed using argparse
     for key, value in vars(args).items():
-        logging.warning(f"{key}: {value}")
+        logging.info(f"{key}: {value}")
     
     generate_input_folder(Path(args.svo_images), Path(args.input_dir))
     
     zed_camera_params = get_zed_camera_params(args.svo_file)
-    logging.warning(f"zed_camera_params: {zed_camera_params}")
+    logging.info(f"zed_camera_params ==> {zed_camera_params}")
     
     sparse_reconstruction_pipeline( zed_camera_params, 
                                     Path(args.input_dir),
