@@ -53,7 +53,7 @@ def check_ba_convergence(rig_ba_rel_poses, threshold=0.01):
     # Calculate the standard deviation for dx, dy, dz
     std_dev = np.std(translations, axis=0)
     
-    logging.warning(f"std_dev: {std_dev}")
+    logging.info(f"std_dev: {std_dev}")
 
     # Check if all standard deviations are below the threshold
     if np.all(std_dev < threshold):
@@ -88,12 +88,13 @@ def check_results(rba_folder: str) -> bool:
         rel_pose = calculate_relative_pose(e_lw, e_rw)
         rig_ba_rel_poses.append(rel_pose)
 
-    logging.warning(f"Printing relative poses after RBA -->")
+    logging.warning(f"Relative Camera Poses after RBA")
+    logging.warning(f"[dx, dy, dz]")
     for pose in rig_ba_rel_poses[:10]:
         logging.info(f"{pose[:3]}")
 
     flag = check_ba_convergence(rig_ba_rel_poses)
-    logging.warning(f"flag: {flag}")
+    # logging.info(f"flag: {flag}")
     return flag
 
     
