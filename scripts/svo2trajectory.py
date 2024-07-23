@@ -1,8 +1,11 @@
+#! /usr/bin/env python3 
+
 import pyzed.sl as sl
 import numpy as np
 import cv2
 import os
 import matplotlib.pyplot as plt
+import logging, coloredlogs
 
 def extract_camera_pose(svo_file_path, viz=False):
     
@@ -30,20 +33,21 @@ def extract_camera_pose(svo_file_path, viz=False):
     poses = []
     i = 0
 
-    while True:
+    logging.warning(f"Total #frames : {zed.get_svo_number_of_frames()}")
+    total_frames = zed.get_svo_number_of_frames()
+    for i in range(0, total_frames-1):
         if zed.grab(runtime_parameters) == sl.ERROR_CODE.SUCCESS:
             
-            if viz:
-                if i%10 == 0:
-                    img = sl.Mat()
-                    zed.retrieve_image(img, sl.VIEW.LEFT)
-                    if os.path.exists("viz") == False:
-                        os.makedirs("viz")
-                    path = os.path.join("viz", f"frame_{i}.png")
-                    cv2.imwrite(path, img.get_data())
+            # if viz:
+            #     if i%10 == 0:
+            #         img = sl.Mat()
+            #         zed.retrieve_image(img, sl.VIEW.LEFT)
+            #         if os.path.exists("viz") == False:
+            #             os.makedirs("viz")
+            #         path = os.path.join("viz", f"frame_{i}.png")
+            #         cv2.imwrite(path, img.get_data())
 
-                i+=1
-                
+            
             state = zed.get_position(zed_pose, sl.REFERENCE_FRAME.WORLD)
             translation = zed_pose.get_translation(sl.Translation()).get()
             rotation = zed_pose.get_rotation_matrix().get_euler_angles()
@@ -117,16 +121,43 @@ def identify_smooth_segments(poses_array, time_interval, max_linear_velocity, ma
 
 
 def main():
+    coloredlogs.install(level="INFO", force=True)  # install a handler on the root logger
     # Example usage
-    svo_file_path = "front_2024-04-17-08-23-26.svo"
-    poses_array = extract_camera_pose(svo_file_path, False)
-    print(poses_array)
-    plot_poses(poses_array)
+    SVO_FOLDER = f"../input/svo-files"
+    # svo_file = "front_2024-04-17-08-23-26.svo"
+    svo_file = "front_2024-02-14-05-22-20.svo"
+    SVO_FILE_PATH=f"{SVO_FOLDER}/{svo_file}"
+    # poses_array = extract_camera_pose(svo_file_path, False)
+    poses_array = extract_camera_pose(SVO_FILE_PATH, False)
+    # print(poses_array)
+    # plot_poses(poses_array)
     time_interval = 0.1
+    
+    velocity_arr, _ = calculate_velocities(poses_array, time_interval)
+    
+    
+    x_velocity = velocity_arr[:, 0]  # Extract the first column for x-velocity
+
+    # Generate an array of indices/time points for the x-axis
+    time_points = np.arange(len(x_velocity))
+
+    # Plotting
+    plt.figure(figsize=(10, 6))
+    plt.plot(time_points, x_velocity, label='X-Velocity')
+    plt.title('X-Velocity over Time')
+    plt.xlabel('Time Point')
+    plt.ylabel('X-Velocity')
+    plt.legend()
+    plt.show()
+
+
+    logging.info(f"len(velocity_arr) : {len(velocity_arr)}")
+    
     max_linear_velocity = 8
     max_angular_velocity = 100
-    segments = identify_smooth_segments(poses_array, time_interval, max_linear_velocity, max_angular_velocity)
-    print(segments)
+    
+    # segments = identify_smooth_segments(poses_array, time_interval, max_linear_velocity, max_angular_velocity)
+    # print(segments)
 
 if __name__== '__main__':
     main()

@@ -17,9 +17,11 @@ test/*
 **/o1/** 
 stereo-fusion/*
 
+# folders
 output/*
 input/*
 config/*
+svo-test/*
 
 
 *.bin
