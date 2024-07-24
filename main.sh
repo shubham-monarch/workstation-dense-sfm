@@ -8,23 +8,20 @@ then
     exit 1
 fi
 
-# [PARSING CONFIG/CONFIG.JSON]
+# [PARSING CONFIG/CONFIG.PY]
 SVO_FILENAME=$(python -c '
-import json
-config = json.load(open("config/config.json"))
-print(config.get("svo_filename", ""))
+import config.config as cfg
+print(cfg.SVO_FILENAME)
 ')
 
 SVO_START_IDX=$(python -c '
-import json
-config = json.load(open("config/config.json"))
-print(config.get("svo_first_frame_idx", ""))
+import config.config as cfg
+print(cfg.SVO_START_IDX)
 ')
 
 SVO_END_IDX=$(python -c '
-import json
-config = json.load(open("config/config.json"))
-print(config.get("svo_last_frame_idx", ""))
+import config.config as cfg
+print(cfg.SVO_END_IDX)
 ')
 
 
