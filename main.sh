@@ -16,12 +16,12 @@ print(cfg.SVO_FILENAME)
 
 SVO_START_IDX=$(python -c '
 import config.config as cfg
-print(cfg.SVO_START_IDX)
+print(getattr(cfg, "SVO_START_IDX", -1))
 ')
 
 SVO_END_IDX=$(python -c '
 import config.config as cfg
-print(cfg.SVO_END_IDX)
+print(getattr(cfg, "SVO_END_IDX", -1))
 ')
 
 
