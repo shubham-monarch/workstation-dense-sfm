@@ -115,41 +115,11 @@ if __name__ == "__main__":
 	coloredlogs.install(level="INFO", force=True)
 	voxel_size = 0.05  # means 5cm for this dataset
 	
-	
-	# o3d.visualization.draw_geometries([source.to_legacy()],
-    #                               zoom=1,
-    #                               front=[0.4257, -0.2125, -0.8795],
-    #                               lookat=[2.6172, 2.0475, 1.532],
-    #                               up=[-0.0694, -0.9768, 0.2024])
-	
-	# exit()
-	# logging.info(f"Data type of points in source: {source.point['points'].dtype}")
-	# logging.warning(f"================================================")
-	# logging.info(f"type(source) : {type(source)}")
-	# logging.info(f"{dir(type(source))}")
-	# logging.warning(f"================================================")
-	
-	# # logging.info(f"len(points): {len(source.points)}")
-	# positions_dtype = source.point.positions.dtype
-	# logging.info(f"positions_dtype : {positions_dtype}")
-
-	# source.point['positions'] = source.point['positions'].to(dtype=o3d.core.Dtype.Float64)
-
-	# positions_dtype = source.point.positions.dtype
-
-	# logging.info(f"type(positions) : {type(positions)}")	
-	# logging.info(f"{len(source.point.positions)}")
-	# starget = o3d.t.io.read_point_cloud(f"{PLY_FOLDER}/annotated.ply")
-	
-	# source_clean = source.remove_radius_outlier(nb_points=16, radius=0.05)
-	
-
 	source = o3d.t.io.read_point_cloud(f"{PLY_FOLDER}/auto_segmented.ply")
 	
 	target = o3d.t.io.read_point_cloud(f"{PLY_FOLDER}/annotated.ply")
 	target.point['positions'] = target.point['positions'].to(dtype=o3d.core.Dtype.Float32)
 	
-
 	source_, mask = source.remove_statistical_outliers(nb_neighbors=20, std_ratio=2.0)
 	target_, mask = target.remove_statistical_outliers(nb_neighbors=20, std_ratio=2.0)
 	
