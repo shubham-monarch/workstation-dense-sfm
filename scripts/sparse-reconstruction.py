@@ -192,7 +192,7 @@ if __name__ == "__main__":
     generate_input_folder(Path(args.svo_images), Path(args.input_dir))
     
     zed_camera_params = get_zed_camera_params(args.svo_file)
-    logging.info(f"zed_camera_params ==> {zed_camera_params}")
+    logging.warning(f"zed_camera_params ==> {zed_camera_params}")
     
     sparse_reconstruction_pipeline( zed_camera_params, 
                                     Path(args.input_dir),

@@ -39,17 +39,18 @@ EXIT_FAILURE=1
 EXIT_SUCCESS=0
 COLMAP_EXE_PATH=/usr/local/bin
 
-# [PIPELINE PARAMS]
+# [PIPELINE INTERNAL PARAMS]
 PIPELINE_SCRIPT_DIR="scripts"
 PIPELINE_CONFIG_DIR="config"
 PIPELINE_INPUT_DIR="input" 
 PIPELINE_OUTPUT_DIR="output"
 
-SVO_FILENAME_WITH_IDX="${SVO_FILENAME}_${SVO_START_IDX}_${SVO_END_IDX}"
-
 # extracting 1 frame / {SVO_STEP} frames
 SVO_STEP=2
 
+SVO_FILENAME_WITH_IDX="${SVO_FILENAME}_${SVO_START_IDX}_${SVO_END_IDX}"
+
+# ==== PIPELINE EXECUTION STARTS HERE ====
 
 # [STEP #1 --> EXTRACT STEREO-IMAGES FROM SVO FILE]
 SVO_INPUT_DIR="${PIPELINE_INPUT_DIR}/svo-files"
@@ -68,6 +69,7 @@ echo "SVO_IMAGES_DIR: $SVO_IMAGES_DIR"
 echo "==============================="
 echo -e "\n"
 
+START_TIME=$(date +%s) 
 
 python3 "${PIPELINE_SCRIPT_DIR}/svo-to-stereo-images.py" \
 	--svo_path=$SVO_FILE_PATH \
@@ -75,6 +77,20 @@ python3 "${PIPELINE_SCRIPT_DIR}/svo-to-stereo-images.py" \
 	--end_frame=$SVO_END_IDX \
 	--output_dir=$SVO_IMAGES_DIR \
 	--svo_step=$SVO_STEP
+
+END_TIME=$(date +%s)
+DURATION=$((END_TIME - START_TIME)) 
+
+if [ $? -eq 0 ]; then
+    echo -e "\n"
+	echo "==============================="
+	echo "Time taken for SVO TO STEREO-IMAGES generation: ${DURATION} seconds"
+	echo "==============================="
+	echo -e "\n"
+else
+    echo "SVO TO STEREO-IMAGES FAILED ==> EXITING PIPELINE!"
+	return $EXIT_FAILURE
+fi
 
 # [STEP #2 --> SPARSE-RECONSTRUCTION FROM STEREO-IMAGES]
 SPARSE_RECON_INPUT_DIR="${PIPELINE_INPUT_DIR}/sparse-reconstruction/${SVO_FILENAME_WITH_IDX}"
@@ -88,22 +104,28 @@ echo "SPARSE_RECON_OUTPUT_DIR: $SPARSE_RECON_OUTPUT_DIR"
 echo "==============================="
 echo -e "\n"
 
+START_TIME=$(date +%s) 
+
 python3 "${PIPELINE_SCRIPT_DIR}/sparse-reconstruction.py" \
     --svo_images=$SVO_IMAGES_DIR \
 	--input_dir=$SPARSE_RECON_INPUT_DIR \
 	--output_dir=$SPARSE_RECON_OUTPUT_DIR \
 	--svo_file=$SVO_FILE_PATH  
 
+END_TIME=$(date +%s)
+DURATION=$((END_TIME - START_TIME)) 
+
 # [SPARSE-RECONSTRUCTION CHECK]
-if [ $? -ne 0 ]; then
+if [ $? -eq 0 ]; then
     echo -e "\n"
 	echo "==============================="
-	echo "SPARSE-RECONSTRUCTION FAILED ==> EXITING PIPELINE!"
-    echo "==============================="
+	echo "Time taken for SPARSE-RECONSTRUCTION: ${DURATION} seconds"
+	echo "==============================="
 	echo -e "\n"
-	exit $EXIT_FAILURE
+else
+    echo "STEREO-RECONSTRUCTION FAILED ==> EXITING PIPELINE!"
+	return $EXIT_FAILURE
 fi
-
 
 # [STEP #3 --> RIG-BUNDLE-ADJUSTMENT]
 RBA_INPUT_DIR="${SPARSE_RECON_OUTPUT_DIR}/ref_locked/"
@@ -122,6 +144,8 @@ echo -e "\n"
 rm -rf "${RBA_OUTPUT_DIR}"
 mkdir -p "${RBA_OUTPUT_DIR}"
 
+START_TIME=$(date +%s) 
+
 $COLMAP_EXE_PATH/colmap rig_bundle_adjuster \
 	--input_path $RBA_INPUT_DIR \
 	--output_path $RBA_OUTPUT_DIR \
@@ -132,6 +156,9 @@ $COLMAP_EXE_PATH/colmap rig_bundle_adjuster \
 	--BundleAdjustment.refine_extrinsics 1 \
 	--BundleAdjustment.max_num_iterations 500 \
 	--estimate_rig_relative_poses False
+
+END_TIME=$(date +%s)
+DURATION=$((END_TIME - START_TIME)) 
 
 # [RBA CONVERGENCE CHECK]
 if [ $? -ne 0 ]; then
@@ -148,13 +175,15 @@ python3 "${PIPELINE_SCRIPT_DIR}/rba_check.py" \
 	--rba_output=$RBA_OUTPUT_DIR
 
 # [RBA RESULTS CHECK]
-if [ $? -ne 0 ]; then
+if [ $? -eq 0 ]; then
     echo -e "\n"
 	echo "==============================="
-	echo "RBA FAILED ==> EXITING PIPELINE!"
-    echo "==============================="
+	echo "Time taken for RIG-BUNDLE-ADJUSTMENT: ${DURATION} seconds"
+	echo "==============================="
 	echo -e "\n"
-	exit $EXIT_FAILURE
+else
+    echo "RIG-BUNDLE-ADJUSTMENT FAILED ==> EXITING PIPELINE!"
+	return $EXIT_FAILURE
 fi
 
 # [STEP #4 --> DENSE RECONSTRUCTION]
@@ -170,15 +199,15 @@ python3 "${PIPELINE_SCRIPT_DIR}/dense-reconstruction.py" \
 END_TIME=$(date +%s)
 DURATION=$((END_TIME - START_TIME)) 
 
-# Check the exit status
 if [ $? -eq 0 ]; then
     echo -e "\n"
 	echo "==============================="
-	echo "Time taken for dense-reconstruction: ${DURATION/ 60} minutes"
+	echo "Time taken for dense-reconstruction: ${DURATION} seconds"
 	echo "==============================="
 	echo -e "\n"
 else
-    echo "The program encountered an error."
+    echo "DENSE-RECONSTRUCTION FAILED ==> EXITING PIPELINE!"
+	return $EXIT_FAILURE
 fi
 
 	
