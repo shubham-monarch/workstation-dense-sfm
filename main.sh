@@ -45,10 +45,11 @@ PIPELINE_CONFIG_DIR="config"
 PIPELINE_INPUT_DIR="input" 
 PIPELINE_OUTPUT_DIR="output"
 
-# extracting 1 frame / {SVO_STEP} frames
+# extracting 1 frame per {SVO_STEP} frames
 SVO_STEP=2
 
-SVO_FILENAME_WITH_IDX="${SVO_FILENAME}_${SVO_START_IDX}_${SVO_END_IDX}"
+# SVO_FILENAME_WITH_IDX="${SVO_FILENAME}_${SVO_START_IDX}_${SVO_END_IDX}"
+SUB_FOLDER_NAME="${SVO_START_IDX}_to_${SVO_END_IDX}"
 
 # ==== PIPELINE EXECUTION STARTS HERE ====
 
@@ -57,7 +58,7 @@ SVO_INPUT_DIR="${PIPELINE_INPUT_DIR}/svo-files"
 SVO_OUTPUT_DIR="${PIPELINE_OUTPUT_DIR}/stereo-images"
 
 SVO_FILE_PATH="${SVO_INPUT_DIR}/${SVO_FILENAME}"
-SVO_IMAGES_DIR="${SVO_OUTPUT_DIR}/${SVO_FILENAME_WITH_IDX}"
+SVO_IMAGES_DIR="${SVO_OUTPUT_DIR}/${SVO_FILENAME}/${SUB_FOLDER_NAME}"
 
 echo -e "\n"
 echo "==============================="
@@ -93,8 +94,8 @@ else
 fi
 
 # [STEP #2 --> SPARSE-RECONSTRUCTION FROM STEREO-IMAGES]
-SPARSE_RECON_INPUT_DIR="${PIPELINE_INPUT_DIR}/sparse-reconstruction/${SVO_FILENAME_WITH_IDX}"
-SPARSE_RECON_OUTPUT_DIR="${PIPELINE_OUTPUT_DIR}/sparse-reconstruction/${SVO_FILENAME_WITH_IDX}"
+SPARSE_RECON_INPUT_DIR="${PIPELINE_INPUT_DIR}/sparse-reconstruction/${SVO_FILENAME}/${SUB_FOLDER_NAME}"
+SPARSE_RECON_OUTPUT_DIR="${PIPELINE_OUTPUT_DIR}/sparse-reconstruction/${SVO_FILENAME}/${SUB_FOLDER_NAME}"
 
 echo -e "\n"
 echo "==============================="
@@ -129,7 +130,7 @@ fi
 
 # [STEP #3 --> RIG-BUNDLE-ADJUSTMENT]
 RBA_INPUT_DIR="${SPARSE_RECON_OUTPUT_DIR}/ref_locked/"
-RBA_OUTPUT_DIR="${PIPELINE_OUTPUT_DIR}/rig-bundle-adjustment/${SVO_FILENAME_WITH_IDX}"
+RBA_OUTPUT_DIR="${PIPELINE_OUTPUT_DIR}/rig-bundle-adjustment/${SVO_FILENAME}/${SUB_FOLDER_NAME}"
 RBA_CONFIG_PATH="${PIPELINE_CONFIG_DIR}/rig.json"
 
 echo -e "\n"
@@ -167,6 +168,7 @@ if [ $? -ne 0 ]; then
 	echo "RBA FAILED ==> EXITING PIPELINE!"
     echo "==============================="
 	echo -e "\n"
+	rm -rf "${RBA_OUTPUT_DIR}"
 	exit $EXIT_FAILURE
 fi
 
@@ -187,7 +189,7 @@ else
 fi
 
 # [STEP #4 --> DENSE RECONSTRUCTION]
-DENSE_RECON_OUTPUT_DIR="${PIPELINE_OUTPUT_DIR}/dense-reconstruction/${SVO_FILENAME_WITH_IDX}"
+DENSE_RECON_OUTPUT_DIR="${PIPELINE_OUTPUT_DIR}/dense-reconstruction/${SVO_FILENAME}/${SUB_FOLDER_NAME}"
 
 START_TIME=$(date +%s) 
 
@@ -210,4 +212,10 @@ else
 	return $EXIT_FAILURE
 fi
 
-	
+# [STEP #5 --> SAVING RGB PLY + BIN POINTCLOUD]
+
+# [STEP #5 --> SEGEMENTATION FUSION]
+
+# [STEP #5 --> GENERATING CAMERA FRAME POINTCLOUDS]
+
+
