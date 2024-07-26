@@ -87,7 +87,7 @@ def plot_data(data, output_folder=None, labels=None, x_range=None, y_range=None,
 			ax.set_xlim(x_range)
 		if y_range:
 			ax.set_ylim(y_range)
-			ax.set_yticks(np.linspace(y_range[0], y_range[1], y_ticks))
+			# ax.set_yticks(np.linspace(y_range[0], y_range[1], y_ticks))
 
 	
 	plt.xlabel('Data Point Index')
@@ -103,10 +103,53 @@ def plot_data(data, output_folder=None, labels=None, x_range=None, y_range=None,
 	plt.close()
 
 
+def get_imu_poses(svo_file_path):
+	init_params = sl.InitParameters(camera_resolution=sl.RESOLUTION.HD720,
+								 coordinate_units=sl.UNIT.METER)
+	
+	init_params.set_from_svo_file(svo_file_path)
+	init_params.svo_real_time_mode = False
+	
+	zed = sl.Camera()
+	status = zed.open(init_params)
+	if status != sl.ERROR_CODE.SUCCESS:
+		print("Camera Open", status, "Exit program.")
+		exit(1)
+	
+	runtime = sl.RuntimeParameters()
+
+	sensors_data = sl.SensorsData()
+
+	total_frames = zed.get_svo_number_of_frames()
+	imu_poses = []
+
+	for i in tqdm(range(0, total_frames - 1)):
+		if zed.grab(runtime) == sl.ERROR_CODE.SUCCESS:
+			# tracking_state_camera = zed.get_position(pose_CAMERA_frame,sl.REFERENCE_FRAME.CAMERA)
+	
+			zed.get_sensors_data(sensors_data, sl.TIME_REFERENCE.IMAGE) #  Get frame synchronized sensor data
+
+		# Extract multi-sensor data
+			imu_data = sensors_data.get_imu_data()
+
+			# logging.info(f"dir(imu_data): {dir(imu_data)}")
+			# logging.info(f"pose: {imu_data.get_pose()}")
+			
+			imu_pose = imu_data.get_pose()
+			translation = imu_pose.get_translation().get()
+			rotation = imu_pose.get_rotation_matrix()
+
+			imu_poses.append(translation)
+
+			# logging.info(f"type(pose): {type(imu_pose)}")
+			# logging.info(f"translation: {translation} type: {type(translation)}")
+			# logging.info(f"rotation: {rotation} type: {type(rotation)}") 
+			# break
+	return imu_poses
+
 def get_camera_poses(svo_file_path):
 	init_params = sl.InitParameters(camera_resolution=sl.RESOLUTION.HD720,
-								 coordinate_units=sl.UNIT.METER,
-								 coordinate_system=sl.COORDINATE_SYSTEM.RIGHT_HANDED_Y_UP)
+								 coordinate_units=sl.UNIT.METER)
 	
 	init_params.set_from_svo_file(svo_file_path)
 	init_params.svo_real_time_mode = False
@@ -117,6 +160,8 @@ def get_camera_poses(svo_file_path):
 		print("Camera Open", status, "Exit program.")
 		exit(1)
 
+
+
 	# if len(opt.roi_mask_file) > 0:
 	# 	mask_roi = sl.Mat()
 	# 	err = mask_roi.read(opt.roi_mask_file)
@@ -125,7 +170,7 @@ def get_camera_poses(svo_file_path):
 	# 	else:
 	# 		print(f"Error loading Region of Interest file {opt.roi_mask_file}. Please check the path.")
 
-	tracking_params = sl.PositionalTrackingParameters() #set parameters for Positional Tracking
+	tracking_params = sl.PositionalTrackingParameters(_enable_memory=True) #set parameters for Positional Tracking
 	tracking_params.enable_imu_fusion = True
 	tracking_params.mode = sl.POSITIONAL_TRACKING_MODE.GEN_1
 	status = zed.enable_positional_tracking(tracking_params) #enable Positional Tracking
@@ -134,40 +179,76 @@ def get_camera_poses(svo_file_path):
 		zed.close()
 		exit()
 
-	runtime = sl.RuntimeParameters()
-	camera_pose = sl.Pose()
+	# logging.warning(f"tracking_params._enable_memory: {tracking_params._enable_memory}")
 
+	runtime = sl.RuntimeParameters()
+	
+	pose_CAMERA_frame = sl.Pose()
+	pose_WORLD_frame = sl.Pose()
 	
 	camera_info = zed.get_camera_information()
 	py_translation = sl.Translation()
-	pose_data = sl.Transform()
-	cam_poses = []
 	
+	poses_CAMERA_frame = []
+	poses_WORLD_frame = []
+
+	translation_WORLD_frame = sl.Translation()
+	rotation_WORLD_frame = sl.Rotation()
+
+	# translation_CAMERA_frame = sl.Translation()
+	# rotation_CAMERA_frame = sl.Orientation()
+
 	total_frames = zed.get_svo_number_of_frames()
 	for i in range(0, total_frames - 1):
+		
 		if zed.grab(runtime) == sl.ERROR_CODE.SUCCESS:
-			tracking_state = zed.get_position(camera_pose,sl.REFERENCE_FRAME.WORLD) #Get the position of the camera in a fixed reference frame (the World Frame)
+			# tracking_state_camera = zed.get_position(pose_CAMERA_frame,sl.REFERENCE_FRAME.CAMERA)
+			tracking_state_world = zed.get_position(pose_WORLD_frame,sl.REFERENCE_FRAME.WORLD) 
 			tracking_status = zed.get_positional_tracking_status()
 
-			#Get rotation and translation and displays it
-			if tracking_state == sl.POSITIONAL_TRACKING_STATE.OK:
-				rotation = camera_pose.get_rotation_vector()
-				translation = camera_pose.get_translation(py_translation)
-				cam_poses.append(translation.get())
-				logging.info(f"{i} {translation.get()}")
-				# text_rotation = str((round(rotation[0], 2), round(rotation[1], 2), round(rotation[2], 2)))
-				# text_translation = str((round(translation.get()[0], 2), round(translation.get()[1], 2), round(translation.get()[2], 2)))
-
-			pose_data = camera_pose.pose_data(sl.Transform())
-			# Update rotation, translation and tracking state values in the OpenGL window
+			if tracking_state_world == sl.POSITIONAL_TRACKING_STATE.OK:
+			# if tracking_state_camera == sl.POSITIONAL_TRACKING_STATE.OK:
+				# rotation_CAMERA_frame = pose_CAMERA_frame.get_rotation_matrix()
+				# translation_CAMERA_frame = pose_CAMERA_frame.get_translation(py_translation)
+				
+				rotation_WORLD_frame = pose_WORLD_frame.get_rotation_matrix()
+				# logging.info(f"type(rotation_WORLD_frame): {type(rotation_WORLD_frame)}")
+				translation_WORLD_frame = pose_WORLD_frame.get_translation()
+				
+				# poses_CAMERA_frame.append(translation_CAMERA_frame.get())
+				poses_WORLD_frame.append(translation_WORLD_frame.get())
+				# logging.info(f"{i} {tracking_state_camera} {tracking_state_world}")
+				logging.info(f"{i} {tracking_state_world}")
+			else:
+				logging.error(f"{i} {tracking_state_world}")	
 			
+			if i % 400 == 0:
+				# logging.error(f"{i} {tracking_state_camera} {tracking_state_world}")
+				logging.error(f"{i} {tracking_state_world}")
+				logging.info("TRYING TO RESET POSITIONAL TRACKING")
+				
+				# generating world transform
+				world_transform = sl.Transform()
+				world_transform.set_translation(translation_WORLD_frame)
+				world_transform.set_rotation_matrix(rotation_WORLD_frame)
+				# world_transform.set_translation(sl.Translation(0, 0, 0))
+				# world_transform.set_rotation_matrix(sl.Rotation(0, 0, 0))
+
+				status = zed.reset_positional_tracking(world_transform)
+				logging.info(f"status: {status}")
+				if status != sl.ERROR_CODE.SUCCESS:
+					logging.error("FAILED TO RESET POSITIONAL TRACKING")
+				time.sleep(1)
+				
 		else : 
 			time.sleep(0.001)
-	# viewer.exit()
+	
 	zed.close()
-	cam_poses = np.array(cam_poses)
-	logging.info(f"cam_poses.shape: {cam_poses.shape}")
-	return cam_poses
+	# poses_CAMERA_frame = np.array(poses_CAMERA_frame)
+	# return poses_CAMERA_frame
+
+	poses_WORLD_frame = np.array(poses_WORLD_frame)
+	return poses_WORLD_frame
 
 # TO-DO -> 
 # - add roi auto detection
@@ -183,7 +264,11 @@ if __name__ == "__main__":
 	# svo-filtering directories
 	INPUT_FOLDER = f"{PROJECT_INPUT_FOLER}/svo-files"
 	OUTPUT_FOLER=f"{PROJECT_OUTPUT_FOLDER}/filtered-svo-files"
-	SVO_FILE = "front_2023-11-03-10-51-17.svo"
+	# SVO_FILE = "front_2023-11-03-10-51-17.svo"
+	# SVO_FILE = "front_2023-11-03-11-13-52.svo"
+	# SVO_FILE = "front_2023-11-03-10-46-17.svo" --> FAILING
+	SVO_FILE = "front_2024-05-15-18-59-18.svo"
+
 	SVO_PATH=f"{INPUT_FOLDER}/{SVO_FILE}"   
 	
 	logging.info(f"output_folder: {OUTPUT_FOLER}")
@@ -197,11 +282,15 @@ if __name__ == "__main__":
 	# segments = extract_forward_moving_segments(SVO_PATH)
 	# logging.info(f"len(segments): {len(segments)}") 
 	
-	translation_poses = get_camera_poses(SVO_PATH)
-	plot_data(translation_poses)
-	# for segment in segments:
-	# 	logging.info(f"segment: {segment}")
+	# translation_poses = get_camera_poses(SVO_PATH)
+	# plot_data(translation_poses, y_range=(-20,1))
+	# # for segment in segments:
+	# # 	logging.info(f"segment: {segment}")
 	
+	imu_poses = get_imu_poses(SVO_PATH)
+	logging.info(f"type(imu_poses): {type(imu_poses)}")
+	plot_data(imu_poses)
+
 	# project directories
 	
 	

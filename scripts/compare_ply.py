@@ -24,7 +24,7 @@ def read_ply(ply_file):
 
 if __name__ == "__main__":
 	rr.init("AUTO-SEGMENTED vs ANNOTATED", spawn=True)
-	coloredlogs.install(level="INFO", forece=True)
+	coloredlogs.install(level="INFO", force=True)
 	# positions = np.zeros((10, 3))
 	# positions[:,0] = np.linspace(-10,10,10)
 

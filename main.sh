@@ -1,6 +1,5 @@
 #!/bin/bash
 
-
 # [VIRTUAL ENV CHECK]
 if [[ "$VIRTUAL_ENV" == "" ]]
 then
@@ -95,6 +94,16 @@ python3 "${PIPELINE_SCRIPT_DIR}/sparse-reconstruction.py" \
 	--output_dir=$SPARSE_RECON_OUTPUT_DIR \
 	--svo_file=$SVO_FILE_PATH  
 
+# [SPARSE-RECONSTRUCTION CHECK]
+if [ $? -ne 0 ]; then
+    echo -e "\n"
+	echo "==============================="
+	echo "SPARSE-RECONSTRUCTION FAILED ==> EXITING PIPELINE!"
+    echo "==============================="
+	echo -e "\n"
+	exit $EXIT_FAILURE
+fi
+
 
 # [STEP #3 --> RIG-BUNDLE-ADJUSTMENT]
 RBA_INPUT_DIR="${SPARSE_RECON_OUTPUT_DIR}/ref_locked/"
@@ -134,7 +143,7 @@ if [ $? -ne 0 ]; then
 	exit $EXIT_FAILURE
 fi
 
-# [LOGGING RBA RESULTS]
+# [VERIFYING RBA RESULTS]
 python3 "${PIPELINE_SCRIPT_DIR}/rba_check.py" \
 	--rba_output=$RBA_OUTPUT_DIR
 
@@ -161,10 +170,15 @@ python3 "${PIPELINE_SCRIPT_DIR}/dense-reconstruction.py" \
 END_TIME=$(date +%s)
 DURATION=$((END_TIME - START_TIME)) 
 
-echo -e "\n"
-echo "==============================="
-echo "Time taken for dense-reconstruction: ${DURATION/ 60} minutes"
-echo "==============================="
-echo -e "\n"
+# Check the exit status
+if [ $? -eq 0 ]; then
+    echo -e "\n"
+	echo "==============================="
+	echo "Time taken for dense-reconstruction: ${DURATION/ 60} minutes"
+	echo "==============================="
+	echo -e "\n"
+else
+    echo "The program encountered an error."
+fi
+
 	
-exit $EXIT_SUCCESS
