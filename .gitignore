@@ -16,6 +16,7 @@ test/*
 # custom folders
 **/o1/** 
 stereo-fusion/*
+.vscode/*
 
 # folders
 output/*

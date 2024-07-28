@@ -72,12 +72,12 @@ echo -e "\n"
 
 START_TIME=$(date +%s) 
 
-python3 "${PIPELINE_SCRIPT_DIR}/svo-to-stereo-images.py" \
-	--svo_path=$SVO_FILE_PATH \
-	--start_frame=$SVO_START_IDX \
-	--end_frame=$SVO_END_IDX \
-	--output_dir=$SVO_IMAGES_DIR \
-	--svo_step=$SVO_STEP
+# python3 "${PIPELINE_SCRIPT_DIR}/svo-to-stereo-images.py" \
+# 	--svo_path=$SVO_FILE_PATH \
+# 	--start_frame=$SVO_START_IDX \
+# 	--end_frame=$SVO_END_IDX \
+# 	--output_dir=$SVO_IMAGES_DIR \
+# 	--svo_step=$SVO_STEP
 
 END_TIME=$(date +%s)
 DURATION=$((END_TIME - START_TIME)) 
@@ -107,11 +107,11 @@ echo -e "\n"
 
 START_TIME=$(date +%s) 
 
-python3 "${PIPELINE_SCRIPT_DIR}/sparse-reconstruction.py" \
-    --svo_images=$SVO_IMAGES_DIR \
-	--input_dir=$SPARSE_RECON_INPUT_DIR \
-	--output_dir=$SPARSE_RECON_OUTPUT_DIR \
-	--svo_file=$SVO_FILE_PATH  
+# python3 "${PIPELINE_SCRIPT_DIR}/sparse-reconstruction.py" \
+#     --svo_images=$SVO_IMAGES_DIR \
+# 	--input_dir=$SPARSE_RECON_INPUT_DIR \
+# 	--output_dir=$SPARSE_RECON_OUTPUT_DIR \
+# 	--svo_file=$SVO_FILE_PATH  
 
 END_TIME=$(date +%s)
 DURATION=$((END_TIME - START_TIME)) 
@@ -142,21 +142,21 @@ echo "RBA_CONFIG_PATH: $RBA_CONFIG_PATH"
 echo "==============================="
 echo -e "\n"
 
-rm -rf "${RBA_OUTPUT_DIR}"
-mkdir -p "${RBA_OUTPUT_DIR}"
+# rm -rf "${RBA_OUTPUT_DIR}"
+# mkdir -p "${RBA_OUTPUT_DIR}"
 
-START_TIME=$(date +%s) 
+# START_TIME=$(date +%s) 
 
-$COLMAP_EXE_PATH/colmap rig_bundle_adjuster \
-	--input_path $RBA_INPUT_DIR \
-	--output_path $RBA_OUTPUT_DIR \
-	--rig_config_path $RBA_CONFIG_PATH \
-	--BundleAdjustment.refine_focal_length 0 \
-	--BundleAdjustment.refine_principal_point 0 \
-	--BundleAdjustment.refine_extra_params 0 \
-	--BundleAdjustment.refine_extrinsics 1 \
-	--BundleAdjustment.max_num_iterations 500 \
-	--estimate_rig_relative_poses False
+# $COLMAP_EXE_PATH/colmap rig_bundle_adjuster \
+# 	--input_path $RBA_INPUT_DIR \
+# 	--output_path $RBA_OUTPUT_DIR \
+# 	--rig_config_path $RBA_CONFIG_PATH \
+# 	--BundleAdjustment.refine_focal_length 0 \
+# 	--BundleAdjustment.refine_principal_point 0 \
+# 	--BundleAdjustment.refine_extra_params 0 \
+# 	--BundleAdjustment.refine_extrinsics 1 \
+# 	--BundleAdjustment.max_num_iterations 500 \
+# 	--estimate_rig_relative_poses False
 
 END_TIME=$(date +%s)
 DURATION=$((END_TIME - START_TIME)) 
@@ -185,7 +185,7 @@ if [ $? -eq 0 ]; then
 	echo -e "\n"
 else
     echo "RIG-BUNDLE-ADJUSTMENT FAILED ==> EXITING PIPELINE!"
-	return $EXIT_FAILURE
+	exit $EXIT_FAILURE
 fi
 
 # [STEP #4 --> DENSE RECONSTRUCTION]
@@ -193,10 +193,12 @@ DENSE_RECON_OUTPUT_DIR="${PIPELINE_OUTPUT_DIR}/dense-reconstruction/${SVO_FILENA
 
 START_TIME=$(date +%s) 
 
+
 python3 "${PIPELINE_SCRIPT_DIR}/dense-reconstruction.py" \
   --mvs_path="$DENSE_RECON_OUTPUT_DIR" \
   --output_path="$RBA_OUTPUT_DIR" \
   --image_dir="$SPARSE_RECON_INPUT_DIR"
+
 
 END_TIME=$(date +%s)
 DURATION=$((END_TIME - START_TIME)) 

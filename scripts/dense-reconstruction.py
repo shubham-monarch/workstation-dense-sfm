@@ -15,7 +15,10 @@ def dense_sfm_pipeline(mvs_path, output_path, image_dir):
 
     pycolmap.undistort_images(mvs_path, output_path, image_dir)
     pycolmap.patch_match_stereo(mvs_path)  # requires compilation with CUDA
+    # generating dense.ply / dense.ply.vis
     pycolmap.stereo_fusion(mvs_path / "dense.ply", mvs_path)
+    # generating .bin files
+    pycolmap.stereo_fusion(mvs_path , mvs_path)
     
 if __name__ == "__main__": 
     #mvs_path = Path("../output/")

@@ -62,6 +62,9 @@ def main(filepath, start, end, dir_path_, svo_step = 1):
             zed.retrieve_image(image_r, sl.VIEW.RIGHT)
             image.write( os.path.join(output_dir, 'left_image.jpg') )
             image_r.write( os.path.join(output_dir, 'right_image.jpg') )
+            # image.write( os.path.join(output_dir, 'left_image.png') )
+            # image_r.write( os.path.join(output_dir, 'right_image.png') )
+        
         else:
             sys.exit(1)
     zed.close()

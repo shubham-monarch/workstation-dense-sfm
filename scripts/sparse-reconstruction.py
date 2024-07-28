@@ -85,6 +85,10 @@ def generate_input_folder(src_dir, dst_dir):
                         shutil.copy(os.path.join(images_dir, file_name), os.path.join(dst_dir, 'left', dir_name + '_.jpg'))
                     elif file_name == 'right_image.jpg':
                         shutil.copy(os.path.join(images_dir, file_name), os.path.join(dst_dir, 'right', dir_name + '_.jpg'))
+                    # if file_name == 'left_image.png':
+                    #     shutil.copy(os.path.join(images_dir, file_name), os.path.join(dst_dir, 'left', dir_name + '_.png'))
+                    # elif file_name == 'right_image.png':
+                    #     shutil.copy(os.path.join(images_dir, file_name), os.path.join(dst_dir, 'right', dir_name + '_.png'))
 
 
 
