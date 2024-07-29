@@ -125,7 +125,7 @@ if [ ! -d "$SVO_IMAGES_DIR" ]; then
 else
 	echo -e "\n"
 	echo "[WARNING] SKIPPING svo to stereo-images generation as ${SVO_IMAGES_DIR} already exists."
-	echo "[WARNING] Delete ${SVO_IMAGES_DIR} and try again!"
+	echo "[WARNING] Delete [${SVO_IMAGES_DIR}] folder and try again!"
 	echo -e "\n"
 fi
 
@@ -169,7 +169,7 @@ if [ ! -d "$SPARSE_RECON_OUTPUT_DIR" ]; then
 else 
 	echo -e "\n"
 	echo "[WARNING] SKIPPING stereo-images to sparse-reconstruction as ${SPARSE_RECON_OUTPUT_DIR} already exists."
-	echo "[WARNING] Delete ${SPARSE_RECON_OUTPUT_DIR} and try again!"
+	echo "[WARNING] Delete [${SPARSE_RECON_OUTPUT_DIR}] folder and try again!"
 	echo -e "\n"
 fi
 
@@ -239,7 +239,7 @@ if [ ! -d "$RBA_OUTPUT_DIR" ]; then
 else
 	echo -e "\n"
 	echo "[WARNING] SKIPPING rig-bundle-adjustment as ${RBA_OUTPUT_DIR} already exists."
-	echo "[WARNING] Delete ${RBA_OUTPUT_DIR} and try again!"
+	echo "[WARNING] Delete [${RBA_OUTPUT_DIR}] folder and try again!"
 	echo -e "\n"
 fi
 
@@ -273,7 +273,7 @@ if [ ! -d "$DENSE_RECON_OUTPUT_DIR" ]; then
 else 
 	echo -e "\n"
 	echo "[WARNING] SKIPPING dense-reconstruction as ${DENSE_RECON_OUTPUT_DIR} already exists."
-	echo "[WARNING] Delete ${DENSE_RECON_OUTPUT_DIR} and try again!"
+	echo "[WARNING] Delete [${DENSE_RECON_OUTPUT_DIR}] folder and try again!"
 	echo -e "\n"
 fi
 
@@ -286,7 +286,7 @@ CAMERA_FRAME_PCL_CROPPED="${PIPELINE_OUTPUT_DIR}/pointcloud-cropped-camera-frame
 if [ -d "$CAMERA_FRAME_PCL" ] && [ -d "$CAMERA_FRAME_PCL_CROPPED" ]; then
 	echo -e "\n"
 	echo "[WARNING] SKIPPING frame-wise pointcloud generation as ${CAMERA_FRAME_PCL} and ${CAMERA_FRAME_PCL_CROPPED} already exist."
-	echo "[WARNING] Delete ${CAMERA_FRAME_PCL} or ${CAMERA_FRAME_PCL_CROPPED} and try again!"
+	echo "[WARNING] Delete [${CAMERA_FRAME_PCL}] or [${CAMERA_FRAME_PCL_CROPPED}] and try again!"
 	echo -e "\n"
 else 
 	START_TIME=$(date +%s) 
