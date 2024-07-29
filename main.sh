@@ -10,19 +10,23 @@
 	- tune and integrate VO script 
 	- sampling
 - add segmentation inference script
-- frame 2 frame  
+- frame 2 frame for pcl-segmented-world-frame  
 - add parent + child config file/script
 - aws integration
 - dense reconstruction support for multiple gpus
 - retag colmap , pycolmap
-- add + update setup.md
+- add + updatse setup.md
 - add images / video support
 - add main-ws.sh, main-aws.sh
 - add output / [rgb-world-frame, rgb-camera-frame, segmented-world-frame, segmented-camera-frame]
 - delete incomplete folder
+- add unused scripts module
+- skip step if folder exists
 - check for existing reconstructions
 - set configs using python
 - move output-backend ---> output script
+- refactor script folders into separate modules
+- [error-handling / folder deletion] for Ctrl-C / unexpected script termination 
 comment
 
 
@@ -37,6 +41,9 @@ PIPELINE_CONFIG_DIR="config"
 PIPELINE_INPUT_DIR="input-backend" 
 PIPELINE_OUTPUT_DIR="output-backend"
 
+
+
+# ==== PIPELINE EXECUTION STARTS HERE ====
 
 
 # [VIRTUAL ENV CHECK]
@@ -76,8 +83,6 @@ echo -e "\n"
 
 # SVO_FILENAME_WITH_IDX="${SVO_FILENAME}_${SVO_START_IDX}_${SVO_END_IDX}"
 SUB_FOLDER_NAME="${SVO_START_IDX}_to_${SVO_END_IDX}"
-
-# ==== PIPELINE EXECUTION STARTS HERE ====
 
 # [STEP #1 --> EXTRACT STEREO-IMAGES FROM SVO FILE]
 SVO_INPUT_DIR="${PIPELINE_INPUT_DIR}/svo-files"

@@ -11,6 +11,8 @@ from camera_helpers import CameraHelpers
 
 from collections import namedtuple
 
+from ..utils_module import io_utils
+
 BoundingBox = namedtuple('BoundingBox', ['min_x', 'max_x', 'min_y', 'max_y', 'min_z', 'max_z'])
 
 class P360DatasetGenerator:
@@ -97,7 +99,7 @@ class P360DatasetGenerator:
         frame_id = int(name_.split("/")[-1].split("_")[1])
         return frame_id
 
-    def write_sfm_model_to_disk(self, model, image_id, prefix="sfm_in_camera_frame/"):
+    def write_sfm_model_to_disk(self, model, image_id):
         """
         writes the model as a PLY file to the disk
         default location: ply/sfm_in_camera_frame/left/frame_id.ply
@@ -112,8 +114,10 @@ class P360DatasetGenerator:
         frame_id = self._frame_id(image_id) 
         
         # exporting the model as PLY file
-        ply_file_path = self.ply_folder_path + prefix  + ("/left/" if is_left else "/right/")
-        os.makedirs(ply_file_path, exist_ok=True)    
+        ply_file_path = self.ply_folder_path + ("/left/" if is_left else "/right/")
+        # os.makedirs(ply_file_path, exist_ok=True)    
+        io_utils.delete_folders([ply_file_path])
+        io_utils.create_folders([ply_file_path])
         ply_file_path += "frame_" + str(frame_id) + ".ply"
         model.export_PLY(ply_file_path)
         return ply_file_path
@@ -130,9 +134,11 @@ class P360DatasetGenerator:
         frame_id = self._frame_id(image_id)
 
         output_path = "../ply/" + prefix  + ("/left/" if is_left else "/right/")
-        os.makedirs(output_path, exist_ok=True)    
-        output_path += "frame_" + str(frame_id) + ".ply"
         
+        io_utils.delete_folders([output_path])  
+        io_utils.create_folders([output_path])
+        
+        output_path += "frame_" + str(frame_id) + ".ply"
         o3d.io.write_point_cloud(output_path, cropped_pcl)
 
     def generate_cropped_pcl(self, ply_path):
