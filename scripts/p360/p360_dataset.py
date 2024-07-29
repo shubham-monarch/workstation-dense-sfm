@@ -9,10 +9,13 @@ import sys
 from tqdm import tqdm
 
 from collections import namedtuple
+import logging, coloredlogs
 
 from .camera_helpers import CameraHelpers
 from . import read_write_model
 from ..utils_module import io_utils
+
+coloredlogs.install(level='INFO', force=True)
 
 BoundingBox = namedtuple('BoundingBox', ['min_x', 'max_x', 'min_y', 'max_y', 'min_z', 'max_z'])
 
@@ -44,6 +47,10 @@ class P360DatasetGenerator:
 
         # ply folder path to write the cropped pointcloud
         self.ply_folder_path = ply_folder_path
+        
+        # creating folders at output location
+        io_utils.delete_folders([self.ply_folder_path])
+        io_utils.create_folders([self.ply_folder_path])
 
     def generate_indices(self):
 
@@ -114,12 +121,12 @@ class P360DatasetGenerator:
         is_left = (image_name.split("/")[0] == "left")
         frame_id = self._frame_id(image_id) 
         
-        # exporting the model as PLY file
         ply_file_path = self.ply_folder_path + ("/left/" if is_left else "/right/")
-        # os.makedirs(ply_file_path, exist_ok=True)    
-        io_utils.delete_folders([ply_file_path])
         io_utils.create_folders([ply_file_path])
+        
         ply_file_path += "frame_" + str(frame_id) + ".ply"
+        
+        # exporting the model as PLY file
         model.export_PLY(ply_file_path)
         return ply_file_path
 
@@ -180,9 +187,9 @@ class P360DatasetGenerator:
             sfm_in_camera_frame_model = self.transform_model_to_camera_frame(cam_Rt)
             PLY_path = self.write_sfm_model_to_disk(sfm_in_camera_frame_model, image_id)
             
-            #cropping the sfm_in_camera frame pointcloud
-            #cropped_pcl = self.generate_cropped_pcl(PLY_path)
-            #self.write_cropped_pcl_to_disk(cropped_pcl, image_id)
+            # # cropping the sfm_in_camera frame pointcloud
+            # cropped_pcl = self.generate_cropped_pcl(PLY_path)
+            # self.write_cropped_pcl_to_disk(cropped_pcl, image_id)
             
             #break
             

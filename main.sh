@@ -15,7 +15,7 @@
 - aws integration
 - dense reconstruction support for multiple gpus
 - retag colmap , pycolmap
-- add + updatse setup.md
+- add + update setup.md
 - add images / video support
 - add main-ws.sh, main-aws.sh
 - add output / [rgb-world-frame, rgb-camera-frame, segmented-world-frame, segmented-camera-frame]
@@ -250,7 +250,7 @@ fi
 # [FRAME-TO-FRAME PLY GENERATION]
 P360_MODULE="p360"
 BOUNDING_BOX="-5 5 -1 1 -1 1"
-P360_OUTPUT_DIR="${PIPELINE_OUTPUT_DIR}/pcl-camera-frame/${SVO_FILENAME}/${SUB_FOLDER_NAME}"
+P360_OUTPUT_DIR="${PIPELINE_OUTPUT_DIR}/pointcloud-camera-frame/${SVO_FILENAME}/${SUB_FOLDER_NAME}"
 
 python3 -m ${PIPELINE_SCRIPT_DIR}.${P360_MODULE}.main \
   --bounding_box $BOUNDING_BOX \
