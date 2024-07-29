@@ -9,9 +9,6 @@ import shutil
 import time
 import math
 
-# TO-DO=>
-# - jsonize config files
-# - fix git tracking issue
 
 
 import matplotlib.pyplot as plt

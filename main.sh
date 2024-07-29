@@ -13,7 +13,14 @@
 	- sampling
 - add segmentation inference script
 - frame 2 frame  
-
+- add parent + child config file/script
+- aws integration
+- dense reconstruction support for multiple gpus
+- retag colmap , pycolmap
+- add + update setup.md
+- add images / video support
+- add main-ws.sh, main-aws.sh
+- add output / [rgb-world-frame, rgb-camera-frame, segmented-world-frame, segmented-camera-frame]
 comment
 
 
