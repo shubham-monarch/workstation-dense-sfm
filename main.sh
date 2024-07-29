@@ -1,7 +1,5 @@
 #!/bin/bash
 
-
-
 <<comment
 [TO-DO]
 - add colmap camke  update to support pycolmap installtion 
@@ -31,7 +29,6 @@
 
 comment
 
-
 # [GLOBAL PARAMS]
 EXIT_FAILURE=1
 EXIT_SUCCESS=0
@@ -43,10 +40,7 @@ PIPELINE_CONFIG_DIR="config"
 PIPELINE_INPUT_DIR="input-backend" 
 PIPELINE_OUTPUT_DIR="output-backend"
 
-
-
 # ==== PIPELINE EXECUTION STARTS HERE ====
-
 
 # [VIRTUAL ENV CHECK]
 if [[ "$VIRTUAL_ENV" == "" ]]
@@ -71,7 +65,6 @@ import config.config as cfg
 print(getattr(cfg, "SVO_END_IDX", -1))
 ')
 
-
 echo -e "\n"
 echo "==============================="
 echo "[PARSING CONFIG.JSON]"
@@ -93,7 +86,6 @@ SVO_IMAGES_DIR="${SVO_OUTPUT_DIR}/${SVO_FILENAME}/${SUB_FOLDER_NAME}"
 
 # extracting 1 frame per {SVO_STEP} frames
 SVO_STEP=2
-
 
 echo -e "\n"
 echo "==============================="
@@ -136,7 +128,6 @@ else
 	echo "[WARNING] Delete ${SVO_IMAGES_DIR} and try again!"
 	echo -e "\n"
 fi
-
 
 # [STEP #2 --> SPARSE-RECONSTRUCTION FROM STEREO-IMAGES]
 SPARSE_RECON_INPUT_DIR="${PIPELINE_INPUT_DIR}/sparse-reconstruction/${SVO_FILENAME}/${SUB_FOLDER_NAME}"
@@ -181,7 +172,6 @@ else
 	echo "[WARNING] Delete ${SPARSE_RECON_OUTPUT_DIR} and try again!"
 	echo -e "\n"
 fi
-
 
 # [STEP #3 --> RIG-BUNDLE-ADJUSTMENT]
 RBA_INPUT_DIR="${SPARSE_RECON_OUTPUT_DIR}/ref_locked/"
