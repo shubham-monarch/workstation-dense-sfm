@@ -11,8 +11,6 @@
 - retag colmap , pycolmap
 - add + update setup.md
 - add main-ws.sh, main-aws.sh
-- skip step if folder exists
-- check for existing reconstructions
 - refactor script folders into separate modules
 - [error-handling / folder deletion] for Ctrl-C / unexpected script termination 
 - check if script is being executed from the project root
@@ -135,7 +133,7 @@ if [ ! -d "$SVO_IMAGES_DIR" ]; then
 else
 	echo -e "\n"
 	echo "[WARNING] SKIPPING svo to stereo-images generation as ${SVO_IMAGES_DIR} already exists."
-	echo "[WARNING] Delete the folder from the output location and try again!"
+	echo "[WARNING] Delete ${SVO_IMAGES_DIR} and try again!"
 	echo -e "\n"
 fi
 
@@ -180,7 +178,7 @@ if [ ! -d "$SPARSE_RECON_OUTPUT_DIR" ]; then
 else 
 	echo -e "\n"
 	echo "[WARNING] SKIPPING stereo-images to sparse-reconstruction as ${SPARSE_RECON_OUTPUT_DIR} already exists."
-	echo "[WARNING] Delete the folder from the output location and try again!"
+	echo "[WARNING] Delete ${SPARSE_RECON_OUTPUT_DIR} and try again!"
 	echo -e "\n"
 fi
 
@@ -251,10 +249,9 @@ if [ ! -d "$RBA_OUTPUT_DIR" ]; then
 else
 	echo -e "\n"
 	echo "[WARNING] SKIPPING rig-bundle-adjustment as ${RBA_OUTPUT_DIR} already exists."
-	echo "[WARNING] Delete the folder from the output location and try again!"
+	echo "[WARNING] Delete ${RBA_OUTPUT_DIR} and try again!"
 	echo -e "\n"
 fi
-
 
 # [STEP #4 --> DENSE RECONSTRUCTION]
 DENSE_RECON_OUTPUT_DIR="${PIPELINE_OUTPUT_DIR}/dense-reconstruction/${SVO_FILENAME}/${SUB_FOLDER_NAME}"
@@ -286,7 +283,7 @@ if [ ! -d "$DENSE_RECON_OUTPUT_DIR" ]; then
 else 
 	echo -e "\n"
 	echo "[WARNING] SKIPPING dense-reconstruction as ${DENSE_RECON_OUTPUT_DIR} already exists."
-	echo "[WARNING] Delete the folder from the output location and try again!"
+	echo "[WARNING] Delete ${DENSE_RECON_OUTPUT_DIR} and try again!"
 	echo -e "\n"
 fi
 
@@ -299,7 +296,7 @@ CAMERA_FRAME_PCL_CROPPED="${PIPELINE_OUTPUT_DIR}/pointcloud-cropped-camera-frame
 if [ -d "$CAMERA_FRAME_PCL" ] && [ -d "$CAMERA_FRAME_PCL_CROPPED" ]; then
 	echo -e "\n"
 	echo "[WARNING] SKIPPING frame-wise pointcloud generation as ${CAMERA_FRAME_PCL} and ${CAMERA_FRAME_PCL_CROPPED} already exist."
-	echo "[WARNING] Delete the folders from the output location and try again!"
+	echo "[WARNING] Delete ${CAMERA_FRAME_PCL} or ${CAMERA_FRAME_PCL_CROPPED} and try again!"
 	echo -e "\n"
 else 
 	START_TIME=$(date +%s) 
