@@ -19,6 +19,8 @@ svo-test/*
 output-backend/*
 input-backend/*
 
+
+
 # file types
 *.bin
 *.ply
@@ -32,3 +34,4 @@ test/*
 *.svo*
 *.txt
 *.zip
+.gitkeep

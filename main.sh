@@ -6,23 +6,20 @@
 [TO-DO]
 - add colmap camke  update to support pycolmap installtion 
 - update colmap installation steps in setup.md
-- add parent + child config file/script
 - aws integration
 - dense reconstruction support for multiple gpus
 - retag colmap , pycolmap
 - add + update setup.md
-- add images / video support
 - add main-ws.sh, main-aws.sh
-- add output / [rgb-world-frame, rgb-camera-frame, segmented-world-frame, segmented-camera-frame]
-- delete incomplete folder
 - skip step if folder exists
 - check for existing reconstructions
-- set configs using python
 - refactor script folders into separate modules
 - [error-handling / folder deletion] for Ctrl-C / unexpected script termination 
 - check if script is being executed from the project root
 
 [TO DISCUSS]
+- add images / video support
+- add folder / file support
 - update default bb params for pointcloud cropping
 - add svo-filtering
 	- tune and integrate VO script 
@@ -30,6 +27,9 @@
 - add segmentation inference script
 - frame 2 frame for pcl-segmented-world-frame  
 - move output-backend ---> output script
+- add readme.md
+- set configs using python
+- add parent + child config file/script
 
 comment
 
@@ -107,28 +107,38 @@ echo "SVO_IMAGES_DIR: $SVO_IMAGES_DIR"
 echo "==============================="
 echo -e "\n"
 
-START_TIME=$(date +%s) 
+# check if the output folder already exists
+if [ ! -d "$SVO_IMAGES_DIR" ]; then
 
-# python3 "${PIPELINE_SCRIPT_DIR}/svo-to-stereo-images.py" \
-# 	--svo_path=$SVO_FILE_PATH \
-# 	--start_frame=$SVO_START_IDX \
-# 	--end_frame=$SVO_END_IDX \
-# 	--output_dir=$SVO_IMAGES_DIR \
-# 	--svo_step=$SVO_STEP
+	START_TIME=$(date +%s) 
+	python3 "${PIPELINE_SCRIPT_DIR}/svo-to-stereo-images.py" \
+		--svo_path=$SVO_FILE_PATH \
+		--start_frame=$SVO_START_IDX \
+		--end_frame=$SVO_END_IDX \
+		--output_dir=$SVO_IMAGES_DIR \
+		--svo_step=$SVO_STEP
 
-END_TIME=$(date +%s)
-DURATION=$((END_TIME - START_TIME)) 
+	END_TIME=$(date +%s)
+	DURATION=$((END_TIME - START_TIME)) 
 
-if [ $? -eq 0 ]; then
-    echo -e "\n"
-	echo "==============================="
-	echo "Time taken for SVO TO STEREO-IMAGES generation: ${DURATION} seconds"
-	echo "==============================="
-	echo -e "\n"
+	if [ $? -eq 0 ]; then
+		echo -e "\n"
+		echo "==============================="
+		echo "Time taken for SVO TO STEREO-IMAGES generation: ${DURATION} seconds"
+		echo "==============================="
+		echo -e "\n"
+	else
+		echo "SVO TO STEREO-IMAGES FAILED ==> EXITING PIPELINE!"
+		rm -rf ${SVO_IMAGES_DIR}
+		exit $EXIT_FAILURE
+	fi
 else
-    echo "SVO TO STEREO-IMAGES FAILED ==> EXITING PIPELINE!"
-	return $EXIT_FAILURE
+	echo -e "\n"
+	echo "[WARNING] SKIPPING svo to stereo-images generation as ${SVO_IMAGES_DIR} already exists."
+	echo "[WARNING] Delete the folder from the output location and try again!"
+	echo -e "\n"
 fi
+
 
 # [STEP #2 --> SPARSE-RECONSTRUCTION FROM STEREO-IMAGES]
 SPARSE_RECON_INPUT_DIR="${PIPELINE_INPUT_DIR}/sparse-reconstruction/${SVO_FILENAME}/${SUB_FOLDER_NAME}"
@@ -142,28 +152,38 @@ echo "SPARSE_RECON_OUTPUT_DIR: $SPARSE_RECON_OUTPUT_DIR"
 echo "==============================="
 echo -e "\n"
 
-START_TIME=$(date +%s) 
+if [ ! -d "$SPARSE_RECON_OUTPUT_DIR" ]; then
 
-# python3 "${PIPELINE_SCRIPT_DIR}/sparse-reconstruction.py" \
-#     --svo_images=$SVO_IMAGES_DIR \
-# 	--input_dir=$SPARSE_RECON_INPUT_DIR \
-# 	--output_dir=$SPARSE_RECON_OUTPUT_DIR \
-# 	--svo_file=$SVO_FILE_PATH  
+	START_TIME=$(date +%s) 
 
-END_TIME=$(date +%s)
-DURATION=$((END_TIME - START_TIME)) 
+	python3 "${PIPELINE_SCRIPT_DIR}/sparse-reconstruction.py" \
+	    --svo_images=$SVO_IMAGES_DIR \
+		--input_dir=$SPARSE_RECON_INPUT_DIR \
+		--output_dir=$SPARSE_RECON_OUTPUT_DIR \
+		--svo_file=$SVO_FILE_PATH  
 
-# [SPARSE-RECONSTRUCTION CHECK]
-if [ $? -eq 0 ]; then
-    echo -e "\n"
-	echo "==============================="
-	echo "Time taken for SPARSE-RECONSTRUCTION: ${DURATION} seconds"
-	echo "==============================="
+	END_TIME=$(date +%s)
+	DURATION=$((END_TIME - START_TIME)) 
+
+	# [SPARSE-RECONSTRUCTION CHECK]
+	if [ $? -eq 0 ]; then
+		echo -e "\n"
+		echo "==============================="
+		echo "Time taken for SPARSE-RECONSTRUCTION: ${DURATION} seconds"
+		echo "==============================="
+		echo -e "\n"
+	else
+		echo "STEREO-RECONSTRUCTION FAILED ==> EXITING PIPELINE!"
+		rm -rf ${SPARSE_RECON_OUTPUT_DIR}
+		return $EXIT_FAILURE
+	fi
+else 
 	echo -e "\n"
-else
-    echo "STEREO-RECONSTRUCTION FAILED ==> EXITING PIPELINE!"
-	return $EXIT_FAILURE
+	echo "[WARNING] SKIPPING stereo-images to sparse-reconstruction as ${SPARSE_RECON_OUTPUT_DIR} already exists."
+	echo "[WARNING] Delete the folder from the output location and try again!"
+	echo -e "\n"
 fi
+
 
 # [STEP #3 --> RIG-BUNDLE-ADJUSTMENT]
 RBA_INPUT_DIR="${SPARSE_RECON_OUTPUT_DIR}/ref_locked/"
@@ -179,101 +199,132 @@ echo "RBA_CONFIG_PATH: $RBA_CONFIG_PATH"
 echo "==============================="
 echo -e "\n"
 
-# rm -rf "${RBA_OUTPUT_DIR}"
-# mkdir -p "${RBA_OUTPUT_DIR}"
+if [ ! -d "$RBA_OUTPUT_DIR" ]; then
 
-# START_TIME=$(date +%s) 
+	rm -rf "${RBA_OUTPUT_DIR}"
+	mkdir -p "${RBA_OUTPUT_DIR}"
 
-# $COLMAP_EXE_PATH/colmap rig_bundle_adjuster \
-# 	--input_path $RBA_INPUT_DIR \
-# 	--output_path $RBA_OUTPUT_DIR \
-# 	--rig_config_path $RBA_CONFIG_PATH \
-# 	--BundleAdjustment.refine_focal_length 0 \
-# 	--BundleAdjustment.refine_principal_point 0 \
-# 	--BundleAdjustment.refine_extra_params 0 \
-# 	--BundleAdjustment.refine_extrinsics 1 \
-# 	--BundleAdjustment.max_num_iterations 500 \
-# 	--estimate_rig_relative_poses False
+	START_TIME=$(date +%s) 
 
-# END_TIME=$(date +%s)
-# DURATION=$((END_TIME - START_TIME)) 
+	$COLMAP_EXE_PATH/colmap rig_bundle_adjuster \
+		--input_path $RBA_INPUT_DIR \
+		--output_path $RBA_OUTPUT_DIR \
+		--rig_config_path $RBA_CONFIG_PATH \
+		--BundleAdjustment.refine_focal_length 0 \
+		--BundleAdjustment.refine_principal_point 0 \
+		--BundleAdjustment.refine_extra_params 0 \
+		--BundleAdjustment.refine_extrinsics 1 \
+		--BundleAdjustment.max_num_iterations 500 \
+		--estimate_rig_relative_poses False
 
-# # [RBA CONVERGENCE CHECK]
-# if [ $? -ne 0 ]; then
-#     echo -e "\n"
-# 	echo "==============================="
-# 	echo "RBA FAILED ==> EXITING PIPELINE!"
-#     echo "==============================="
-# 	echo -e "\n"
-# 	rm -rf "${RBA_OUTPUT_DIR}"
-# 	exit $EXIT_FAILURE
-# fi
+	END_TIME=$(date +%s)
+	DURATION=$((END_TIME - START_TIME)) 
 
-# # [VERIFYING RBA RESULTS]
-# python3 "${PIPELINE_SCRIPT_DIR}/rba_check.py" \
-# 	--rba_output=$RBA_OUTPUT_DIR
+	# [RBA CONVERGENCE CHECK]
+	if [ $? -ne 0 ]; then
+		echo -e "\n"
+		echo "==============================="
+		echo "RBA FAILED ==> EXITING PIPELINE!"
+		echo "==============================="
+		echo -e "\n"
+		rm -rf "${RBA_OUTPUT_DIR}"
+		exit $EXIT_FAILURE
+	fi
 
-# # [RBA RESULTS CHECK]
-# if [ $? -eq 0 ]; then
-#     echo -e "\n"
-# 	echo "==============================="
-# 	echo "Time taken for RIG-BUNDLE-ADJUSTMENT: ${DURATION} seconds"
-# 	echo "==============================="
-# 	echo -e "\n"
-# else
-#     echo "RIG-BUNDLE-ADJUSTMENT FAILED ==> EXITING PIPELINE!"
-# 	exit $EXIT_FAILURE
-# fi
+	# [VERIFYING RBA RESULTS]
+	python3 "${PIPELINE_SCRIPT_DIR}/rba_check.py" \
+		--rba_output=$RBA_OUTPUT_DIR
+
+	# [RBA RESULTS CHECK]
+	if [ $? -eq 0 ]; then
+		echo -e "\n"
+		echo "==============================="
+		echo "Time taken for RIG-BUNDLE-ADJUSTMENT: ${DURATION} seconds"
+		echo "==============================="
+		echo -e "\n"
+	else
+		echo "RIG-BUNDLE-ADJUSTMENT FAILED ==> EXITING PIPELINE!"
+		rm -rf "${RBA_OUTPUT_DIR}"
+		exit $EXIT_FAILURE
+	fi
+
+else
+	echo -e "\n"
+	echo "[WARNING] SKIPPING rig-bundle-adjustment as ${RBA_OUTPUT_DIR} already exists."
+	echo "[WARNING] Delete the folder from the output location and try again!"
+	echo -e "\n"
+fi
+
 
 # [STEP #4 --> DENSE RECONSTRUCTION]
 DENSE_RECON_OUTPUT_DIR="${PIPELINE_OUTPUT_DIR}/dense-reconstruction/${SVO_FILENAME}/${SUB_FOLDER_NAME}"
 
-START_TIME=$(date +%s) 
+if [ ! -d "$DENSE_RECON_OUTPUT_DIR" ]; then
 
+	START_TIME=$(date +%s) 
 
-# python3 "${PIPELINE_SCRIPT_DIR}/dense-reconstruction.py" \
-#   --mvs_path="$DENSE_RECON_OUTPUT_DIR" \
-#   --output_path="$RBA_OUTPUT_DIR" \
-#   --image_dir="$SPARSE_RECON_INPUT_DIR"
+	python3 "${PIPELINE_SCRIPT_DIR}/dense-reconstruction.py" \
+	--mvs_path="$DENSE_RECON_OUTPUT_DIR" \
+	--output_path="$RBA_OUTPUT_DIR" \
+	--image_dir="$SPARSE_RECON_INPUT_DIR"
 
+	END_TIME=$(date +%s)
+	DURATION=$((END_TIME - START_TIME)) 
 
-END_TIME=$(date +%s)
-DURATION=$((END_TIME - START_TIME)) 
+	if [ $? -eq 0 ]; then
+		echo -e "\n"
+		echo "==============================="
+		echo "Time taken for dense-reconstruction: ${DURATION} seconds"
+		echo "==============================="
+		echo -e "\n"
+	else
+		echo "DENSE-RECONSTRUCTION FAILED ==> EXITING PIPELINE!"
+		rm -rf ${DENSE_RECON_OUTPUT_DIR}
+		return $EXIT_FAILURE
+	fi
 
-if [ $? -eq 0 ]; then
-    echo -e "\n"
-	echo "==============================="
-	echo "Time taken for dense-reconstruction: ${DURATION} seconds"
-	echo "==============================="
+else 
 	echo -e "\n"
-else
-    echo "DENSE-RECONSTRUCTION FAILED ==> EXITING PIPELINE!"
-	return $EXIT_FAILURE
+	echo "[WARNING] SKIPPING dense-reconstruction as ${DENSE_RECON_OUTPUT_DIR} already exists."
+	echo "[WARNING] Delete the folder from the output location and try again!"
+	echo -e "\n"
 fi
 
-# [FRAME-TO-FRAME (CROPPED) POINTCLOUD GENERATION]
+# [STEP #5 --> FRAME-TO-FRAME (CROPPED) POINTCLOUD GENERATION]
 P360_MODULE="p360"
 BOUNDING_BOX="-5 5 -1 1 -1 1"
 CAMERA_FRAME_PCL="${PIPELINE_OUTPUT_DIR}/pointcloud-camera-frame/${SVO_FILENAME}/${SUB_FOLDER_NAME}"
 CAMERA_FRAME_PCL_CROPPED="${PIPELINE_OUTPUT_DIR}/pointcloud-cropped-camera-frame/${SVO_FILENAME}/${SUB_FOLDER_NAME}"
 
-python3 -m ${PIPELINE_SCRIPT_DIR}.${P360_MODULE}.main \
-  --bounding_box $BOUNDING_BOX \
-  --dense_reconstruction_folder="${DENSE_RECON_OUTPUT_DIR}" \
-  --pcl_folder="${CAMERA_FRAME_PCL}" \
-  --pcl_cropped_folder="${CAMERA_FRAME_PCL_CROPPED}"
-  
+if [ -d "$CAMERA_FRAME_PCL" ] && [ -d "$CAMERA_FRAME_PCL_CROPPED" ]; then
+	echo -e "\n"
+	echo "[WARNING] SKIPPING frame-wise pointcloud generation as ${CAMERA_FRAME_PCL} and ${CAMERA_FRAME_PCL_CROPPED} already exist."
+	echo "[WARNING] Delete the folders from the output location and try again!"
+	echo -e "\n"
+else 
+	START_TIME=$(date +%s) 
 
-# python3 -m scripts.p360.main \
-#   --bounding_box $BOUNDING_BOX \
-#   --dense_reconstruction_folder="${DENSE_RECON_OUTPUT_DIR}" \
-#   --output_folder="${P360_OUTPUT_DIR}"
+	python3 -m ${PIPELINE_SCRIPT_DIR}.${P360_MODULE}.main \
+	--bounding_box $BOUNDING_BOX \
+	--dense_reconstruction_folder="${DENSE_RECON_OUTPUT_DIR}" \
+	--pcl_folder="${CAMERA_FRAME_PCL}" \
+	--pcl_cropped_folder="${CAMERA_FRAME_PCL_CROPPED}"
+	
+	END_TIME=$(date +%s)
+	DURATION=$((END_TIME - START_TIME)) 
 
+	if [ $? -eq 0 ]; then
+		echo -e "\n"
+		echo "==============================="
+		echo "Time taken for generating frame-wise pointclouds: ${DURATION} seconds"
+		echo "==============================="
+		echo -e "\n"
+	else
+		echo "FRAME-BY-FRAME POINTCLOUD GENERATION FAILED ==> EXITING PIPELINE!"
+		rm -rf ${CAMERA_FRAME_PCL}
+		rm -rf ${CAMERA_FRAME_PCL_CROPPED}
+		exit $EXIT_FAILURE
+	fi
+fi
 
-# [MOVE TO OUTPUT]
-
-# [STEP #5 --> SEGEMENTATION FUSION]
-
-
-
-
+exit $EXIT_SUCCESS
