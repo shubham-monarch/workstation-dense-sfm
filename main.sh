@@ -20,13 +20,13 @@
 - add main-ws.sh, main-aws.sh
 - add output / [rgb-world-frame, rgb-camera-frame, segmented-world-frame, segmented-camera-frame]
 - delete incomplete folder
-- add unused scripts module
 - skip step if folder exists
 - check for existing reconstructions
 - set configs using python
 - move output-backend ---> output script
-- refactor script folders into separate modules
+- refactor script folders into separate moduless
 - [error-handling / folder deletion] for Ctrl-C / unexpected script termination 
+- check if script is being executed from the project root
 comment
 
 
@@ -79,9 +79,7 @@ echo "SVO_END_IDX: $SVO_END_IDX"
 echo "==============================="
 echo -e "\n"
 
-
-
-# SVO_FILENAME_WITH_IDX="${SVO_FILENAME}_${SVO_START_IDX}_${SVO_END_IDX}"
+# folder to store results
 SUB_FOLDER_NAME="${SVO_START_IDX}_to_${SVO_END_IDX}"
 
 # [STEP #1 --> EXTRACT STEREO-IMAGES FROM SVO FILE]
@@ -251,13 +249,18 @@ fi
 
 # [FRAME-TO-FRAME PLY GENERATION]
 P360_MODULE="p360"
-BOUNDING_BOX="-50 50 -5 5 -3 3"
+BOUNDING_BOX="-5 5 -1 1 -1 1"
 P360_OUTPUT_DIR="${PIPELINE_OUTPUT_DIR}/pcl-camera-frame/${SVO_FILENAME}/${SUB_FOLDER_NAME}"
 
-python3 "${PIPELINE_SCRIPT_DIR}/${P360_MODULE}/main.py" \
+python3 -m ${PIPELINE_SCRIPT_DIR}.${P360_MODULE}.main \
   --bounding_box $BOUNDING_BOX \
   --dense_reconstruction_folder="${DENSE_RECON_OUTPUT_DIR}" \
   --output_folder="${P360_OUTPUT_DIR}"
+
+# python3 -m scripts.p360.main \
+#   --bounding_box $BOUNDING_BOX \
+#   --dense_reconstruction_folder="${DENSE_RECON_OUTPUT_DIR}" \
+#   --output_folder="${P360_OUTPUT_DIR}"
 
 
 # [MOVE TO OUTPUT]

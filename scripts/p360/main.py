@@ -3,7 +3,7 @@
 import open3d as o3d
 import argparse
 import logging, coloredlogs
-from p360_dataset import P360DatasetGenerator
+from .p360_dataset import P360DatasetGenerator
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='Process some paths and bounding box.')

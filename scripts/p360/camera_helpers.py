@@ -1,5 +1,5 @@
 import numpy as np
-from read_write_model import qvec2rotmat
+from .read_write_model import qvec2rotmat
 
 
 class CameraHelpers: 
@@ -27,7 +27,6 @@ class CameraHelpers:
 
     def cam_extrinsics(self, img):
         """ returns 3 * 4 extrinsics matrix """
-        from read_write_model import qvec2rotmat
         R = qvec2rotmat(img.qvec)
         t = img.tvec.reshape(3,-1)
         cam_Rt = np.concatenate((R,t), axis = 1)

@@ -7,10 +7,11 @@ import time
 import sys
 
 from tqdm import tqdm
-from camera_helpers import CameraHelpers
 
 from collections import namedtuple
 
+from .camera_helpers import CameraHelpers
+from . import read_write_model
 from ..utils_module import io_utils
 
 BoundingBox = namedtuple('BoundingBox', ['min_x', 'max_x', 'min_y', 'max_y', 'min_z', 'max_z'])
