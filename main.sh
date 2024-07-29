@@ -9,10 +9,12 @@
 - add colmap camke  update to support pycolmap installtion 
 - update colmap installation steps in setup.md
 - add svo-filtering
+	- tune and integrate VO script 
 	- sampling
+- add segmentation inference script
 - frame 2 frame  
 
-#comment
+comment
 
 
 # [VIRTUAL ENV CHECK]
