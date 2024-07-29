@@ -1,5 +1,20 @@
 #!/bin/bash
 
+
+
+<<comment
+
+
+[TO-DO]
+- add colmap camke  update to support pycolmap installtion 
+- update colmap installation steps in setup.md
+- add svo-filtering
+	- sampling
+- frame 2 frame  
+
+#comment
+
+
 # [VIRTUAL ENV CHECK]
 if [[ "$VIRTUAL_ENV" == "" ]]
 then
