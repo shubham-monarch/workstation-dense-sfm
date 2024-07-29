@@ -42,8 +42,8 @@ COLMAP_EXE_PATH=/usr/local/bin
 # [PIPELINE INTERNAL PARAMS]
 PIPELINE_SCRIPT_DIR="scripts"
 PIPELINE_CONFIG_DIR="config"
-PIPELINE_INPUT_DIR="input" 
-PIPELINE_OUTPUT_DIR="output"
+PIPELINE_INPUT_DIR="input-backend" 
+PIPELINE_OUTPUT_DIR="output-backend"
 
 # extracting 1 frame per {SVO_STEP} frames
 SVO_STEP=2
@@ -72,12 +72,12 @@ echo -e "\n"
 
 START_TIME=$(date +%s) 
 
-# python3 "${PIPELINE_SCRIPT_DIR}/svo-to-stereo-images.py" \
-# 	--svo_path=$SVO_FILE_PATH \
-# 	--start_frame=$SVO_START_IDX \
-# 	--end_frame=$SVO_END_IDX \
-# 	--output_dir=$SVO_IMAGES_DIR \
-# 	--svo_step=$SVO_STEP
+python3 "${PIPELINE_SCRIPT_DIR}/svo-to-stereo-images.py" \
+	--svo_path=$SVO_FILE_PATH \
+	--start_frame=$SVO_START_IDX \
+	--end_frame=$SVO_END_IDX \
+	--output_dir=$SVO_IMAGES_DIR \
+	--svo_step=$SVO_STEP
 
 END_TIME=$(date +%s)
 DURATION=$((END_TIME - START_TIME)) 
@@ -107,11 +107,11 @@ echo -e "\n"
 
 START_TIME=$(date +%s) 
 
-# python3 "${PIPELINE_SCRIPT_DIR}/sparse-reconstruction.py" \
-#     --svo_images=$SVO_IMAGES_DIR \
-# 	--input_dir=$SPARSE_RECON_INPUT_DIR \
-# 	--output_dir=$SPARSE_RECON_OUTPUT_DIR \
-# 	--svo_file=$SVO_FILE_PATH  
+python3 "${PIPELINE_SCRIPT_DIR}/sparse-reconstruction.py" \
+    --svo_images=$SVO_IMAGES_DIR \
+	--input_dir=$SPARSE_RECON_INPUT_DIR \
+	--output_dir=$SPARSE_RECON_OUTPUT_DIR \
+	--svo_file=$SVO_FILE_PATH  
 
 END_TIME=$(date +%s)
 DURATION=$((END_TIME - START_TIME)) 
@@ -142,21 +142,21 @@ echo "RBA_CONFIG_PATH: $RBA_CONFIG_PATH"
 echo "==============================="
 echo -e "\n"
 
-# rm -rf "${RBA_OUTPUT_DIR}"
-# mkdir -p "${RBA_OUTPUT_DIR}"
+rm -rf "${RBA_OUTPUT_DIR}"
+mkdir -p "${RBA_OUTPUT_DIR}"
 
-# START_TIME=$(date +%s) 
+START_TIME=$(date +%s) 
 
-# $COLMAP_EXE_PATH/colmap rig_bundle_adjuster \
-# 	--input_path $RBA_INPUT_DIR \
-# 	--output_path $RBA_OUTPUT_DIR \
-# 	--rig_config_path $RBA_CONFIG_PATH \
-# 	--BundleAdjustment.refine_focal_length 0 \
-# 	--BundleAdjustment.refine_principal_point 0 \
-# 	--BundleAdjustment.refine_extra_params 0 \
-# 	--BundleAdjustment.refine_extrinsics 1 \
-# 	--BundleAdjustment.max_num_iterations 500 \
-# 	--estimate_rig_relative_poses False
+$COLMAP_EXE_PATH/colmap rig_bundle_adjuster \
+	--input_path $RBA_INPUT_DIR \
+	--output_path $RBA_OUTPUT_DIR \
+	--rig_config_path $RBA_CONFIG_PATH \
+	--BundleAdjustment.refine_focal_length 0 \
+	--BundleAdjustment.refine_principal_point 0 \
+	--BundleAdjustment.refine_extra_params 0 \
+	--BundleAdjustment.refine_extrinsics 1 \
+	--BundleAdjustment.max_num_iterations 500 \
+	--estimate_rig_relative_poses False
 
 END_TIME=$(date +%s)
 DURATION=$((END_TIME - START_TIME)) 
@@ -199,6 +199,69 @@ python3 "${PIPELINE_SCRIPT_DIR}/dense-reconstruction.py" \
   --output_path="$RBA_OUTPUT_DIR" \
   --image_dir="$SPARSE_RECON_INPUT_DIR"
 
+# $COLMAP_EXE_PATH/colmap image_undistorter \
+#     --image_path ${SPARSE_RECON_INPUT_DIR} \
+#     --input_path ${RBA_OUTPUT_DIR} \
+#     --output_path ${DENSE_RECON_OUTPUT_DIR} \
+#     --output_type COLMAP \
+#     --max_image_size 2000
+
+# if [ $? -ne 0 ]; then
+#     echo -e "\n"
+# 	echo "==============================="
+# 	echo "IMAGE-UNDISTORTION STEP FAILED ==> EXITING PIPELINE!"
+#     echo "==============================="
+# 	echo -e "\n"
+# 	exit $EXIT_FAILURE
+# fi
+
+
+# $COLMAP_EXE_PATH/colmap patch_match_stereo \
+#     --workspace_path ${DENSE_RECON_OUTPUT_DIR} \
+#     --workspace_format COLMAP \
+#     --PatchMatchStereo.geom_consistency true
+
+# if [ $? -ne 0 ]; then
+#     echo -e "\n"
+# 	echo "==============================="
+# 	echo "PATCH MATCH STEREO STEP FAILED ==> EXITING PIPELINE!"
+#     echo "==============================="
+# 	echo -e "\n"
+# 	exit $EXIT_FAILURE
+# fi
+
+
+# $COLMAP_EXE_PATH/colmap stereo_fusion \
+#     --workspace_path ${DENSE_RECON_OUTPUT_DIR} \
+#     --workspace_format COLMAP \
+#     --input_type geometric \
+#     --output_path ${DENSE_RECON_OUTPUT_DIR}/fused.ply
+
+# if [ $? -ne 0 ]; then
+#     echo -e "\n"
+# 	echo "==============================="
+# 	echo "STEREO-FUSION [PLY] STEP FAILED ==> EXITING PIPELINE!"
+#     echo "==============================="
+# 	echo -e "\n"
+# 	exit $EXIT_FAILURE
+# fi
+
+# $COLMAP_EXE_PATH/colmap stereo_fusion \
+#     --workspace_path ${DENSE_RECON_OUTPUT_DIR} \
+#     --workspace_format COLMAP \
+#     --input_type geometric \
+# 	--output_type BIN \
+#     --output_path ${DENSE_RECON_OUTPUT_DIR}
+
+# if [ $? -ne 0 ]; then
+#     echo -e "\n"
+# 	echo "==============================="
+# 	echo "STEREO-FUSION [BIN] STEP FAILED ==> EXITING PIPELINE!"
+#     echo "==============================="
+# 	echo -e "\n"
+# 	exit $EXIT_FAILURE
+# fi
+
 
 END_TIME=$(date +%s)
 DURATION=$((END_TIME - START_TIME)) 
@@ -214,10 +277,10 @@ else
 	return $EXIT_FAILURE
 fi
 
-# [STEP #5 --> SAVING RGB PLY + BIN POINTCLOUD]
+
 
 # [STEP #5 --> SEGEMENTATION FUSION]
 
-# [STEP #5 --> GENERATING CAMERA FRAME POINTCLOUDS]
+
 
 

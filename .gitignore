@@ -23,7 +23,8 @@ output/*
 input/*
 config/*
 svo-test/*
-
+output-backend/*
+input-backend/*
 
 *.bin
 *.ply
