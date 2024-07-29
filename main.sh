@@ -247,15 +247,18 @@ else
 	return $EXIT_FAILURE
 fi
 
-# [FRAME-TO-FRAME PLY GENERATION]
+# [FRAME-TO-FRAME (CROPPED) POINTCLOUD GENERATION]
 P360_MODULE="p360"
 BOUNDING_BOX="-5 5 -1 1 -1 1"
-P360_OUTPUT_DIR="${PIPELINE_OUTPUT_DIR}/pointcloud-camera-frame/${SVO_FILENAME}/${SUB_FOLDER_NAME}"
+CAMERA_FRAME_PCL="${PIPELINE_OUTPUT_DIR}/pointcloud-camera-frame/${SVO_FILENAME}/${SUB_FOLDER_NAME}"
+CAMERA_FRAME_PCL_CROPPED="${PIPELINE_OUTPUT_DIR}/pointcloud-cropped-camera-frame/${SVO_FILENAME}/${SUB_FOLDER_NAME}"
 
 python3 -m ${PIPELINE_SCRIPT_DIR}.${P360_MODULE}.main \
   --bounding_box $BOUNDING_BOX \
   --dense_reconstruction_folder="${DENSE_RECON_OUTPUT_DIR}" \
-  --output_folder="${P360_OUTPUT_DIR}"
+  --pcl_folder="${CAMERA_FRAME_PCL}" \
+  --pcl_cropped_folder="${CAMERA_FRAME_PCL_CROPPED}"
+  
 
 # python3 -m scripts.p360.main \
 #   --bounding_box $BOUNDING_BOX \

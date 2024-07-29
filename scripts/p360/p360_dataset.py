@@ -30,7 +30,8 @@ class P360DatasetGenerator:
     def __init__(self, 
                  bounding_box, 
                  sfm_folder_path, 
-                 ply_folder_path):
+                 pcl_output, 
+                 pcl_cropped_output):
 
         # dimensions of the bounding box
         self.bb = BoundingBox(*bounding_box)
@@ -45,13 +46,14 @@ class P360DatasetGenerator:
         # initializing camera helper
         self.camera_helper = CameraHelpers()    
 
-        # ply folder path to write the cropped pointcloud
-        self.ply_folder_path = ply_folder_path
-        
-        # creating folders at output location
-        io_utils.delete_folders([self.ply_folder_path])
-        io_utils.create_folders([self.ply_folder_path])
+        # path to write the camera-frame (cropped) pointclouds
+        self.pcl_output = pcl_output
+        self.pcl_cropped_output = pcl_cropped_output
 
+        io_utils.delete_folders([self.pcl_output, self.pcl_cropped_output])
+        io_utils.create_folders([self.pcl_output, self.pcl_cropped_output])
+
+        
     def generate_indices(self):
 
         file_list = os.listdir(self.image_path)
@@ -107,7 +109,7 @@ class P360DatasetGenerator:
         frame_id = int(name_.split("/")[-1].split("_")[1])
         return frame_id
 
-    def write_sfm_model_to_disk(self, model, image_id):
+    def write_sfm_model_to_disk(self, model, image_id, output_folder):
         """
         writes the model as a PLY file to the disk
         default location: ply/sfm_in_camera_frame/left/frame_id.ply
@@ -121,7 +123,8 @@ class P360DatasetGenerator:
         is_left = (image_name.split("/")[0] == "left")
         frame_id = self._frame_id(image_id) 
         
-        ply_file_path = self.ply_folder_path + ("/left/" if is_left else "/right/")
+        ply_file_path = output_folder + ("/left/" if is_left else "/right/")
+        
         io_utils.create_folders([ply_file_path])
         
         ply_file_path += "frame_" + str(frame_id) + ".ply"
@@ -130,7 +133,7 @@ class P360DatasetGenerator:
         model.export_PLY(ply_file_path)
         return ply_file_path
 
-    def write_cropped_pcl_to_disk(self, cropped_pcl, image_id, prefix="cropped_pcl/"):
+    def write_cropped_pcl_to_disk(self, cropped_pcl, image_id, output_folder):
         """
         writes the cropped pointcloud as a PLY file to the disk
         :param cropped_pcl open3d.geometry.PointCloud object
@@ -141,9 +144,8 @@ class P360DatasetGenerator:
         is_left = (image_name.split("/")[0] == "left")
         frame_id = self._frame_id(image_id)
 
-        output_path = "../ply/" + prefix  + ("/left/" if is_left else "/right/")
+        output_path = output_folder + ("/left/" if is_left else "/right/")
         
-        io_utils.delete_folders([output_path])  
         io_utils.create_folders([output_path])
         
         output_path += "frame_" + str(frame_id) + ".ply"
@@ -185,11 +187,11 @@ class P360DatasetGenerator:
             
             # sfm model transformed from WORLD to CAMERA frame
             sfm_in_camera_frame_model = self.transform_model_to_camera_frame(cam_Rt)
-            PLY_path = self.write_sfm_model_to_disk(sfm_in_camera_frame_model, image_id)
+            PLY_path = self.write_sfm_model_to_disk(sfm_in_camera_frame_model, image_id, self.pcl_output)
             
             # # cropping the sfm_in_camera frame pointcloud
-            # cropped_pcl = self.generate_cropped_pcl(PLY_path)
-            # self.write_cropped_pcl_to_disk(cropped_pcl, image_id)
+            cropped_pcl = self.generate_cropped_pcl(PLY_path)
+            self.write_cropped_pcl_to_disk(cropped_pcl, image_id, self.pcl_cropped_output)
             
             #break
             

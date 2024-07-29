@@ -9,14 +9,19 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='Process some paths and bounding box.')
     parser.add_argument('--bounding_box', type=int, nargs=6, required = True, help='Bounding box coordinates as six integers (min_x, max_x, min_y, max_y, min_z, max_z)')
     parser.add_argument('--dense_reconstruction_folder', type=str, required= True,  help='Path to the [cameras.bin, images.bin, points3D.bin] folder')
-    parser.add_argument('--output_folder', type=str, required = True, help='Path to the output directory')
+    parser.add_argument('--pcl_folder', type=str, required = True, help='camera-frame pointcloud directory')
+    parser.add_argument('--pcl_cropped_folder', type=str, required = True, help='cropped camera-frame pointcloud directory')
     args = parser.parse_args()
     
-    bounding_box = tuple(args.bounding_box) 
-    sfm_path = args.dense_reconstruction_folder 
-    output_path = args.output_folder 
+    # bounding_box = tuple(args.bounding_box) 
+    # sfm_path = args.dense_reconstruction_folder 
+    # output_path = args.output_folder 
 
-    p360_generator_ = P360DatasetGenerator(bounding_box, sfm_path, output_path)
+
+    p360_generator_ = P360DatasetGenerator(tuple(args.bounding_box), 
+                                           args.dense_reconstruction_folder, 
+                                           args.pcl_folder, 
+                                           args.pcl_cropped_folder)
     p360_generator_.generate()
 
     # example usage
