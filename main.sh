@@ -6,11 +6,6 @@
 [TO-DO]
 - add colmap camke  update to support pycolmap installtion 
 - update colmap installation steps in setup.md
-- add svo-filtering
-	- tune and integrate VO script 
-	- sampling
-- add segmentation inference script
-- frame 2 frame for pcl-segmented-world-frame  
 - add parent + child config file/script
 - aws integration
 - dense reconstruction support for multiple gpus
@@ -23,10 +18,19 @@
 - skip step if folder exists
 - check for existing reconstructions
 - set configs using python
-- move output-backend ---> output script
-- refactor script folders into separate moduless
+- refactor script folders into separate modules
 - [error-handling / folder deletion] for Ctrl-C / unexpected script termination 
 - check if script is being executed from the project root
+
+[TO DISCUSS]
+- update default bb params for pointcloud cropping
+- add svo-filtering
+	- tune and integrate VO script 
+	- sampling
+- add segmentation inference script
+- frame 2 frame for pcl-segmented-world-frame  
+- move output-backend ---> output script
+
 comment
 
 
