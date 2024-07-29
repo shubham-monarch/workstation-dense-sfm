@@ -5,20 +5,13 @@
 **/__pycache__/
 *.pyc
 
-*.swp
-test/*
-*.out
-*.fuse*
-*.svo*
-*.txt
-*.zip
 
 # custom folders
 **/o1/** 
 stereo-fusion/*
 .vscode/*
 
-# folders
+# pipeline-folders
 output/*
 input/*
 config/*
@@ -26,8 +19,16 @@ svo-test/*
 output-backend/*
 input-backend/*
 
+# file types
 *.bin
 *.ply
 *.png
 *.jpg
 *.jpeg
+*.swp
+test/*
+*.out
+*.fuse*
+*.svo*
+*.txt
+*.zip
