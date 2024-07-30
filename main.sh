@@ -10,11 +10,12 @@
 - add + update setup.md
 - add main-ws.sh, main-aws.sh
 - refactor script folders into separate modules
-- [error-handling / folder deletion] for Ctrl-C / unexpected script termination 
 - check if script is being executed from the project root
+- output/input-backend clean-up
 
 [TO DISCUSS]
 - add images / video support
+- [error-handling / folder deletion] for Ctrl-C / unexpected script termination 
 - add folder / file support
 - update default bb params for pointcloud cropping
 - add svo-filtering
@@ -118,7 +119,9 @@ if [ ! -d "$SVO_IMAGES_DIR" ]; then
 		echo "==============================="
 		echo -e "\n"
 	else
-		echo "SVO TO STEREO-IMAGES FAILED ==> EXITING PIPELINE!"
+		echo -e "\n"
+		echo "[ERROR] SVO TO STEREO-IMAGES FAILED ==> EXITING PIPELINE!"
+		echo -e "\n"
 		rm -rf ${SVO_IMAGES_DIR}
 		exit $EXIT_FAILURE
 	fi
@@ -162,7 +165,9 @@ if [ ! -d "$SPARSE_RECON_OUTPUT_DIR" ]; then
 		echo "==============================="
 		echo -e "\n"
 	else
-		echo "STEREO-RECONSTRUCTION FAILED ==> EXITING PIPELINE!"
+		echo -e "\n"
+		echo "[ERROR] STEREO-RECONSTRUCTION FAILED ==> EXITING PIPELINE!"
+		echo -e "\n"
 		rm -rf ${SPARSE_RECON_OUTPUT_DIR}
 		return $EXIT_FAILURE
 	fi
@@ -231,7 +236,9 @@ if [ ! -d "$RBA_OUTPUT_DIR" ]; then
 		echo "==============================="
 		echo -e "\n"
 	else
-		echo "RIG-BUNDLE-ADJUSTMENT FAILED ==> EXITING PIPELINE!"
+		echo -e "\n"
+		echo "[ERROR] RIG-BUNDLE-ADJUSTMENT FAILED ==> EXITING PIPELINE!"
+		echo -e "\n"
 		rm -rf "${RBA_OUTPUT_DIR}"
 		exit $EXIT_FAILURE
 	fi
@@ -265,7 +272,9 @@ if [ ! -d "$DENSE_RECON_OUTPUT_DIR" ]; then
 		echo "==============================="
 		echo -e "\n"
 	else
-		echo "DENSE-RECONSTRUCTION FAILED ==> EXITING PIPELINE!"
+		echo -e "\n"
+		echo "[ERROR] DENSE-RECONSTRUCTION FAILED ==> EXITING PIPELINE!"
+		echo -e "\n"
 		rm -rf ${DENSE_RECON_OUTPUT_DIR}
 		return $EXIT_FAILURE
 	fi
@@ -307,7 +316,9 @@ else
 		echo "==============================="
 		echo -e "\n"
 	else
-		echo "FRAME-BY-FRAME POINTCLOUD GENERATION FAILED ==> EXITING PIPELINE!"
+		echo -e "\n"
+		echo "[ERROR] FRAME-BY-FRAME POINTCLOUD GENERATION FAILED ==> EXITING PIPELINE!"
+		echo -e "\n"
 		rm -rf ${CAMERA_FRAME_PCL}
 		rm -rf ${CAMERA_FRAME_PCL_CROPPED}
 		exit $EXIT_FAILURE
