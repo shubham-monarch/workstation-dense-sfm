@@ -2,31 +2,38 @@
 
 <<comment
 [TO-DO]
-- add colmap camke  update to support pycolmap installtion 
-- update colmap installation steps in setup.md
-- aws integration
-- dense reconstruction support for multiple gpus
-- retag colmap , pycolmap
-- add + update setup.md
-- add main-ws.sh, main-aws.sh
-- refactor script folders into separate modules
-- check if script is being executed from the project root
-- output/input-backend clean-up
+- implement svo-filter.py
+- integrate svo-filter.py with main.sh	
 
-[TO DISCUSS]
+[LATER]
+- add colmap cmake update to support pycolmap installtion 
+- retag colmap , pycolmap
+- update requirements.txt
+- update pipeline tag
+- documentation
+	- update release notes
+	- update installation steps
+	- add + update setup.md
+	- add readme.md
+	- update colmap installation steps in setup.md
+- refactoring
+	- add python-scripts / bash-scripts
+	- refactor script folders into separate modules
+- new scripts
+	- add main-ws.sh, main-aws.sh
+	- aws integration
+	- add status-processed / unprocessed folders for user feeback
+	- add segmentation inference script
+	- move output-backend ---> output script
+	- add folder / file support
+	- add parent + child config file/script
+	- python for config parsing
+	- output/input-backend clean-up
 - add images / video support
+- check if script is being executed from the project root
+- dense reconstruction support for multiple gpus
 - [error-handling / folder deletion] for Ctrl-C / unexpected script termination 
-- add folder / file support
 - update default bb params for pointcloud cropping
-- add svo-filtering
-	- tune and integrate VO script 
-	- sampling
-- add segmentation inference script
-- frame 2 frame for pcl-segmented-world-frame  
-- move output-backend ---> output script
-- add readme.md
-- set configs using python
-- add parent + child config file/script
 
 comment
 
