@@ -147,11 +147,17 @@ else
 	echo -e "\n"
 fi
 
-exit $EXIT_SUCCESS
+
+# =============================================
+# [STEP #2 ==> EXTRACT VIABLE SEGMENTS USING VO]
+# =============================================
+
+
+
 
 # [STEP #2 --> SPARSE-RECONSTRUCTION FROM STEREO-IMAGES] 
-SPARSE_RECON_INPUT_DIR="${PIPELINE_INPUT_DIR}/sparse-reconstruction/${SVO_FILENAME}/${SUB_FOLDER_NAME}"
-SPARSE_RECON_OUTPUT_DIR="${PIPELINE_OUTPUT_DIR}/sparse-reconstruction/${SVO_FILENAME}/${SUB_FOLDER_NAME}"
+SPARSE_RECON_INPUT_DIR="${PIPELINE_INPUT_BACKEND_FOLDER}/sparse-reconstruction/${SVO_FILENAME}/${SUB_FOLDER_NAME}"
+SPARSE_RECON_OUTPUT_DIR="${PIPELINE_OUTPUT_BACKEND_FOLDER}/sparse-reconstruction/${SVO_FILENAME}/${SUB_FOLDER_NAME}"
 
 echo -e "\n"
 echo "==============================="
