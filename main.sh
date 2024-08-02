@@ -34,6 +34,9 @@
 - dense reconstruction support for multiple gpus
 - [error-handling / folder deletion] for Ctrl-C / unexpected script termination 
 - update default bb params for pointcloud cropping
+- extract baseline from the svo file
+- user feedback mechanism 
+- temp file deletion sttrategy
 
 comment
 
