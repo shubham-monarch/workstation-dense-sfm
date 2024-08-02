@@ -11,14 +11,14 @@ from pathlib import Path
 import coloredlogs, logging
 from tqdm import tqdm
 
-from .utils_module import io_utils
+from utils_module import io_utils
 
-def main(filepath, dir_path_, svo_step = 2):
+def main(filepath, output_folder, svo_step = 2):
 
     # logging.debug("Inside the main function!")
 
     filepath = os.path.abspath(filepath)
-    dir_path = os.path.abspath(dir_path_)
+    output_path = os.path.abspath(output_folder)
 
     logging.info(f"svo_file: {filepath}")
     # logging.info(f"start_idx: {start} end_idx: {end}")
@@ -42,19 +42,19 @@ def main(filepath, dir_path_, svo_step = 2):
     image_l = sl.Mat()
     image_r = sl.Mat()
     
-    logging.info(f"Trying to delete the {dir_path} directory")
-    try:
-        shutil.rmtree(dir_path)
-        logging.info(f"Cleared the {dir_path} directory!")
-    except OSError as e:
-        logging.warning("Warning: %s : %s" % (dir_path, e.strerror))
+    # logging.info(f"Trying to delete the {output_path} directory")
+    # try:
+    #     shutil.rmtree(dir_path)
+    #     logging.info(f"Cleared the {dir_path} directory!")
+    # except OSError as e:
+    #     logging.warning("Warning: %s : %s" % (dir_path, e.strerror))
 
     total_frames = zed.get_svo_number_of_frames()
     # logging.info(f"Extracting {(end - start) // svo_step} stereo-images from the SVO file!")
     logging.info(f"Extracting {total_frames // svo_step} stereo-images from the SVO file!")
     
-    io_utils.delete_folders([dir_path)
-    io_utils.create_dir(dir_path)
+    io_utils.delete_folders([output_path])
+    io_utils.create_folders([output_path])
     
     for frame_idx in tqdm(range(0, total_frames, svo_step)):
         if zed.grab(runtime_parameters) == sl.ERROR_CODE.SUCCESS:
@@ -68,11 +68,10 @@ def main(filepath, dir_path_, svo_step = 2):
             # reading and writing the images to the output directory
             zed.retrieve_image(image_l, sl.VIEW.LEFT)
             zed.retrieve_image(image_r, sl.VIEW.RIGHT)
-            image_l.write( os.path.join(output_dir, f'left/frame_{frame_idx}.jpg') )
-            image_r.write( os.path.join(output_dir, f'right/frame_{frame_idx}.jpg') )
+            image_l.write( os.path.join(output_path, f'left/frame_{frame_idx}.jpg') )
+            image_r.write( os.path.join(output_path, f'right/frame_{frame_idx}.jpg') )
             # image.write( os.path.join(output_dir, 'left_image.png') )
             # image_r.write( os.path.join(output_dir, 'right_image.png') )
-        
         else:
             sys.exit(1)
     zed.close()
