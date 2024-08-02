@@ -40,39 +40,40 @@
 
 comment
 
+# ---------------------------------------------
 # [GLOBAL PARAMS]
+# ---------------------------------------------
 EXIT_FAILURE=1
 EXIT_SUCCESS=0
 COLMAP_EXE_PATH=/usr/local/bin
 
-# [PIPELINE INTERNAL PARAMS]
+# ---------------------------------------------
+# [PIPELINE PARAMS]
+# ---------------------------------------------
 PIPELINE_SCRIPT_DIR="scripts"
 PIPELINE_CONFIG_DIR="config"
-
-# PIPELINE_INPUT_DIR="input-backend" 
-# PIPELINE_OUTPUT_DIR="output-backend"
 
 PIPELINE_INPUT_BACKEND_FOLDER="input-backend"
 PIPELINE_OUTPUT_BACKEND_FOLDER="output-backend"
 
 
-# ==== PIPELINE EXECUTION STARTS HERE ====
-
-
 # =============================================
+# [PIPELINE EXECUTION STARTS FROM HERE]
+# =============================================
+
+
+# ---------------------------------------------
 # [VIRTUAL ENVIRONMENT CHECK]
-# =============================================
-
+# ---------------------------------------------
 if [[ "$VIRTUAL_ENV" == "" ]]
 then
     echo "No virtual environment found. Terminating script."
     exit 1
 fi
 
-# =============================================
+# ---------------------------------------------
 # [PARSING CONFIG FILE]
-# =============================================
-
+# ---------------------------------------------
 SVO_FILENAME=$(python -c '
 import config.config as cfg
 print(cfg.SVO_FILENAME)
@@ -91,14 +92,15 @@ print(getattr(cfg, "SVO_END_IDX", -1))
 # =============================================
 # [STEP #1 ==> EXTRACT STEREO-IMAGES FROM SVO FILE]
 # =============================================
-
 INPUT_FOLDER_SVO="${PIPELINE_INPUT_BACKEND_FOLDER}/svo-files"
 OUTPUT_FOLDER_SVO="${PIPELINE_OUTPUT_BACKEND_FOLDER}/stereo-images"
 
 INPUT_PATH_SVO="${INPUT_FOLDER_SVO}/${SVO_FILENAME}"
 OUTPUT_PATH_SVO="${OUTPUT_FOLDER_SVO}/${SVO_FILENAME}"
 
-# extracting 1 frame per {SVO_STEP} frames
+# ---------------------------------------------
+# EXTARCTING 1 SVO FRAME per {SVO_STEP} FRAMES
+# ---------------------------------------------
 SVO_STEP=2
 
 echo -e "\n"
@@ -111,8 +113,10 @@ echo "OUTPUT_PATH_SVO: $OUTPUT_PATH_SVO"
 echo "==============================="
 echo -e "\n"
 
-# check if the output folder already exists
-if [ ! -d "$SVO_IMAGES_DIR" ]; then
+# ---------------------------------------------
+# IGNORE IF $OUTPUT_PATH_SVO ALREADY EXISTS
+# ---------------------------------------------
+if [ ! -d "$OUTPUT_PATH_SVO" ]; then
 
 	START_TIME=$(date +%s) 
 	python3 "${PIPELINE_SCRIPT_DIR}/svo-to-stereo-images.py" \
