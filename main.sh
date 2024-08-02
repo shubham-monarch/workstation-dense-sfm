@@ -48,8 +48,13 @@ COLMAP_EXE_PATH=/usr/local/bin
 # [PIPELINE INTERNAL PARAMS]
 PIPELINE_SCRIPT_DIR="scripts"
 PIPELINE_CONFIG_DIR="config"
-PIPELINE_INPUT_DIR="input-backend" 
-PIPELINE_OUTPUT_DIR="output-backend"
+
+# PIPELINE_INPUT_DIR="input-backend" 
+# PIPELINE_OUTPUT_DIR="output-backend"
+
+PIPELINE_INPUT_BACKEND_FOLDER="input-backend"
+PIPELINE_OUTPUT_BACKEND_FOLDER="output-backend"
+
 
 # ==== PIPELINE EXECUTION STARTS HERE ====
 
@@ -76,24 +81,28 @@ import config.config as cfg
 print(getattr(cfg, "SVO_END_IDX", -1))
 ')
 
-echo -e "\n"
-echo "==============================="
-echo "[PARSING CONFIG.JSON]"
-echo "SVO_FILENAME: $SVO_FILENAME"
-echo "SVO_START_IDX: $SVO_START_IDX"
-echo "SVO_END_IDX: $SVO_END_IDX"
-echo "==============================="
-echo -e "\n"
+# SUB_FOLDER_NAME="${SVO_START_IDX}_to_${SVO_END_IDX}"
 
-# folder to store results
-SUB_FOLDER_NAME="${SVO_START_IDX}_to_${SVO_END_IDX}"
+# echo -e "\n"
+# echo "==============================="
+# echo "[PARSING CONFIG.JSON]"
+# echo "SVO_FILENAME: $SVO_FILENAME"
+# echo "SVO_START_IDX: $SVO_START_IDX"
+# echo "SVO_END_IDX: $SVO_END_IDX"
+# echo "==============================="
+# echo -e "\n"
 
-# [STEP #1 --> EXTRACT STEREO-IMAGES FROM SVO FILE]
-SVO_INPUT_DIR="${PIPELINE_INPUT_DIR}/svo-files"
-SVO_OUTPUT_DIR="${PIPELINE_OUTPUT_DIR}/stereo-images"
+# [STEP #1 ==> EXTRACT STEREO-IMAGES FROM SVO FILE]
 
-SVO_FILE_PATH="${SVO_INPUT_DIR}/${SVO_FILENAME}"
-SVO_IMAGES_DIR="${SVO_OUTPUT_DIR}/${SVO_FILENAME}/${SUB_FOLDER_NAME}"
+# SVO_INPUT_DIR="${PIPELINE_INPUT_DIR}/svo-files"
+# PREFIX_SVO_OUTPUT_DIR="${PIPELINE_OUTPUT_DIR}/stereo-images"
+INPUT_FOLDER_SVO="${PIPELINE_INPUT_BACKEND_FOLDER}/svo-files"
+OUTPUT_FOLDER_SVO="${PIPELINE_OUTPUT_BACKEND_FOLDER}/stereo-images"
+
+INPUT_PATH_SVO="${INPUT_FOLDER_SVO}/${SVO_FILENAME}"
+# SVO_IMAGES_DIR="${SVO_OUTPUT_DIR}/${SVO_FILENAME}/${SUB_FOLDER_NAME}"
+# OUTPUT_FOLDER_SVO="${SVO_OUTPUT_DIR}/${SVO_FILENAME}/${SUB_FOLDER_NAME}"
+OUTPUT_PATH_SVO="${OUTPUT_FOLDER_SVO}/${SVO_FILENAME}"
 
 # extracting 1 frame per {SVO_STEP} frames
 SVO_STEP=2
@@ -101,10 +110,10 @@ SVO_STEP=2
 echo -e "\n"
 echo "==============================="
 echo "[SVO PROCESSING --> EXTRACTING IMAGES]"
-echo "SVO_INPUT_DIR: $SVO_INPUT_DIR"
-echo "SVO_OUTPUT_DIR: $SVO_OUTPUT_DIR"
-echo "SVO_FILE_PATH: $SVO_FILE_PATH"
-echo "SVO_IMAGES_DIR: $SVO_IMAGES_DIR"
+echo "INPUT_FOLDER_SVO: $INPUT_FOLDER_SVO"
+echo "OUTPUT_FOLDER_SVO: $OUTPUT_FOLDER_SVO"
+echo "INPUT_PATH_SVO: $INPUT_PATH_SVO"
+echo "OUTPUT_PATH_SVO: $OUTPUT_PATH_SVO"
 echo "==============================="
 echo -e "\n"
 
@@ -113,10 +122,8 @@ if [ ! -d "$SVO_IMAGES_DIR" ]; then
 
 	START_TIME=$(date +%s) 
 	python3 "${PIPELINE_SCRIPT_DIR}/svo-to-stereo-images.py" \
-		--svo_path=$SVO_FILE_PATH \
-		--start_frame=$SVO_START_IDX \
-		--end_frame=$SVO_END_IDX \
-		--output_dir=$SVO_IMAGES_DIR \
+		--svo_path=$INPUT_PATH_SVO \
+		--output_dir=$OUTPUT_PATH_SVO \
 		--svo_step=$SVO_STEP
 
 	END_TIME=$(date +%s)
@@ -142,7 +149,9 @@ else
 	echo -e "\n"
 fi
 
-# [STEP #2 --> SPARSE-RECONSTRUCTION FROM STEREO-IMAGES]
+exit $EXIT_SUCCESS
+
+# [STEP #2 --> SPARSE-RECONSTRUCTION FROM STEREO-IMAGES] 
 SPARSE_RECON_INPUT_DIR="${PIPELINE_INPUT_DIR}/sparse-reconstruction/${SVO_FILENAME}/${SUB_FOLDER_NAME}"
 SPARSE_RECON_OUTPUT_DIR="${PIPELINE_OUTPUT_DIR}/sparse-reconstruction/${SVO_FILENAME}/${SUB_FOLDER_NAME}"
 
