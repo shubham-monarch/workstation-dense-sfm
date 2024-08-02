@@ -58,14 +58,21 @@ PIPELINE_OUTPUT_BACKEND_FOLDER="output-backend"
 
 # ==== PIPELINE EXECUTION STARTS HERE ====
 
-# [VIRTUAL ENV CHECK]
+
+# =============================================
+# [VIRTUAL ENVIRONMENT CHECK]
+# =============================================
+
 if [[ "$VIRTUAL_ENV" == "" ]]
 then
     echo "No virtual environment found. Terminating script."
     exit 1
 fi
 
-# [PARSING CONFIG/CONFIG.PY]
+# =============================================
+# [PARSING CONFIG FILE]
+# =============================================
+
 SVO_FILENAME=$(python -c '
 import config.config as cfg
 print(cfg.SVO_FILENAME)
@@ -81,27 +88,14 @@ import config.config as cfg
 print(getattr(cfg, "SVO_END_IDX", -1))
 ')
 
-# SUB_FOLDER_NAME="${SVO_START_IDX}_to_${SVO_END_IDX}"
-
-# echo -e "\n"
-# echo "==============================="
-# echo "[PARSING CONFIG.JSON]"
-# echo "SVO_FILENAME: $SVO_FILENAME"
-# echo "SVO_START_IDX: $SVO_START_IDX"
-# echo "SVO_END_IDX: $SVO_END_IDX"
-# echo "==============================="
-# echo -e "\n"
-
+# =============================================
 # [STEP #1 ==> EXTRACT STEREO-IMAGES FROM SVO FILE]
+# =============================================
 
-# SVO_INPUT_DIR="${PIPELINE_INPUT_DIR}/svo-files"
-# PREFIX_SVO_OUTPUT_DIR="${PIPELINE_OUTPUT_DIR}/stereo-images"
 INPUT_FOLDER_SVO="${PIPELINE_INPUT_BACKEND_FOLDER}/svo-files"
 OUTPUT_FOLDER_SVO="${PIPELINE_OUTPUT_BACKEND_FOLDER}/stereo-images"
 
 INPUT_PATH_SVO="${INPUT_FOLDER_SVO}/${SVO_FILENAME}"
-# SVO_IMAGES_DIR="${SVO_OUTPUT_DIR}/${SVO_FILENAME}/${SUB_FOLDER_NAME}"
-# OUTPUT_FOLDER_SVO="${SVO_OUTPUT_DIR}/${SVO_FILENAME}/${SUB_FOLDER_NAME}"
 OUTPUT_PATH_SVO="${OUTPUT_FOLDER_SVO}/${SVO_FILENAME}"
 
 # extracting 1 frame per {SVO_STEP} frames
