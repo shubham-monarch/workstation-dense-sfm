@@ -113,15 +113,20 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser(description='python_vo')    
     parser.add_argument('--config', type=str, default='scripts/vo/params/kitti_superpoint_flannmatch.yaml',
                         help='config file')
+    parser.add_argument('--i', type=str, required=True, help='path to input file / folder')
+    parser.add_argument('--o', type=str, required=True, help='path to root output folder')
     
+
     args = parser.parse_args()
     coloredlogs.install(level='INFO', force=True)
     
     with open(args.config, 'r') as f:
         config = yaml.load(f, Loader=yaml.FullLoader)
     
-    ROOT_FOLDER = config['dataset']['root_folder']
+    # ROOT_FOLDER = config['dataset']['root_folder']
+    ROOT_FOLDER = args.o
     logging.warning(f"ROOT_FOLDER: {ROOT_FOLDER}")
+    
     PREFIX_FOLDER = "escalon/"
     INPUT_PATH = os.path.join(ROOT_FOLDER, PREFIX_FOLDER)
 
