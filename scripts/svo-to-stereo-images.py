@@ -11,7 +11,7 @@ from pathlib import Path
 import coloredlogs, logging
 from tqdm import tqdm
 
-from scripts.utils_module import io_utils
+from utils_module import io_utils
 
 def main(filepath, output_folder, svo_step = 2):
     
