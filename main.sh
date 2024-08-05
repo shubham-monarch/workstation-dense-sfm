@@ -37,6 +37,7 @@
 - extract baseline from the svo file
 - user feedback mechanism 
 - temp file deletion sttrategy
+- include zed baseline extraction
 
 comment
 
