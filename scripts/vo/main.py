@@ -160,8 +160,8 @@ def write_seq_to_disk(input_dir : str, sequences : tuple, output_dir = "outputs"
 
 def run(args, INPUT_FOLDER_PATH):
     with open(args.config, 'r') as f:
-        # config = yaml.load(f, Loader=yaml.FullLoader)
-        config = yaml.load(f)
+        config = yaml.load(f, Loader=yaml.FullLoader)
+        # config = yaml.load(f)
 
     loader = create_dataloader(config["dataset"], INPUT_FOLDER_PATH)
     detector = create_detector(config["detector"])
@@ -234,7 +234,7 @@ if __name__ == "__main__":
 
     PREFIX_FOLDER ="test_imgs/sequences/00/"
     # IMAGES_FOLDER = "vineyards/RJM/front_2024-06-05-09-48-13.svo"
-    IMAGES_FOLDER = "apple_farm/"
+    IMAGES_FOLDER = "escalon/"
     INPUT_FOLDER = f"{PREFIX_FOLDER}{IMAGES_FOLDER}"
 
     # number of svo folders to test
