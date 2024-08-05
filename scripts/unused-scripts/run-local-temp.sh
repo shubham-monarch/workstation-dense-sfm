@@ -3,7 +3,7 @@
 # Parsing SVO params
 svo_filename=$(python -c 'import json; config = json.load(open("config/config.json")); print(config.get("svo_filename", ""))')
 svo_first_frame_idx=$(python -c 'import json; config = json.load(open("config/config.json")); print(config.get("svo_first_frame_idx", ""))')
-svo_last_frame_idx=$(python -c 'import json; config = json.load(open("config/config.json")); print(config.get("svo_last_frame_idx", ""))')
+svo_last_frame_idx=$(python -c 'import json;  = json.load(open("config/config.json")); print(config.get("svo_last_frame_idx", ""))')
 
 # Parsing pipeline params
 dense_sfm_path=$(python -c 'import json; config = json.load(open("config/config.json")); print(config.get("dense_sfm_path", ""))')

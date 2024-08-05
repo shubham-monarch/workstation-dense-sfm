@@ -1,10 +1,12 @@
 dataset:
   name: KITTILoader
-#  root_path: /mnt/dataset_hdd/KITTI/odometry
-  root_path: test_imgs
-  sequence: '00'
+  root_folder: 'output-backend/vo'
   start: 0
 
+#  root_path: /mnt/dataset_hdd/KITTI/odometry
+#   root_path: test_imgs
+#   sequence: '00'
+  
 detector:
   name: SuperPointDetector
   descriptor_dim: 256

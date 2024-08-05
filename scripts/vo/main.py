@@ -17,6 +17,7 @@ from DataLoader import create_dataloader
 from Detectors import create_detector
 from Matchers import create_matcher
 from VO.VisualOdometry import VisualOdometry, AbosluteScaleComputer
+from DataLoader import ZEDLoader
 import time
 import matplotlib.pyplot as plt
 import fnmatch
@@ -32,46 +33,6 @@ def keypoints_plot(img, vo):
     return plot_keypoints(img, vo.kptdescs["cur"]["keypoints"], vo.kptdescs["cur"]["scores"])
 
 
-class TrajPlotter(object):
-    def __init__(self, reset_idx = None):
-        self.errors = []
-        # self.traj = np.zeros((600, 600, 3), dtype=np.uint8)
-        # visualization window dims
-        self.h,self.w = (800, 700)
-        self.traj = np.zeros((self.h, self.w, 3), dtype=np.uint8)
-        self.frame_cnt = 0
-        if reset_idx:
-            self.reset_idx = reset_idx
-
-    def reset(self):
-        # logging.info("=======================")
-        # logging.info(f"[TrajPlotter] reset at {self.frame_cnt} frame!")
-        # logging.info("=======================")
-        # time.sleep(5)
-            
-        # self.traj = np.zeros((600, 1000, 3), dtype=np.uint8)
-        self.traj = np.zeros((self.h, self.w, 3), dtype=np.uint8)
-        
-    def update(self, est_xyz, gt_xyz = None):
-
-        # logging.info(f"[TJ IDX]: {self.frame_cnt}")        
-        if self.reset_idx:
-            if self.frame_cnt > 0 and self.frame_cnt % self.reset_idx ==  0:
-                self.reset()
-                # time.sleep(1)
-        
-        x, z = est_xyz[0], est_xyz[2]
-        # x, z = est_xyz[1], est_xyz[2]
-        
-        self.frame_cnt += 1
-        
-        est = np.array([x, z]).reshape(2)
-        
-        draw_x, draw_y = int(x) + (self.w // 2), int(z) + (self.h // 2)
-        
-        # draw trajectory
-        cv2.circle(self.traj, (draw_x, draw_y), 1, (0, 255, 0), 1)
-        return self.traj
 '''
 [TO-DO]
 - tune script
@@ -158,12 +119,19 @@ def write_seq_to_disk(input_dir : str, sequences : tuple, output_dir = "outputs"
     
 
 
-def run(args, INPUT_FOLDER_PATH):
+def run(args, svo_folder_path):
     with open(args.config, 'r') as f:
         config = yaml.load(f, Loader=yaml.FullLoader)
         # config = yaml.load(f)
 
-    loader = create_dataloader(config["dataset"], INPUT_FOLDER_PATH)
+    # loader = create_dataloader(config["dataset"], INPUT_FOLDER_PATH)
+    # dataloader_config = {
+    #     "prefix_input_folder" : "output-backend/vo",
+    #     "input_folder" : "escalon"
+    # }
+
+    loader = ZEDLoader.KITTILoader(config, svo_folder_path)
+    
     detector = create_detector(config["detector"])
     matcher = create_matcher(config["matcher"])
 
@@ -171,11 +139,11 @@ def run(args, INPUT_FOLDER_PATH):
     # traj_plotter = TrajPlotter(RESET_IDX)
 
     # log
-    fname = args.config.split('/')[-1].split('.')[0]
-    log_fopen = open("results/" + fname + ".txt", mode='a')
+    # fname = args.config.split('/')[-1].split('.')[0]
+    # log_fopen = open("results/" + fname + ".txt", mode='a')
 
     logging.warning("=======================")
-    logging.info(f"fname: {fname}")
+    # logging.info(f"fname: {fname}")
     zed_camera = loader.cam
     for attr, value in zed_camera.__dict__.items():
         logging.info(f"{attr}: {value}")
@@ -220,61 +188,56 @@ def run(args, INPUT_FOLDER_PATH):
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description='python_vo')    
-    parser.add_argument('--config', type=str, default='params/kitti_superpoint_flannmatch.yaml',
+    parser.add_argument('--config', type=str, default='scripts/vo/params/kitti_superpoint_flannmatch.yaml',
                         help='config file')
     
-
     args = parser.parse_args()
     coloredlogs.install(level='INFO', force=True)
     
-    # RESET_IDX = 500
-    # BASE_INPUT_FOLDER = "tested"
-    # SVO_FOLDER = "front_2023-11-03-10-51-17.svo/"
-    # INPUT_FOLDER_PATH = f"{BASE_INPUT_FOLDER}/{SVO_FOLDER}"
+    with open(args.config, 'r') as f:
+        config = yaml.load(f, Loader=yaml.FullLoader)
+    
+    # ROOT_FOLDER ="output-backend/vo/"s
+    ROOT_FOLDER = config['dataset']['root_folder']
+    logging.warning(f"ROOT_FOLDER: {ROOT_FOLDER}")
+    PREFIX_FOLDER = "escalon/"
+    INPUT_PATH = os.path.join(ROOT_FOLDER, PREFIX_FOLDER)
 
-    PREFIX_FOLDER ="test_imgs/sequences/00/"
-    # IMAGES_FOLDER = "vineyards/RJM/front_2024-06-05-09-48-13.svo"
-    IMAGES_FOLDER = "escalon/"
-    INPUT_FOLDER = f"{PREFIX_FOLDER}{IMAGES_FOLDER}"
+    # relative paths for svo files w.r.t. {PREFIX_FOLDER}/{IMAGES_FOLDER}
+    svo_folders_rel = []
+
+    for dirpath, dirnames, filenames in os.walk(INPUT_PATH):
+        # Check if the current directory is a base folder (no sub-folders)
+        if not dirnames:
+            # Calculate the relative path of the base folder
+            relative_path = os.path.relpath(dirpath, os.path.join(ROOT_FOLDER))
+            # logging.info(f"Relative path of base folder: {relative_path}")       
+            svo_folders_rel.append(relative_path)
 
     # number of svo folders to test
     CUTOFF_NUM_FOLDERS = 5
-    
-    # storing relative and abs paths
-    svo_folders_abs = []
-    svo_folders_rel = []
-    
-    for root, dirs, files in os.walk(INPUT_FOLDER, topdown=True):
-        if not dirs:
-            svo_folders_abs.append(root)
-
-    random.shuffle(svo_folders_abs)
-
-    for i, folder in enumerate(svo_folders_abs):
-        if i >= CUTOFF_NUM_FOLDERS:
-            break
         
-        all = folder.split('/')
-        relevant = all[3:]
-        folder_ ='/'.join(relevant)
-        
-        svo_folders_rel.append(folder_)
-    
+    random.shuffle(svo_folders_rel)
+
     logging.info("=======================")
     logging.info("FOLLOWING SVO FOLDERS WILL BE TESTED")
+    
     for i, folder in enumerate(svo_folders_rel):
+        if i > CUTOFF_NUM_FOLDERS:
+            break
         logging.info(f"[{i}] {folder}")
+    
     logging.info("=======================\n")
         
     time.sleep(2)
-
-    for i, folder in enumerate(svo_folders_rel):
+    # exit(1)
+    for i, svo_folder in enumerate(svo_folders_rel):
         logging.error("=======================")
         logging.error(f"STARTING VO FOR [{i} / {len(svo_folders_rel)}] FOLDER!")
         logging.error("=======================")
         time.sleep(5)
         
-        vo  = run(args, folder)  
+        vo  = run(args, svo_folder)  
         # seq_list = vo.get_viable_sequences()
         # plot_histograms(seq_list)
 
@@ -287,7 +250,7 @@ if __name__ == "__main__":
         
         time.sleep(1)
         
-        write_seq_to_disk(folder, seq_tuples)
+        # write_seq_to_disk(folder, seq_tuples)
 
     logging.info("=======================")
     logging.info("DELETING THE INPUT SVO FOLDERS!")

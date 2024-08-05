@@ -14,27 +14,30 @@ from utils.PinholeCamera import PinholeCamera
 
 
 class KITTILoader(object):
-    default_config = {
-        "root_path": "../test_imgs",
-        "sequence": "00",
-        "start": 0
-    }
+    # default_config = {
+    #     "root_path": "../test_imgs",
+    #     "sequence": "00",
+    #     "start": 0
+    # }
 
-    def __init__(self, input_folder,  config={}):
-        # logging.warning(f"[KITTILoader] __init__")
-        self.config = self.default_config
-        self.config = {**self.config, **config}
+    def __init__(self, config, input_folder):
+        logging.warning(f"[KITTILoader] __init__")
+        # self.config = config
         self.input_folder = input_folder
+        # self.config = self.default_config
+        self.config = {**config}
+
+        logging.warning(f"self.config: {self.config}")
+        # self.input_folder = input_folder
         
         self.cam = PinholeCamera(1241.0, 376.0, 1093.2768, 1093.2768, 964.989, 569.276)
 
         # start-idx
-        self.img_id = self.config["start"]
+        self.img_id = self.config['dataset']['start']
         
-        self.input_dir = self.config["root_path"] + "/sequences/" \
-                                            + self.config["sequence"] + f"/{self.input_folder}"
         
-
+        self.input_dir = os.path.join(self.config['dataset']['root_folder'] , self.input_folder)
+                                            
         self.img_N = len([file for file in os.listdir(self.input_dir) if file.endswith('.png')]) 
         logging.info(f"self.img_N: {self.img_N}")   
         
@@ -78,7 +81,7 @@ class KITTILoader(object):
         raise StopIteration()
 
     def __len__(self):
-        return self.img_N - self.config["start"]
+        return self.img_N - self.config['dataset']['start']
 
 
 if __name__ == "__main__":
