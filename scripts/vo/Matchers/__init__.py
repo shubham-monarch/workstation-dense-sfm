@@ -1,5 +1,5 @@
-from .FrameByFrameMatcher import FrameByFrameMatcher
-from .SuperGlueMatcher import SuperGlueMatcher
+from scripts.vo.Matchers.FrameByFrameMatcher import FrameByFrameMatcher
+from scripts.vo.Matchers.SuperGlueMatcher import SuperGlueMatcher
 
 
 def create_matcher(conf):

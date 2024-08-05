@@ -1,7 +1,7 @@
 import numpy as np
 import cv2
 import logging
-from utils.tools import plot_matches
+from scripts.vo.utils.tools import plot_matches
 
 
 class FrameByFrameMatcher(object):

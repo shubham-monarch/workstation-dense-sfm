@@ -1,7 +1,7 @@
 from pathlib import Path
-from utils.tools import *
+from scripts.vo.utils.tools import *
 import logging
-from Matchers.superglue.superglue import SuperGlue
+from scripts.vo.Matchers.superglue.superglue import SuperGlue
 
 
 class SuperGlueMatcher(object):

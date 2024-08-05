@@ -1,5 +1,5 @@
-from .HandcraftDetector import HandcraftDetector
-from .SuperPointDetector import SuperPointDetector
+from scripts.vo.Detectors.HandcraftDetector import HandcraftDetector
+from scripts.vo.Detectors.SuperPointDetector import SuperPointDetector
 
 
 def create_detector(conf):

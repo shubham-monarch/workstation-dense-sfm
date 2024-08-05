@@ -1,7 +1,7 @@
 from pathlib import Path
 import logging
-from utils.tools import *
-from Detectors.superpoint.superpoint import SuperPoint
+from scripts.vo.utils.tools import *
+from scripts.vo.Detectors.superpoint.superpoint import SuperPoint
 
 
 class SuperPointDetector(object):

@@ -10,7 +10,7 @@ import fnmatch
 from pathlib import Path
 
 
-from utils.PinholeCamera import PinholeCamera
+from scripts.vo.utils.PinholeCamera import PinholeCamera
 
 
 class KITTILoader(object):

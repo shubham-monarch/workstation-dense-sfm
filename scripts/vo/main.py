@@ -9,20 +9,22 @@ import yaml
 import logging, coloredlogs
 from tqdm import tqdm
 
-from utils.tools import plot_keypoints
-from utils.vis_helpers import plot_histograms
-from utils.io_utils import create_folders, delete_folders
+from scripts.vo.utils.tools import plot_keypoints
+from scripts.vo.utils.vis_helpers import plot_histograms
+from scripts.utils_module.io_utils import create_folders, delete_folders
 
-from DataLoader import create_dataloader
-from Detectors import create_detector
-from Matchers import create_matcher
-from VO.VisualOdometry import VisualOdometry, AbosluteScaleComputer
-from DataLoader import ZEDLoader
+# from scripts.vo.DataLoader import create_dataloader
+from scripts.vo.Detectors import create_detector
+from scripts.vo.Matchers import create_matcher
+from scripts.vo.VO.VisualOdometry import VisualOdometry, AbosluteScaleComputer
+from scripts.vo.DataLoader import ZEDLoader
 import time
 import matplotlib.pyplot as plt
 import fnmatch
 import shutil
 import random
+
+from scripts.vo.svo_to_stereo_images import get_camera_params
  
 #[TO-DO]
 # - error-handling =>  vineyards/front_2024-06-05-09-48-13.svo
@@ -113,6 +115,7 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser(description='python_vo')    
     parser.add_argument('--config', type=str, default='scripts/vo/params/kitti_superpoint_flannmatch.yaml',
                         help='config file')
+    parser.add_argument('--i', type=str, required=  True, help='Path to input svo files / folder')
     
     args = parser.parse_args()
     coloredlogs.install(level='INFO', force=True)
@@ -120,56 +123,58 @@ if __name__ == "__main__":
     with open(args.config, 'r') as f:
         config = yaml.load(f, Loader=yaml.FullLoader)
     
-    ROOT_FOLDER = config['dataset']['root_folder']
-    logging.warning(f"ROOT_FOLDER: {ROOT_FOLDER}")
-    PREFIX_FOLDER = "escalon/"
-    INPUT_PATH = os.path.join(ROOT_FOLDER, PREFIX_FOLDER)
+    camera_params = get_camera_params(args.i)
+    logging.info(f"camera_params: {camera_params}")
+    # ROOT_FOLDER = config['dataset']['root_folder']
+    # logging.warning(f"ROOT_FOLDER: {ROOT_FOLDER}")
+    # PREFIX_FOLDER = "escalon/"
+    # INPUT_PATH = os.path.join(ROOT_FOLDER, PREFIX_FOLDER)
 
-    # relative paths for svo files w.r.t. {PREFIX_FOLDER}/{IMAGES_FOLDER}
-    svo_folders_rel = []
+    # # relative paths for svo files w.r.t. {PREFIX_FOLDER}/{IMAGES_FOLDER}
+    # svo_folders_rel = []
 
-    for dirpath, dirnames, filenames in os.walk(INPUT_PATH):
-        # Check if the current directory is a base folder (no sub-folders)
-        if not dirnames:
-            # Calculate the relative path of the base folder
-            relative_path = os.path.relpath(dirpath, os.path.join(ROOT_FOLDER))
-            # logging.info(f"Relative path of base folder: {relative_path}")       
-            svo_folders_rel.append(relative_path)
+    # for dirpath, dirnames, filenames in os.walk(INPUT_PATH):
+    #     # Check if the current directory is a base folder (no sub-folders)
+    #     if not dirnames:
+    #         # Calculate the relative path of the base folder
+    #         relative_path = os.path.relpath(dirpath, os.path.join(ROOT_FOLDER))
+    #         # logging.info(f"Relative path of base folder: {relative_path}")       
+    #         svo_folders_rel.append(relative_path)
     
-    random.shuffle(svo_folders_rel)
+    # random.shuffle(svo_folders_rel)
 
-    logging.info("=======================")
-    logging.info("FOLLOWING SVO FOLDERS WILL BE TESTED")
+    # logging.info("=======================")
+    # logging.info("FOLLOWING SVO FOLDERS WILL BE TESTED")
     
-    for i, folder in enumerate(svo_folders_rel):
-        logging.info(f"[{i}] {folder}")
+    # for i, folder in enumerate(svo_folders_rel):
+    #     logging.info(f"[{i}] {folder}")
     
-    logging.info("=======================\n")    
-    time.sleep(2)
+    # logging.info("=======================\n")    
+    # time.sleep(2)
 
-    for i, svo_folder in enumerate(svo_folders_rel):
-        logging.error("=======================")
-        logging.error(f"STARTING VO FOR [{i} / {len(svo_folders_rel)}] FOLDER!")
-        logging.error("=======================")
-        time.sleep(5)
+    # for i, svo_folder in enumerate(svo_folders_rel):
+    #     logging.error("=======================")
+    #     logging.error(f"STARTING VO FOR [{i} / {len(svo_folders_rel)}] FOLDER!")
+    #     logging.error("=======================")
+    #     time.sleep(5)
         
-        vo  = run(args, svo_folder)  
-        # seq_list = vo.get_viable_sequences()
+    #     vo  = run(args, svo_folder)  
+    #     # seq_list = vo.get_viable_sequences()
         
-        # (st1, en1), (st2, en2), ...
-        seq_tuples = vo.get_sequence_pairs()
+    #     # (st1, en1), (st2, en2), ...
+    #     seq_tuples = vo.get_sequence_pairs()
 
-        logging.info("=======================")
-        logging.info("SAVING SEQUENCES TO DISK!")
-        logging.info("=======================")
+    #     logging.info("=======================")
+    #     logging.info("SAVING SEQUENCES TO DISK!")
+    #     logging.info("=======================")
         
-        time.sleep(1)
+    #     time.sleep(1)
         
-        # write_seq_to_disk(folder, seq_tuples)
+    #     # write_seq_to_disk(folder, seq_tuples)
 
-    logging.info("=======================")
-    logging.info("DELETING THE INPUT SVO FOLDERS!")
-    logging.info("=======================")
+    # logging.info("=======================")
+    # logging.info("DELETING THE INPUT SVO FOLDERS!")
+    # logging.info("=======================")
     
-    # delete_folders(svo_folders_abs)
+    # # delete_folders(svo_folders_abs)
         
