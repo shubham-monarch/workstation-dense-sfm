@@ -2,34 +2,28 @@
 
 <<comment
 [TO-DO]
-- implement svo-filter.py
-- integrate svo-filter.py with main.sh	
-
-[LATER]
-- add colmap cmake update to support pycolmap installtion 
-- retag colmap , pycolmap
-- update requirements.txt
-- update pipeline tag
+- aws api integration
+- aws / local input detection
+- pointcloud labelling
+- pointcloud cropping script
+- output-backend -> output folder
+- aws instance setup
+	- add colmap cmake update to sssssssssupport pycolmap installtion 
+	- retag colmap , pycolmap
+	- update requirements.txt
+	- update pipeline tag
+- processed/unprocessed folders
+	- add svo files
+	- cleanup before running the pipeline
 - documentation
 	- update release notes
 	- update installation steps
 	- add + update setup.md
 	- add readme.md
 	- update colmap installation steps in setup.md
-- refactoring
-	- add python-scripts / bash-scripts
-	- refactor script folders into separate modules
-- new scripts
-	- add main-ws.sh, main-aws.sh
-	- aws integration
-	- add status-processed / unprocessed folders for user feeback
-	- add segmentation inference script
-	- move output-backend ---> output script
-	- add folder / file support
-	- add parent + child config file/script
-	- python for config parsing
-	- output/input-backend clean-up
-- add images / video support
+- add segmentation inference script
+- output/input-backend clean-up
+- add images support
 - check if script is being executed from the project root
 - dense reconstruction support for multiple gpus
 - [error-handling / folder deletion] for Ctrl-C / unexpected script termination 
@@ -37,17 +31,20 @@
 
 comment
 
+SVO_FILENAME=$1
+SVO_START_IDX=$2
+SVO_END_IDX=$3
 
 echo -e "\n"
 echo "==============================="
-echo "[PARSING CONFIG.JSON]"
+echo "[INSIDE MAIN-FILE.SH]"
 echo "SVO_FILENAME: $SVO_FILENAME"
 echo "SVO_START_IDX: $SVO_START_IDX"
 echo "SVO_END_IDX: $SVO_END_IDX"
 echo "==============================="
 echo -e "\n"
 
-
+exit 0
 
 # [GLOBAL PARAMS]
 EXIT_FAILURE=1
@@ -69,21 +66,21 @@ then
     exit 1
 fi
 
-# [PARSING CONFIG/CONFIG.PY]
-SVO_FILENAME=$(python -c '
-import config.config as cfg
-print(cfg.SVO_FILENAME)
-')
+# # [PARSING CONFIG/CONFIG.PY]
+# SVO_FILENAME=$(python -c '
+# import config.config as cfg
+# print(cfg.SVO_FILENAME)
+# ')
 
-SVO_START_IDX=$(python -c '
-import config.config as cfg
-print(getattr(cfg, "SVO_START_IDX", -1))
-')
+# SVO_START_IDX=$(python -c '
+# import config.config as cfg
+# print(getattr(cfg, "SVO_START_IDX", -1))
+# ')
 
-SVO_END_IDX=$(python -c '
-import config.config as cfg
-print(getattr(cfg, "SVO_END_IDX", -1))
-')
+# SVO_END_IDX=$(python -c '
+# import config.config as cfg
+# print(getattr(cfg, "SVO_END_IDX", -1))
+# ')
 
 echo -e "\n"
 echo "==============================="
