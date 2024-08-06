@@ -157,42 +157,17 @@ if __name__ == "__main__":
     # # logging.info(f"camera_params: {camera_params}")
     # logging.warning(f"Total number of svo files: {len(svo_path_abs)}")
     
-    for svo_file_path in svo_path_rel:
-        output_path = os.path.join(ROOT_OUTPUT, svo_file_path)
-        input_path = os.path.join(ROOT_INPUT, svo_file_path)
+    # for svo_file_path in svo_path_rel:
+    #     pass
+   
+    for i, svo_folder in enumerate(svo_path_rel):
+        
+        output_path = os.path.join(ROOT_OUTPUT, svo_folder)
+        input_path = os.path.join(ROOT_INPUT, svo_folder)
         # logging.warning(f"svo_file_path: {svo_file_path} | output_path: {output_path}")
         svo_to_stereo_images.extract_vo_stereo_images(input_path, output_path, 2) 
-        camera_params = svo_to_stereo_images.get_camera_params(os.path.join(ROOT_INPUT,svo_file_path))
-    
-    
-    # # ROOT_FOLDER = config['dataset']['root_folder']
-    # logging.warning(f"ROOT_FOLDER: {ROOT_FOLDER}")
-    # PREFIX_FOLDER = "escalon/"
-    # INPUT_PATH = os.path.join(ROOT_FOLDER, PREFIX_FOLDER)
-
-    # # relative paths for svo files w.r.t. {PREFIX_FOLDER}/{IMAGES_FOLDER}
-    # svo_folders_rel = []
-
-    # for dirpath, dirnames, filenames in os.walk(INPUT_PATH):
-    #     # Check if the current directory is a base folder (no sub-folders)
-    #     if not dirnames:
-    #         # Calculate the relative path of the base folder
-    #         relative_path = os.path.relpath(dirpath, os.path.join(ROOT_FOLDER))
-    #         # logging.info(f"Relative path of base folder: {relative_path}")       
-    #         svo_folders_rel.append(relative_path)
-    
-    # random.shuffle(svo_folders_rel)
-
-    # logging.info("=======================")
-    # logging.info("FOLLOWING SVO FOLDERS WILL BE TESTED")
-    
-    # for i, folder in enumerate(svo_folders_rel):
-    #     logging.info(f"[{i}] {folder}")
-    
-    # logging.info("=======================\n")    
-    # time.sleep(2)
-
-    for i, svo_folder in enumerate(svo_path_rel):
+        camera_params = svo_to_stereo_images.get_camera_params(os.path.join(ROOT_INPUT,svo_folder))
+        
         logging.error("=======================")
         logging.error(f"STARTING VO FOR [{i} / {len(svo_path_rel)}] FOLDER!")
         logging.error("=======================")
