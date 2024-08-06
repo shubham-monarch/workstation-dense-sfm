@@ -51,7 +51,7 @@ def extract_vo_stereo_images(filepath, output_folder, svo_step = 2):
     io_utils.create_folders([os.path.join(output_path)])
     
 
-    for frame_idx in tqdm(range(0, 50, svo_step)):
+    for frame_idx in tqdm(range(0, total_frames, svo_step)):
         if zed.grab(runtime_parameters) == sl.ERROR_CODE.SUCCESS:
             zed.set_svo_position(frame_idx)
             zed.retrieve_image(image_l, sl.VIEW.LEFT)

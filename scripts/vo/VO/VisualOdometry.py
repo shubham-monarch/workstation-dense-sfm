@@ -104,6 +104,12 @@ class VisualOdometry(object):
     def get_sequence_pairs(self):
         return self.sequence_pairs
 
+    def log_frame_addition(self, start_idx, end_idx):
+        logging.info("=======================")
+        logging.info(f"ADDING [{end_idx - 1} - {start_idx} = {end_idx - 1 - start_idx}] TO SEQUENCE_DURATION!")  
+        logging.info(f"ADDING [{start_idx},{end_idx - 1}] TO SEQUENCE_PAIRS!")  
+        logging.info("=======================")
+
     def update(self, image, absolute_scale=1):
         kptdesc = self.detector(image)
         
@@ -183,14 +189,30 @@ class VisualOdometry(object):
                 # self.cur_t = self.cur_t + absolute_scale * self.cur_R.dot(t)
                 self.cur_t = self.cur_t + 1.0 * self.cur_R.dot(t)
                 self.cur_R = R.dot(self.cur_R)
-                if self.frame_idx == self.total_frames - 1:
-                    seq_len  = (self.frame_idx - 1)- self.seq_st
+                
+                seq_len = (self.frame_idx - 1)- self.seq_st
+                
+                # detecting end of sequence
+                if (self.frame_idx == self.total_frames - 1) and (seq_len > self.CUTOFF_SEQ_LEN):
                     self.sequence_duration.append(seq_len)
                     self.sequence_pairs.append((self.seq_st, self.frame_idx - 1))
-                    logging.info("=======================")
-                    logging.info(f"ADDING [{self.frame_idx - 1} - {self.seq_st} = {seq_len}] TO SEQUENCE_DURATION!")  
-                    logging.info(f"ADDING [{self.seq_st},{self.frame_idx - 1}] TO SEQUENCE_PAIRS!")  
-                    logging.info("=======================")
+                    self.log_frame_addition(self.seq_st, self.frame_idx)
+                    # logging.info("=======================")
+                    # logging.info(f"ADDING [{self.frame_idx - 1} - {self.seq_st} = {seq_len}] TO SEQUENCE_DURATION!")  
+                    # logging.info(f"ADDING [{self.seq_st},{self.frame_idx - 1}] TO SEQUENCE_PAIRS!")  
+                    # logging.info("=======================")
+
+                # adding curr seq if len exceeds cutoff
+                elif seq_len >= self.CUTOFF_SEQ_LEN:
+                    self.sequence_duration.append(seq_len)
+                    self.sequence_pairs.append((self.seq_st, self.frame_idx))
+                    self.log_frame_addition(self.seq_st, self.frame_idx + 1)
+                    self.seq_st = self.frame_idx + 1
+                    # logging.info("=======================")
+                    # logging.info(f"ADDING [{self.frame_idx - 1} - {self.seq_st} = {seq_len}] TO SEQUENCE_DURATION!")  
+                    # logging.info(f"ADDING [{self.seq_st},{self.frame_idx - 1}] TO SEQUENCE_PAIRS!")  
+                    # logging.info("=======================")
+                    # time.sleep(3)
             else:
                 logging.error("=======================")
                 logging.error(f"FLAG CONDITION NOT MET!")  
@@ -202,11 +224,12 @@ class VisualOdometry(object):
                 if seq_len > self.CUTOFF_SEQ_LEN:
                     self.sequence_duration.append(seq_len)
                     self.sequence_pairs.append((self.seq_st, self.frame_idx - 1))
-                    logging.info("=======================")
-                    # logging.info(f"ADDING [{self.frame_idx - 1} - {self.seq_st} = {seq_len}] TO SEQUENCE_DURATION!")  
-                    logging.info(f"ADDING ({self.seq_st},{self.frame_idx - 1}) TO SEQUENCE_PAIRS!")  
-                    logging.info("=======================")
-                    time.sleep(3)
+                    self.log_frame_addition(self.seq_st, self.frame_idx)
+                    # logging.info("=======================")
+                    # # logging.info(f"ADDING [{self.frame_idx - 1} - {self.seq_st} = {seq_len}] TO SEQUENCE_DURATION!")  
+                    # logging.info(f"ADDING ({self.seq_st},{self.frame_idx - 1}) TO SEQUENCE_PAIRS!")  
+                    # logging.info("=======================")
+                    # time.sleep(3)
                     
                 self.seq_st = self.frame_idx + 1
         
