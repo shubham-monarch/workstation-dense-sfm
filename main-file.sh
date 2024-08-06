@@ -34,102 +34,86 @@
 - dense reconstruction support for multiple gpus
 - [error-handling / folder deletion] for Ctrl-C / unexpected script termination 
 - update default bb params for pointcloud cropping
-- extract baseline from the svo file
-- user feedback mechanism 
-- temp file deletion sttrategy
-- include zed baseline extraction
 
 comment
 
-# ---------------------------------------------
 # [GLOBAL PARAMS]
-# ---------------------------------------------
 EXIT_FAILURE=1
 EXIT_SUCCESS=0
 COLMAP_EXE_PATH=/usr/local/bin
 
-# ---------------------------------------------
-# [PIPELINE PARAMS]
-# ---------------------------------------------
+# [PIPELINE INTERNAL PARAMS]
 PIPELINE_SCRIPT_DIR="scripts"
 PIPELINE_CONFIG_DIR="config"
+PIPELINE_INPUT_DIR="input-backend" 
+PIPELINE_OUTPUT_DIR="output-backend"
 
-PIPELINE_INPUT_BACKEND_FOLDER="input-backend"
-PIPELINE_OUTPUT_BACKEND_FOLDER="output-backend"
+# ==== PIPELINE EXECUTION STARTS HERE ====
 
-
-# =============================================
-# [PIPELINE EXECUTION STARTS FROM HERE]
-# =============================================
-
-
-# ---------------------------------------------
-# [VIRTUAL ENVIRONMENT CHECK]
-# ---------------------------------------------
+# [VIRTUAL ENV CHECK]
 if [[ "$VIRTUAL_ENV" == "" ]]
 then
     echo "No virtual environment found. Terminating script."
     exit 1
 fi
 
-# ---------------------------------------------
-# [PARSING CONFIG FILE]
-# ---------------------------------------------
-USER_INPUT=$(python -c '
+# [PARSING CONFIG/CONFIG.PY]
+SVO_FILENAME=$(python -c '
 import config.config as cfg
 print(cfg.SVO_FILENAME)
 ')
 
+SVO_START_IDX=$(python -c '
+import config.config as cfg
+print(getattr(cfg, "SVO_START_IDX", -1))
+')
 
+SVO_END_IDX=$(python -c '
+import config.config as cfg
+print(getattr(cfg, "SVO_END_IDX", -1))
+')
 
-INPUT_PATH="${PIPELINE_INPUT_BACKEND_FOLDER}/svo-files/${USER_INPUT}"
-INPUT_ROOT="${PIPELINE_INPUT_BACKEND_FOLDER}/svo-files"
+echo -e "\n"
+echo "==============================="
+echo "[PARSING CONFIG.JSON]"
+echo "SVO_FILENAME: $SVO_FILENAME"
+echo "SVO_START_IDX: $SVO_START_IDX"
+echo "SVO_END_IDX: $SVO_END_IDX"
+echo "==============================="
+echo -e "\n"
 
-# output=$(python3 -c "import scripts.utils_module.io_utils as io;  io.get_file_list('${INPUT_PATH}')")
-OUTPUT=$(python3 -c "import scripts.utils_module.io_utils as io;  io.get_file_list('${INPUT_PATH}','${INPUT_ROOT}')")
+# folder to store results
+SUB_FOLDER_NAME="${SVO_START_IDX}_to_${SVO_END_IDX}"
 
-for i in $OUTPUT;
-do
-    echo $i
-done
+# [STEP #1 --> EXTRACT STEREO-IMAGES FROM SVO FILE]
+SVO_INPUT_DIR="${PIPELINE_INPUT_DIR}/svo-files"
+SVO_OUTPUT_DIR="${PIPELINE_OUTPUT_DIR}/stereo-images"
 
-exit 1
+SVO_FILE_PATH="${SVO_INPUT_DIR}/${SVO_FILENAME}"
+SVO_IMAGES_DIR="${SVO_OUTPUT_DIR}/${SVO_FILENAME}/${SUB_FOLDER_NAME}"
 
-
-# =============================================
-# [STEP #1 ==> EXTRACT STEREO-IMAGES FROM SVO FILE]
-# =============================================
-
-INPUT_FOLDER_SVO="${PIPELINE_INPUT_BACKEND_FOLDER}/svo-files"
-OUTPUT_FOLDER_SVO="${PIPELINE_INPUT_BACKEND_FOLDER}/stereo-images"
-
-INPUT_PATH_SVO="${INPUT_FOLDER_SVO}/${SVO_FILENAME}"
-OUTPUT_PATH_SVO="${OUTPUT_FOLDER_SVO}/${SVO_FILENAME}"
-
-# ---------------------------------------------
-# EXTARCTING 1 SVO FRAME per {SVO_STEP} FRAMES
-# ---------------------------------------------
+# extracting 1 frame per {SVO_STEP} frames
 SVO_STEP=2
 
 echo -e "\n"
 echo "==============================="
 echo "[SVO PROCESSING --> EXTRACTING IMAGES]"
-echo "INPUT_FOLDER_SVO: $INPUT_FOLDER_SVO"
-echo "OUTPUT_FOLDER_SVO: $OUTPUT_FOLDER_SVO"
-echo "INPUT_PATH_SVO: $INPUT_PATH_SVO"
-echo "OUTPUT_PATH_SVO: $OUTPUT_PATH_SVO"
+echo "SVO_INPUT_DIR: $SVO_INPUT_DIR"
+echo "SVO_OUTPUT_DIR: $SVO_OUTPUT_DIR"
+echo "SVO_FILE_PATH: $SVO_FILE_PATH"
+echo "SVO_IMAGES_DIR: $SVO_IMAGES_DIR"
 echo "==============================="
 echo -e "\n"
 
-# ---------------------------------------------
-# IGNORE IF $OUTPUT_PATH_SVO ALREADY EXISTS
-# ---------------------------------------------
-if [ ! -d "$OUTPUT_PATH_SVO" ]; then
+# check if the output folder already exists
+if [ ! -d "$SVO_IMAGES_DIR" ]; then
 
 	START_TIME=$(date +%s) 
 	python3 "${PIPELINE_SCRIPT_DIR}/svo-to-stereo-images.py" \
-		--svo_path=$INPUT_PATH_SVO \
-		--output_dir=$OUTPUT_PATH_SVO \
+		--svo_path=$SVO_FILE_PATH \
+		--start_frame=$SVO_START_IDX \
+		--end_frame=$SVO_END_IDX \
+		--output_dir=$SVO_IMAGES_DIR \
 		--svo_step=$SVO_STEP
 
 	END_TIME=$(date +%s)
@@ -155,77 +139,9 @@ else
 	echo -e "\n"
 fi
 
-
-
-# =============================================
-# [STEP #A ==> EXTRACT STEREO-IMAGES FROM SVO FILE]
-# =============================================
-INPUT_FOLDER_SVO="${PIPELINE_INPUT_BACKEND_FOLDER}/svo-files"
-OUTPUT_FOLDER_SVO="${PIPELINE_OUTPUT_BACKEND_FOLDER}/stereo-images"
-
-INPUT_PATH_SVO="${INPUT_FOLDER_SVO}/${SVO_FILENAME}"
-OUTPUT_PATH_SVO="${OUTPUT_FOLDER_SVO}/${SVO_FILENAME}"
-
-# ---------------------------------------------
-# EXTARCTING 1 SVO FRAME per {SVO_STEP} FRAMES
-# ---------------------------------------------
-SVO_STEP=2
-
-echo -e "\n"
-echo "==============================="
-echo "[SVO PROCESSING --> EXTRACTING IMAGES]"
-echo "INPUT_FOLDER_SVO: $INPUT_FOLDER_SVO"
-echo "OUTPUT_FOLDER_SVO: $OUTPUT_FOLDER_SVO"
-echo "INPUT_PATH_SVO: $INPUT_PATH_SVO"
-echo "OUTPUT_PATH_SVO: $OUTPUT_PATH_SVO"
-echo "==============================="
-echo -e "\n"
-
-# ---------------------------------------------
-# IGNORE IF $OUTPUT_PATH_SVO ALREADY EXISTS
-# ---------------------------------------------
-if [ ! -d "$OUTPUT_PATH_SVO" ]; then
-
-	START_TIME=$(date +%s) 
-	python3 "${PIPELINE_SCRIPT_DIR}/svo-to-stereo-images.py" \
-		--svo_path=$INPUT_PATH_SVO \
-		--output_dir=$OUTPUT_PATH_SVO \
-		--svo_step=$SVO_STEP
-
-	END_TIME=$(date +%s)
-	DURATION=$((END_TIME - START_TIME)) 
-
-	if [ $? -eq 0 ]; then
-		echo -e "\n"
-		echo "==============================="
-		echo "Time taken for SVO TO STEREO-IMAGES generation: ${DURATION} seconds"
-		echo "==============================="
-		echo -e "\n"
-	else
-		echo -e "\n"
-		echo "[ERROR] SVO TO STEREO-IMAGES FAILED ==> EXITING PIPELINE!"
-		echo -e "\n"
-		rm -rf ${SVO_IMAGES_DIR}
-		exit $EXIT_FAILURE
-	fi
-else
-	echo -e "\n"
-	echo "[WARNING] SKIPPING svo to stereo-images generation as ${SVO_IMAGES_DIR} already exists."
-	echo "[WARNING] Delete [${SVO_IMAGES_DIR}] folder and try again!"
-	echo -e "\n"
-fi
-
-
-# =============================================
-# [STEP #2 ==> EXTRACT VIABLE SEGMENTS USING VO]
-# =============================================
-
-
-
-
-# [STEP #2 --> SPARSE-RECONSTRUCTION FROM STEREO-IMAGES] 
-SPARSE_RECON_INPUT_DIR="${PIPELINE_INPUT_BACKEND_FOLDER}/sparse-reconstruction/${SVO_FILENAME}/${SUB_FOLDER_NAME}"
-SPARSE_RECON_OUTPUT_DIR="${PIPELINE_OUTPUT_BACKEND_FOLDER}/sparse-reconstruction/${SVO_FILENAME}/${SUB_FOLDER_NAME}"
+# [STEP #2 --> SPARSE-RECONSTRUCTION FROM STEREO-IMAGES]
+SPARSE_RECON_INPUT_DIR="${PIPELINE_INPUT_DIR}/sparse-reconstruction/${SVO_FILENAME}/${SUB_FOLDER_NAME}"
+SPARSE_RECON_OUTPUT_DIR="${PIPELINE_OUTPUT_DIR}/sparse-reconstruction/${SVO_FILENAME}/${SUB_FOLDER_NAME}"
 
 echo -e "\n"
 echo "==============================="

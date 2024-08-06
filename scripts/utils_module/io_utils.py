@@ -149,27 +149,30 @@ def save_npy_as_ply(ply_file: str, array: np.ndarray, colors: np.ndarray) -> Non
 			f.write(f"{point[0]} {point[1]} {point[2]} {color[0]} {color[1]} {color[2]}\n")
 
 
-# def get_file_list(input_path : str) -> List[str]:
-def get_file_list(input_path):
+'''
+returns the list of svo files w.r.t the ROOT_INPUT (i.e. input-backend/svo-files)
+'''
+def get_file_list(input_path, ROOT_INPUT):
 	# print("PYTHON HERE")
 	# logging.info(f"input_path: {input_path}")
 	# print(f"input_path: {input_path}")
 	svo_path_abs = []
 	svo_path_rel = []
 	if os.path.isfile(input_path):
-		svo_path_abs.append(input_path)
-		# svo_path_rel.append(os.path.relpath(args.i, ROOT_INPUT))
+		# svo_path_abs.append(input_path)
+		svo_path_rel.append(os.path.relpath(input_path, ROOT_INPUT))
 	elif os.path.isdir(input_path):
 		for dirpath, dirnames, filenames in os.walk(input_path):
 			for filename in filenames:
 				if filename.endswith('.svo'):
 					# print(f"filename: {filename}")
-					svo_path_abs.append(os.path.join(dirpath, filename))
-					# svo_path_rel.append(os.path.relpath(os.path.join(dirpath, filename), ROOT_INPUT))
+					# svo_path_abs.append(os.path.join(dirpath, filename))
+					svo_path_rel.append(os.path.relpath(os.path.join(dirpath, filename), ROOT_INPUT))
 	random.shuffle(svo_path_rel)
-	logging.info(f"svo_path_abs: {svo_path_abs}")
+	# logging.info(f"svo_path_abs: {svo_path_abs}")
 	# print(f"svo_path_abs: {svo_path_abs}")
-	return svo_path_abs
+	bash_arr = ' '.join(svo_path_rel)
+	print (bash_arr)
 	
 
 

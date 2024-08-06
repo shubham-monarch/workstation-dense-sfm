@@ -143,15 +143,12 @@ if __name__ == "__main__":
     # storing rel and abs paths for svo files
     svo_path_abs = []
     svo_path_rel = []
-    # logging.info(f"args.i: {args.i}")
-    print(f"input: {args.i}")
-
+    logging.info(f"args.i: {args.i}")
+    
     if os.path.isfile(args.i):
         svo_path_abs.append(args.i)
         svo_path_rel.append(os.path.relpath(args.i, ROOT_INPUT))
-        print("Case 1")
     elif os.path.isdir(args.i):
-        print("Case 2")
         for dirpath, dirnames, filenames in os.walk(args.i):
             for filename in filenames:
                 if filename.endswith('.svo'):
@@ -160,9 +157,7 @@ if __name__ == "__main__":
 
     
     random.shuffle(svo_path_rel)
-    
-    exit(0)
-    
+
     # svo_path_rel = ['vineyards/RJM/front_2024-06-05-09-48-13.svo']
 
     for i, svo_folder in enumerate(svo_path_rel):
@@ -225,9 +220,8 @@ if __name__ == "__main__":
         logging.info(f"WRITTEN VALID SEQUENCES TO {seq_file_path}!")
         logging.info("=======================")
         
-        # time.sleep(1)
+        time.sleep(1)
         
-        # return seq_file_path
         # write_seq_to_disk(folder, seq_tuples)
 
     logging.info("=======================")
