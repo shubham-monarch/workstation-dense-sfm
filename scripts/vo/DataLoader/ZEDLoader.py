@@ -45,23 +45,9 @@ class KITTILoader(object):
         # filtered_files = fnmatch.filter(images_list, "left_*.png")
         filtered_files = fnmatch.filter(images_list, "frame_*.png")
         self.sorted_images = sorted(filtered_files, key=lambda x: int(x.split('_')[1].split('.')[0]))
-       
-       
+              
     def get_cur_pose(self):
         return self.gt_poses[self.img_id - 1]
-
-    # def __getitem__(self, item):
-    #     logging.warning(f"[ZEDLoader] __getitem__")
-    #     # file_name = self.config["root_path"] + "/sequences/" + self.config["sequence"] \
-    #     #             + "/image_0/" + str(item).zfill(6) + ".png"
-    #     file_name = self.sorted_images[item] + self.sorted_images[item] 
-    #     logging.info(f"file_name: {file_name}")
-    #     # logging.warning(f"__getitem__ file_name: {file_name}")
-    #     img = cv2.imread(file_name)
-    #     (h, w) = (self.cam.height, self.cam.width)
-        
-    #     img = cv2.resize(img, (w, h))   
-    #     return img
 
     def __iter__(self):
         return self

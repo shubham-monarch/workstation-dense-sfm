@@ -119,7 +119,7 @@ if __name__ == "__main__":
     # parser.add_argument('--o', type=str, default = "output-backend/vo", help='Root output directory')
     parser.add_argument('--i', type=str, required= True, help='Path to input svo files / folder')
     
-    ROOT_OUTPUT = "output-backend/vo"
+    ROOT_OUTPUT = "input-backend/vo"
     ROOT_INPUT = "input-backend/svo-files"
 
     args = parser.parse_args()

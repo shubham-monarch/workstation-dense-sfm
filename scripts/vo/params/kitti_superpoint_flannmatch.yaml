@@ -1,6 +1,7 @@
 dataset:
   name: KITTILoader
-  root_folder: 'output-backend/vo'
+  # root_folder: 'output-backend/vo'
+  root_folder: 'input-backend/vo'
   start: 0
 
 #  root_path: /mnt/dataset_hdd/KITTI/odometry
