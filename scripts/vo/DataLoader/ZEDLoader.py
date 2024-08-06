@@ -20,18 +20,25 @@ class KITTILoader(object):
     #     "start": 0
     # }
 
-    def __init__(self, config, input_folder):
+    def __init__(self, config, input_folder, camera_params):
         logging.warning(f"[KITTILoader] __init__")
         # self.config = config
         self.input_folder = input_folder
         # self.config = self.default_config
         self.config = {**config}
 
-        logging.warning(f"self.config: {self.config}")
+        # logging.warning(f"self.config: {self.config}")
         # self.input_folder = input_folder
         
-        self.cam = PinholeCamera(1241.0, 376.0, 1093.2768, 1093.2768, 964.989, 569.276)
+        # self.cam = PinholeCamera(1241.0, 376.0, 1093.2768, 1093.2768, 964.989, 569.276)
+        # logging.info(f"camera_params: {camera_params}")
+        fx = camera_params['fx']
+        fy = camera_params['fy']
+        cx = camera_params['cx']
+        cy = camera_params['cy']
 
+        self.cam = PinholeCamera(1241.0, 376.0, fx, fy, cx, cy)
+        # logging.info(f"self.cam: {self.cam}")
         # start-idx
         self.img_id = self.config['dataset']['start']
         

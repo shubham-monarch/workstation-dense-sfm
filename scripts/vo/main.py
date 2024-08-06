@@ -70,11 +70,11 @@ def write_seq_to_disk(input_dir : str, sequences : tuple, output_dir = "outputs"
     
 
 
-def run(args, svo_folder_path):
+def run(args, svo_folder_path : str, camera_params : dict): 
     with open(args.config, 'r') as f:
         config = yaml.load(f, Loader=yaml.FullLoader)
     
-    loader = ZEDLoader.KITTILoader(config, svo_folder_path)
+    loader = ZEDLoader.KITTILoader(config, svo_folder_path, camera_params)
     
     detector = create_detector(config["detector"])
     matcher = create_matcher(config["matcher"])
@@ -119,6 +119,7 @@ if __name__ == "__main__":
     # parser.add_argument('--o', type=str, default = "output-backend/vo", help='Root output directory')
     parser.add_argument('--i', type=str, required= True, help='Path to input svo files / folder')
     
+    
     ROOT_OUTPUT = "input-backend/vo"
     ROOT_INPUT = "input-backend/svo-files"
 
@@ -144,27 +145,18 @@ if __name__ == "__main__":
                     svo_path_rel.append(os.path.relpath(os.path.join(dirpath, filename), ROOT_INPUT))
 
     
-    logging.info("=======================")            
-    logging.info("REL / ABS PATHS => ")
-    for idx, path in enumerate(svo_path_abs):
-        logging.info(f"[ABS] {svo_path_abs[idx]}")
-        logging.info(f"[REL] {svo_path_rel[idx]}\n")
-    logging.info("=======================\n")
+    # logging.info("=======================")            
+    # logging.info("REL / ABS PATHS => ")
+    # for idx, path in enumerate(svo_path_abs):
+    #     logging.info(f"[ABS] {svo_path_abs[idx]}")
+    #     logging.info(f"[REL] {svo_path_rel[idx]}\n")
+    # logging.info("=======================\n")
     
-    output_path = os.path.join(ROOT_OUTPUT, svo_path_rel[0])
-    logging.info(f"output_path: {output_path}") 
-    # # svo_to_stereo_images.extract_stereo_images()
-    # # logging.info(f"camera_params: {camera_params}")
-    # logging.warning(f"Total number of svo files: {len(svo_path_abs)}")
     
-    # for svo_file_path in svo_path_rel:
-    #     pass
-   
     for i, svo_folder in enumerate(svo_path_rel):
         
         output_path = os.path.join(ROOT_OUTPUT, svo_folder)
         input_path = os.path.join(ROOT_INPUT, svo_folder)
-        # logging.warning(f"svo_file_path: {svo_file_path} | output_path: {output_path}")
         svo_to_stereo_images.extract_vo_stereo_images(input_path, output_path, 2) 
         camera_params = svo_to_stereo_images.get_camera_params(os.path.join(ROOT_INPUT,svo_folder))
         
@@ -173,7 +165,7 @@ if __name__ == "__main__":
         logging.error("=======================")
         time.sleep(5)
         
-        vo  = run(args, svo_folder)  
+        vo  = run(args, svo_folder, camera_params)  
         # seq_list = vo.get_viable_sequences()
         
         # (st1, en1), (st2, en2), ...
