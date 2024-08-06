@@ -94,7 +94,7 @@ INPUT_PATH="input-backend/svo-files/${USER_INPUT}"
 
 
 # output=$(python3 -c "import scripts.utils_module.io_utils as io;  io.get_file_list('${INPUT_PATH}')")
-SVO_FILES=$(python3 -c "import scripts.utils_module.io_utils as io;  io.get_file_list('${INPUT_PATH}')")
+SVO_FILES=$(python3 -c "import scripts.utils_module.bash_utils as io;  io.get_file_list('${INPUT_PATH}')")
 
 for SVO_FILE in $SVO_FILES;
 do
@@ -116,7 +116,14 @@ do
 	echo "==============================="
 	echo -e "\n"
 	
+	CONFIG_FILES=$(python3 -c "import scripts.vo.main as vo; vo.generate_config_from_json('${JSON_FILE}')")
 
+	echo -e "\n"
+	echo "==============================="
+	echo "CONFIG_FILE: $CONFIG_FILE"
+	echo "==============================="
+	echo -e "\n"
+	
 done
 
 

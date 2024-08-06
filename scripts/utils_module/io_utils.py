@@ -10,10 +10,8 @@ import time
 import math
 from typing import List
 import random
+import json
 
-# TO-DO=>
-# - jsonize config files
-# - fix git tracking issue
 
 
 import matplotlib.pyplot as plt
@@ -149,9 +147,6 @@ def save_npy_as_ply(ply_file: str, array: np.ndarray, colors: np.ndarray) -> Non
 			f.write(f"{point[0]} {point[1]} {point[2]} {color[0]} {color[1]} {color[2]}\n")
 
 
-'''
-returns the list of svo files w.r.t [input-backend folder] 
-'''
 def get_file_list(input_path : str) -> List[str]:
 	'''
 	:param input_path: str => path to the input w.r.t [input-backend folder]
@@ -179,6 +174,14 @@ def get_file_list(input_path : str) -> List[str]:
 	
 
 
+def generate_config_from_json(json_path : str):
+     with open(json_path, 'r') as f:
+        data = json.load(f)
+        # Now `data` contains the list of lists from the JSON file
+        # Example usage:
+        for pair in data:
+            print(pair) 
+        
 
 def delete_folders(folders):
 	for folder_path in folders:

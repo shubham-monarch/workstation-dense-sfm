@@ -73,9 +73,14 @@ def write_seq_to_disk(input_dir : str, sequences : tuple, output_dir = "outputs"
             shutil.copy(sorted_images[i], output_dir_)    
     
 
-def write_seq_as_json():
-    pass
-
+def generate_config_from_json(json_path : str):
+     with open(json_path, 'r') as f:
+        data = json.load(f)
+        # Now `data` contains the list of lists from the JSON file
+        # Example usage:
+        for pair in data:
+            print(pair) 
+        
 # required by main.sh
 def get_json_path(svo_path : str, input_root=None, output_root=None):
     # print (svo_path)
