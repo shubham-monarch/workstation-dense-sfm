@@ -153,11 +153,11 @@ def delete_folders(folders):
 			if os.path.exists(folder_path):
 				try: 
 					shutil.rmtree(folder_path)
-				except OSError:
-					logging.error(f"Error while deleting {folder_path}. Retrying...")
+				except Exception as e :
+					logging.error(f"Error {e} while deleting {folder_path}")
 					# time.sleep(1)  # wait for 1 second before retrying
 			else:
-				print(f"The folder {folder_path} does not exist.")	
+				logging.info(f"The folder {folder_path} does not exist.")	
 	# logging.warning(f"Deleted the old files in {folders}!")
 		
 def create_folders(folders):

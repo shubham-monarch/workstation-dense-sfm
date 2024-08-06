@@ -37,12 +37,13 @@ class KITTILoader(object):
         
         
         self.input_dir = os.path.join(self.config['dataset']['root_folder'] , self.input_folder)
-                                            
+        logging.info(f"self.input_dir: {self.input_dir}")
         self.img_N = len([file for file in os.listdir(self.input_dir) if file.endswith('.png')]) 
         logging.info(f"self.img_N: {self.img_N}")   
         
         images_list = os.listdir(self.input_dir)
-        filtered_files = fnmatch.filter(images_list, "left_*.png")
+        # filtered_files = fnmatch.filter(images_list, "left_*.png")
+        filtered_files = fnmatch.filter(images_list, "frame_*.png")
         self.sorted_images = sorted(filtered_files, key=lambda x: int(x.split('_')[1].split('.')[0]))
        
        

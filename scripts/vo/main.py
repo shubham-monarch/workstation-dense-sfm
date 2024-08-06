@@ -24,7 +24,8 @@ import fnmatch
 import shutil
 import random
 
-from scripts.vo.svo_to_stereo_images import get_camera_params
+# from scripts.vo.svo_to_stereo_images import get_camera_params
+from scripts.vo import svo_to_stereo_images
  
 #[TO-DO]
 # - error-handling =>  vineyards/front_2024-06-05-09-48-13.svo
@@ -115,17 +116,56 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser(description='python_vo')    
     parser.add_argument('--config', type=str, default='scripts/vo/params/kitti_superpoint_flannmatch.yaml',
                         help='config file')
-    parser.add_argument('--i', type=str, required=  True, help='Path to input svo files / folder')
+    # parser.add_argument('--o', type=str, default = "output-backend/vo", help='Root output directory')
+    parser.add_argument('--i', type=str, required= True, help='Path to input svo files / folder')
     
+    ROOT_OUTPUT = "output-backend/vo"
+    ROOT_INPUT = "input-backend/svo-files"
+
     args = parser.parse_args()
     coloredlogs.install(level='INFO', force=True)
     
     with open(args.config, 'r') as f:
         config = yaml.load(f, Loader=yaml.FullLoader)
     
-    camera_params = get_camera_params(args.i)
-    logging.info(f"camera_params: {camera_params}")
-    # ROOT_FOLDER = config['dataset']['root_folder']
+    # storing rel and abs paths for svo files
+    svo_path_abs = []
+    svo_path_rel = []
+    logging.info(f"args.i: {args.i}")
+    
+    if os.path.isfile(args.i):
+        svo_path_abs.append(args.i)
+        svo_path_rel.append(os.path.relpath(args.i, ROOT_INPUT))
+    elif os.path.isdir(args.i):
+        for dirpath, dirnames, filenames in os.walk(args.i):
+            for filename in filenames:
+                if filename.endswith('.svo'):
+                    svo_path_abs.append(os.path.join(dirpath, filename))
+                    svo_path_rel.append(os.path.relpath(os.path.join(dirpath, filename), ROOT_INPUT))
+
+    
+    logging.info("=======================")            
+    logging.info("REL / ABS PATHS => ")
+    for idx, path in enumerate(svo_path_abs):
+        logging.info(f"[ABS] {svo_path_abs[idx]}")
+        logging.info(f"[REL] {svo_path_rel[idx]}\n")
+    logging.info("=======================\n")
+    
+    output_path = os.path.join(ROOT_OUTPUT, svo_path_rel[0])
+    logging.info(f"output_path: {output_path}") 
+    # # svo_to_stereo_images.extract_stereo_images()
+    # # logging.info(f"camera_params: {camera_params}")
+    # logging.warning(f"Total number of svo files: {len(svo_path_abs)}")
+    
+    for svo_file_path in svo_path_rel:
+        output_path = os.path.join(ROOT_OUTPUT, svo_file_path)
+        input_path = os.path.join(ROOT_INPUT, svo_file_path)
+        # logging.warning(f"svo_file_path: {svo_file_path} | output_path: {output_path}")
+        svo_to_stereo_images.extract_vo_stereo_images(input_path, output_path, 2) 
+        camera_params = svo_to_stereo_images.get_camera_params(os.path.join(ROOT_INPUT,svo_file_path))
+    
+    
+    # # ROOT_FOLDER = config['dataset']['root_folder']
     # logging.warning(f"ROOT_FOLDER: {ROOT_FOLDER}")
     # PREFIX_FOLDER = "escalon/"
     # INPUT_PATH = os.path.join(ROOT_FOLDER, PREFIX_FOLDER)
@@ -152,29 +192,29 @@ if __name__ == "__main__":
     # logging.info("=======================\n")    
     # time.sleep(2)
 
-    # for i, svo_folder in enumerate(svo_folders_rel):
-    #     logging.error("=======================")
-    #     logging.error(f"STARTING VO FOR [{i} / {len(svo_folders_rel)}] FOLDER!")
-    #     logging.error("=======================")
-    #     time.sleep(5)
+    for i, svo_folder in enumerate(svo_path_rel):
+        logging.error("=======================")
+        logging.error(f"STARTING VO FOR [{i} / {len(svo_path_rel)}] FOLDER!")
+        logging.error("=======================")
+        time.sleep(5)
         
-    #     vo  = run(args, svo_folder)  
-    #     # seq_list = vo.get_viable_sequences()
+        vo  = run(args, svo_folder)  
+        # seq_list = vo.get_viable_sequences()
         
-    #     # (st1, en1), (st2, en2), ...
-    #     seq_tuples = vo.get_sequence_pairs()
+        # (st1, en1), (st2, en2), ...
+        seq_tuples = vo.get_sequence_pairs()
 
-    #     logging.info("=======================")
-    #     logging.info("SAVING SEQUENCES TO DISK!")
-    #     logging.info("=======================")
+        logging.info("=======================")
+        logging.info("SAVING SEQUENCES TO DISK!")
+        logging.info("=======================")
         
-    #     time.sleep(1)
+        time.sleep(1)
         
-    #     # write_seq_to_disk(folder, seq_tuples)
+        # write_seq_to_disk(folder, seq_tuples)
 
-    # logging.info("=======================")
-    # logging.info("DELETING THE INPUT SVO FOLDERS!")
-    # logging.info("=======================")
+    logging.info("=======================")
+    logging.info("DELETING THE INPUT SVO FOLDERS!")
+    logging.info("=======================")
     
-    # # delete_folders(svo_folders_abs)
+    # delete_folders(svo_folders_abs)
         

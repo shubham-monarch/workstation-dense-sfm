@@ -14,12 +14,16 @@ from typing import List
 
 from scripts.utils_module import io_utils
 
-def main(filepath, output_folder, svo_step = 2):
+def extract_vo_stereo_images(filepath, output_folder, svo_step = 2):
     
+    # logging.warning(f"[svo-to-stereo-images.py]")
+    logging.info(f"Saving images at [{output_folder}] with a step of [{svo_step}]")
     filepath = os.path.abspath(filepath)
     output_path = os.path.abspath(output_folder)
 
-    logging.info(f"svo_file: {filepath}")
+    # logging.info(f"filepath: {filepath} output_path: {output_path}")
+
+    # logging.info(f"svo_file: {filepath}")
     
     input_type = sl.InputType()
     input_type.set_from_svo_file(filepath)
@@ -43,16 +47,16 @@ def main(filepath, output_folder, svo_step = 2):
     # logging.info(f"Extracting {(end - start) // svo_step} stereo-images from the SVO file!")
     logging.info(f"Extracting {total_frames // svo_step} stereo-images from the SVO file!")
     
-    io_utils.delete_folders([output_path])
-    io_utils.create_folders([output_path])
+    io_utils.delete_folders([os.path.join(output_path)])
+    io_utils.create_folders([os.path.join(output_path)])
     
-    for frame_idx in tqdm(range(0, total_frames, svo_step)):
+
+    for frame_idx in tqdm(range(0, 50, svo_step)):
         if zed.grab(runtime_parameters) == sl.ERROR_CODE.SUCCESS:
             zed.set_svo_position(frame_idx)
             zed.retrieve_image(image_l, sl.VIEW.LEFT)
             zed.retrieve_image(image_r, sl.VIEW.RIGHT)
-            image_l.write( os.path.join(output_path, f'left/frame_{frame_idx}.jpg') )
-            image_r.write( os.path.join(output_path, f'right/frame_{frame_idx}.jpg') )
+            image_l.write( os.path.join(output_path, f'frame_{frame_idx}.png') )
         else:
             sys.exit(1)
     zed.close()
@@ -103,7 +107,7 @@ if __name__ == "__main__":
     args = parser.parse_args()  
 
 
-    
+
     
     
     # logging.warning(f"[svo-to-stereo-images.py]")
