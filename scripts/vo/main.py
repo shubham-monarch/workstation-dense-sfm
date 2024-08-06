@@ -42,6 +42,7 @@ def keypoints_plot(img, vo):
         img = cv2.cvtColor(img, cv2.COLOR_GRAY2RGB)
     return plot_keypoints(img, vo.kptdescs["cur"]["keypoints"], vo.kptdescs["cur"]["scores"])
 
+
 def write_seq_to_disk(input_dir : str, sequences : tuple, output_dir = "outputs"):
     
     input_dir_ = os.path.join("test_imgs/sequences/00/", input_dir)
@@ -75,6 +76,24 @@ def write_seq_to_disk(input_dir : str, sequences : tuple, output_dir = "outputs"
 def write_seq_as_json():
     pass
 
+# required by main.sh
+def get_json_path(svo_path : str, input_root=None, output_root=None):
+    # print (svo_path)
+    if input_root is None:
+        input_root = "input-backend/svo-files"
+    if output_root is None:
+        output_root = "output-backend/vo"
+    
+    # removing "input-backend/svo-files" from the json-path
+    json_path = os.path.relpath(svo_path, input_root)
+    
+    # prepeding "output-backend/vo" to the json-path
+    json_path = os.path.join(output_root, json_path)
+
+    # replacing ".svo" with ".json"
+    json_path = json_path.replace(".svo", ".json")
+
+    print(json_path)
 
 def run(args, svo_folder_path : str, camera_params : dict): 
     with open(args.config, 'r') as f:

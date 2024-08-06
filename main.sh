@@ -98,9 +98,24 @@ SVO_FILES=$(python3 -c "import scripts.utils_module.io_utils as io;  io.get_file
 
 for SVO_FILE in $SVO_FILES;
 do
-    echo $SVO_FILE
+    echo -e "\n"
+	echo "==============================="
+	echo "SVO_FILE: $SVO_FILE"
+	echo "==============================="
+	echo -e "\n"
+	
+	# generate the viable-segments JSON file
 	python3 -m scripts.vo.main \
 	--i=$SVO_FILE 
+
+	JSON_FILE=$(python3 -c "import scripts.vo.main as vo;  vo.get_json_path('${SVO_FILE}')")
+
+	echo -e "\n"
+	echo "==============================="
+	echo "JSON_FILE: $JSON_FILE"
+	echo "==============================="
+	echo -e "\n"
+	
 
 done
 
