@@ -51,12 +51,12 @@ COLMAP_EXE_PATH=/usr/local/bin
 # ---------------------------------------------
 # [PIPELINE PARAMS]
 # ---------------------------------------------
-PIPELINE_SCRIPT_DIR="scripts"
-PIPELINE_CONFIG_DIR="config"
 
-PIPELINE_INPUT_BACKEND_FOLDER="input-backend"
-PIPELINE_OUTPUT_BACKEND_FOLDER="output-backend"
+# PIPELINE_SCRIPT_DIR="scripts"
+# PIPELINE_CONFIG_DIR="config"
 
+# PIPELINE_INPUT_BACKEND_FOLDER="input-backend"
+# PIPELINE_OUTPUT_BACKEND_FOLDER="output-backend"
 
 # =============================================
 # [PIPELINE EXECUTION STARTS FROM HERE]
@@ -81,21 +81,31 @@ print(cfg.SVO_FILENAME)
 ')
 
 
+# INPUT_PATH="${PIPELINE_INPUT_BACKEND_FOLDER}/svo-files/${USER_INPUT}"
+# INPUT_ROOT="${PIPELINE_INPUT_BACKEND_FOLDER}/svo-files"
 
-INPUT_PATH="${PIPELINE_INPUT_BACKEND_FOLDER}/svo-files/${USER_INPUT}"
-INPUT_ROOT="${PIPELINE_INPUT_BACKEND_FOLDER}/svo-files"
+
+# NOTE => 
+# - module-inputs are mostly w.r.t. [input-backend] folder
+
+# STEP #1 ==>  LIST THE SVO FILES TO PROCESS 
+INPUT_PATH="input-backend/svo-files/${USER_INPUT}"
+# INPUT_ROOT="output-backend/svo-files"
+
 
 # output=$(python3 -c "import scripts.utils_module.io_utils as io;  io.get_file_list('${INPUT_PATH}')")
-OUTPUT=$(python3 -c "import scripts.utils_module.io_utils as io;  io.get_file_list('${INPUT_PATH}','${INPUT_ROOT}')")
+SVO_FILES=$(python3 -c "import scripts.utils_module.io_utils as io;  io.get_file_list('${INPUT_PATH}')")
 
-for i in $OUTPUT;
+for SVO_FILE in $SVO_FILES;
 do
-    echo $i
+    echo $SVO_FILE
+	# python3 -m scripts.vo.main \
+	# --i=$SVO_FILE \
+
 done
 
+
 exit 1
-
-
 # =============================================
 # [STEP #1 ==> EXTRACT STEREO-IMAGES FROM SVO FILE]
 # =============================================
