@@ -23,6 +23,7 @@ import matplotlib.pyplot as plt
 import fnmatch
 import shutil
 import random
+import json
 
 # from scripts.vo.svo_to_stereo_images import get_camera_params
 from scripts.vo import svo_to_stereo_images
@@ -68,6 +69,9 @@ def write_seq_to_disk(input_dir : str, sequences : tuple, output_dir = "outputs"
             # logging.info(f"{i}: {sorted_images[i]}")
             shutil.copy(sorted_images[i], output_dir_)    
     
+
+def write_seq_as_json():
+    pass
 
 
 def run(args, svo_folder_path : str, camera_params : dict): 
@@ -120,8 +124,13 @@ if __name__ == "__main__":
     parser.add_argument('--i', type=str, required= True, help='Path to input svo files / folder')
     
     
+    # root folders for svo-filtering
     ROOT_OUTPUT = "input-backend/vo"
     ROOT_INPUT = "input-backend/svo-files"
+    
+    # root folders for valid sequences
+    ROOT_VALID_SEQ = "output-backend/vo"
+
 
     args = parser.parse_args()
     coloredlogs.install(level='INFO', force=True)
@@ -147,7 +156,7 @@ if __name__ == "__main__":
     
     random.shuffle(svo_path_rel)
 
-    svo_path_rel = ['vineyards/RJM/front_2024-06-05-09-48-13.svo']
+    # svo_path_rel = ['vineyards/RJM/front_2024-06-05-09-48-13.svo']
 
     for i, svo_folder in enumerate(svo_path_rel):
         
@@ -181,12 +190,32 @@ if __name__ == "__main__":
         # (st1, en1), (st2, en2), ...
         seq_tuples = vo.get_sequence_pairs()
 
+        logging.info("=======================")
+        logging.info("VALID SEQUENCES")
+        logging.info("=======================")
         for seq in seq_tuples:
-            logging.info(f"Sequence: {seq}")
+            logging.info(f"{seq}")
 
 
         logging.info("=======================")
         logging.info("SAVING SEQUENCES TO DISK!")
+        logging.info("=======================")
+        
+        seq_file_path = os.path.join(ROOT_VALID_SEQ, svo_folder)
+        seq_file_path = os.path.splitext(seq_file_path)[0] + ".json"
+
+        seq_parent_dir = os.path.dirname(seq_file_path)
+        
+        create_folders([seq_parent_dir])
+
+        logging.info(f"seq_file_path: {seq_file_path}")
+        
+        if len(seq_tuples) > 0:
+            with open(seq_file_path, 'w') as file:
+                json.dump(seq_tuples, file)
+
+        logging.info("=======================")
+        logging.info(f"WRITTEN VALID SEQUENCES TO {seq_file_path}!")
         logging.info("=======================")
         
         time.sleep(1)
