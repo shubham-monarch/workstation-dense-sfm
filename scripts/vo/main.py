@@ -152,6 +152,8 @@ if __name__ == "__main__":
     #     logging.info(f"[REL] {svo_path_rel[idx]}\n")
     # logging.info("=======================\n")
     
+    # randomizing the order of svo files
+    random.shuffle(svo_path_rel)
     
     for i, svo_folder in enumerate(svo_path_rel):
         
