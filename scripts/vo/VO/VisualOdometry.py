@@ -129,60 +129,79 @@ class VisualOdometry(object):
             matches = self.matcher(self.kptdescs)
 
             # compute relative R,t between ref and cur frame
-            E, mask = cv2.findEssentialMat(matches['cur_keypoints'], matches['ref_keypoints'],
-                                           focal=self.focal, pp=self.pp,
-                                           method=cv2.RANSAC, prob=0.999, threshold=1.0)
+            
+            # E, mask = cv2.findEssentialMat(matches['cur_keypoints'], matches['ref_keypoints'],
+            #                                focal=self.focal, pp=self.pp,
+            #                                method=cv2.RANSAC, prob=0.999, threshold=1.0)
             
           
             
-            inlier_cnt, R, t, mask = cv2.recoverPose(E, matches['cur_keypoints'], matches['ref_keypoints'],
-                                            focal=self.focal, pp=self.pp)
+            # inlier_cnt, R, t, mask = cv2.recoverPose(E, matches['cur_keypoints'], matches['ref_keypoints'],
+            #                                 focal=self.focal, pp=self.pp)
             
+            flag = True
+            
+            try:
+                E, mask = cv2.findEssentialMat(matches['cur_keypoints'], matches['ref_keypoints'],
+                                            focal=self.focal, pp=self.pp,
+                                            method=cv2.RANSAC, prob=0.999, threshold=1.0)
+                if E is None or mask is None:
+                    raise ValueError("findEssentialMat failed to compute the essential matrix.")
+
+                inlier_cnt, R, t, mask = cv2.recoverPose(E, matches['cur_keypoints'], matches['ref_keypoints'],
+                                                    focal=self.focal, pp=self.pp)
+                if R is None or t is None or inlier_cnt == 0:
+                    raise ValueError("recoverPose failed to compute the pose.")
+            except Exception as e:
+                    logging.error(f"An error occurred: {e}")
+                    flag = False  # Set flag to False in case of an exception
+
             # logging.info(f"INLIER_CNT: {inlier_cnt} ")
             # logging.info(f"THETA_Y: {self.thetaY(R)}")
             
-            self.inliers_.append(inlier_cnt)
-            self.thetaY_.append(self.thetaY(R))
-            
-            # flag conditions
-            x, y, z = t[0], t[1], t[2]
+            if flag: 
+                self.inliers_.append(inlier_cnt)
+                self.thetaY_.append(self.thetaY(R))
+                
+                # flag conditions
+                x, y, z = t[0], t[1], t[2]
 
-            # valid frame flag
-            flag = True
+                # valid frame flag
+                # flag = True
 
-            # inlier count check
-            flag = flag and (inlier_cnt >= self.CUTOFF_INLIER_CNT)
-            # if inlier_cnt < cutoff_inliers_cnt:
-            #     logging.info("=======================")
-            #     logging.info(f"INLIER_CNT CONDITION NOT MET: {inlier_cnt} < {cutoff_inliers_cnt}")  
-            #     logging.info("=======================")
-            #     time.sleep(2)
+                # inlier count check
+                flag = flag and (inlier_cnt >= self.CUTOFF_INLIER_CNT)
+                # if inlier_cnt < cutoff_inliers_cnt:
+                #     logging.info("=======================")
+                #     logging.info(f"INLIER_CNT CONDITION NOT MET: {inlier_cnt} < {cutoff_inliers_cnt}")  
+                #     logging.info("=======================")
+                #     time.sleep(2)
 
-            # z-movement check
-            flag = flag and (abs(z) > abs(x))
-            flag = flag and (abs(z) > abs(y))
-            flag = flag and (abs(z) > 0.0)
-            
-            # direction-change check
-            flag = flag and (z * self.prev_z >= 0)
-            
-            # if(z * self.prev_z < 0):
-            #     logging.info("=======================")
-            #     logging.info(f"DIRECTION CHANGE DETECTED: {z} * {self.prev_z} < 0")  
-            #     logging.info("=======================")
-            #     # time.sleep(0.5)
+                # z-movement check
+                flag = flag and (abs(z) > abs(x))
+                flag = flag and (abs(z) > abs(y))
+                flag = flag and (abs(z) > 0.0)
+                
+                # direction-change check
+                flag = flag and (z * self.prev_z >= 0)
+                
+                # if(z * self.prev_z < 0):
+                #     logging.info("=======================")
+                #     logging.info(f"DIRECTION CHANGE DETECTED: {z} * {self.prev_z} < 0")  
+                #     logging.info("=======================")
+                #     # time.sleep(0.5)
 
-            # updating self.prev_z
-            self.prev_z = z
-            
-            # angular movement check
-            flag = flag and (self.thetaY(R) <= self.CUTOFF_THETA_Y)  
-            
-            # if (self.thetaY(R) > cutoff_theta_y):
-            #     logging.info("=======================")
-            #     logging.info(f"THETA_Y CONDITION NOT MET: {self.thetaY(R)} > {cutoff_theta_y}")  
-            #     logging.info("=======================")
-            #     time.sleep(2)
+                # updating self.prev_z
+                self.prev_z = z
+                
+                # angular movement check
+                flag = flag and (self.thetaY(R) <= self.CUTOFF_THETA_Y)  
+                
+                # if (self.thetaY(R) > cutoff_theta_y):
+                #     logging.info("=======================")
+                #     logging.info(f"THETA_Y CONDITION NOT MET: {self.thetaY(R)} > {cutoff_theta_y}")  
+                #     logging.info("=======================")
+                #     time.sleep(2)
 
 
             if (flag):
@@ -203,7 +222,7 @@ class VisualOdometry(object):
                     # logging.info("=======================")
 
                 # adding curr seq if len exceeds cutoff
-                elif seq_len >= self.CUTOFF_SEQ_LEN:
+                elif seq_len >= 2 * self.CUTOFF_SEQ_LEN:
                     self.sequence_duration.append(seq_len)
                     self.sequence_pairs.append((self.seq_st, self.frame_idx))
                     self.log_frame_addition(self.seq_st, self.frame_idx + 1)

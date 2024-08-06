@@ -145,33 +145,45 @@ if __name__ == "__main__":
                     svo_path_rel.append(os.path.relpath(os.path.join(dirpath, filename), ROOT_INPUT))
 
     
-    # logging.info("=======================")            
-    # logging.info("REL / ABS PATHS => ")
-    # for idx, path in enumerate(svo_path_abs):
-    #     logging.info(f"[ABS] {svo_path_abs[idx]}")
-    #     logging.info(f"[REL] {svo_path_rel[idx]}\n")
-    # logging.info("=======================\n")
-    
-    # randomizing the order of svo files
     random.shuffle(svo_path_rel)
-    
+
+    svo_path_rel = ['vineyards/RJM/front_2024-06-05-09-48-13.svo']
+
     for i, svo_folder in enumerate(svo_path_rel):
+        
+        logging.warning("=======================")
+        logging.warning(f"svo_file: {svo_folder}")
+        logging.warning("=======================")
         
         output_path = os.path.join(ROOT_OUTPUT, svo_folder)
         input_path = os.path.join(ROOT_INPUT, svo_folder)
-        svo_to_stereo_images.extract_vo_stereo_images(input_path, output_path, 2) 
-        camera_params = svo_to_stereo_images.get_camera_params(os.path.join(ROOT_INPUT,svo_folder))
         
+        error_found = False  # Initialize error_found as False
+
+        try:
+            svo_to_stereo_images.extract_vo_stereo_images(input_path, output_path, 2)
+            camera_params = svo_to_stereo_images.get_camera_params(os.path.join(ROOT_INPUT, svo_folder))
+        except Exception as e:
+            logging.error(f"An error occurred: {e}")
+            error_found = True  # Set error_found to True in case of an exception
+
+        if error_found:
+            continue    
+
         logging.error("=======================")
         logging.error(f"STARTING VO FOR [{i} / {len(svo_path_rel)}] FOLDER!")
         logging.error("=======================")
-        time.sleep(5)
+        # time.sleep(5)
         
         vo  = run(args, svo_folder, camera_params)  
         # seq_list = vo.get_viable_sequences()
         
         # (st1, en1), (st2, en2), ...
         seq_tuples = vo.get_sequence_pairs()
+
+        for seq in seq_tuples:
+            logging.info(f"Sequence: {seq}")
+
 
         logging.info("=======================")
         logging.info("SAVING SEQUENCES TO DISK!")
