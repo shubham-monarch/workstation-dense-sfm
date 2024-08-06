@@ -99,8 +99,8 @@ SVO_FILES=$(python3 -c "import scripts.utils_module.io_utils as io;  io.get_file
 for SVO_FILE in $SVO_FILES;
 do
     echo $SVO_FILE
-	# python3 -m scripts.vo.main \
-	# --i=$SVO_FILE \
+	python3 -m scripts.vo.main \
+	--i=$SVO_FILE 
 
 done
 
