@@ -1,4 +1,4 @@
-SVO_FILENAME = "front_2023-11-03-11-13-52.svo"
+SVO_FILENAME = "vineyards"
 # SVO_START_IDX = 50
 # SVO_END_IDX = 150
 

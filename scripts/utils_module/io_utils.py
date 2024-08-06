@@ -8,6 +8,8 @@ import os
 import shutil
 import time
 import math
+from typing import List
+import random
 
 # TO-DO=>
 # - jsonize config files
@@ -145,6 +147,31 @@ def save_npy_as_ply(ply_file: str, array: np.ndarray, colors: np.ndarray) -> Non
 			# Ensure color values are integers in the range [0, 255]
 			color = color.astype(int)
 			f.write(f"{point[0]} {point[1]} {point[2]} {color[0]} {color[1]} {color[2]}\n")
+
+
+# def get_file_list(input_path : str) -> List[str]:
+def get_file_list(input_path):
+	# print("PYTHON HERE")
+	# logging.info(f"input_path: {input_path}")
+	# print(f"input_path: {input_path}")
+	svo_path_abs = []
+	svo_path_rel = []
+	if os.path.isfile(input_path):
+		svo_path_abs.append(input_path)
+		# svo_path_rel.append(os.path.relpath(args.i, ROOT_INPUT))
+	elif os.path.isdir(input_path):
+		for dirpath, dirnames, filenames in os.walk(input_path):
+			for filename in filenames:
+				if filename.endswith('.svo'):
+					# print(f"filename: {filename}")
+					svo_path_abs.append(os.path.join(dirpath, filename))
+					# svo_path_rel.append(os.path.relpath(os.path.join(dirpath, filename), ROOT_INPUT))
+	random.shuffle(svo_path_rel)
+	logging.info(f"svo_path_abs: {svo_path_abs}")
+	# print(f"svo_path_abs: {svo_path_abs}")
+	return svo_path_abs
+	
+
 
 
 def delete_folders(folders):
