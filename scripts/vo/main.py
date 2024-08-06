@@ -26,8 +26,10 @@ import random
 import json
 
 # from scripts.vo.svo_to_stereo_images import get_camera_params
-from scripts.vo import svo_to_stereo_images
- 
+# from scripts.vo import svo_to_stereo_images
+from scripts.utils_module import zed_utils
+
+
 #[TO-DO]
 # - error-handling =>  vineyards/front_2024-06-05-09-48-13.svo
 # - handling large continuos valid segment
@@ -170,8 +172,8 @@ if __name__ == "__main__":
         error_found = False  # Initialize error_found as False
 
         try:
-            svo_to_stereo_images.extract_vo_stereo_images(input_path, output_path, 2)
-            camera_params = svo_to_stereo_images.get_camera_params(os.path.join(ROOT_INPUT, svo_folder))
+            zed_utils.extract_vo_stereo_images(input_path, output_path, 2)
+            camera_params = zed_utils.get_camera_params(os.path.join(ROOT_INPUT, svo_folder))
         except Exception as e:
             logging.error(f"An error occurred: {e}")
             error_found = True  # Set error_found to True in case of an exception
