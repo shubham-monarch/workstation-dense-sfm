@@ -78,6 +78,7 @@ do
 	echo -e "\n"
 	
 	CONFIG_FILES=$(python3 -c "import scripts.utils_module.bash_utils as io;  io.generate_config_files_from_json('${JSON_FILE}')")
+	echo CONFIG_FILES: $CONFIG_FILES
 
 	for CONFIG_FILE in $CONFIG_FILES;
 	do 
@@ -86,6 +87,21 @@ do
 		echo "CONFIG_FILE: $CONFIG_FILE"
 		echo "==============================="
 		echo -e "\n"
+
+		# Use jq to parse the JSON and extract values
+		SVO_FILENAME=$(jq -r '.SVO_FILENAME' "$CONFIG_FILE")
+		SVO_START_IDX=$(jq -r '.SVO_START_IDX' "$CONFIG_FILE")
+		SVO_END_IDX=$(jq -r '.SVO_END_IDX' "$CONFIG_FILE")
+
+		echo -e "\n"
+		echo "==============================="
+		echo "SVO_FILENAME: $SVO_FILENAME"
+		echo "SVO_START_IDX: $SVO_START_IDX"
+		echo "SVO_END_IDX: $SVO_END_IDX"
+		echo "==============================="
+		echo -e "\n"
+
+
 	done
 
 done

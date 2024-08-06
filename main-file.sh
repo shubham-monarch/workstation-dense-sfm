@@ -37,6 +37,18 @@
 
 comment
 
+
+echo -e "\n"
+echo "==============================="
+echo "[PARSING CONFIG.JSON]"
+echo "SVO_FILENAME: $SVO_FILENAME"
+echo "SVO_START_IDX: $SVO_START_IDX"
+echo "SVO_END_IDX: $SVO_END_IDX"
+echo "==============================="
+echo -e "\n"
+
+
+
 # [GLOBAL PARAMS]
 EXIT_FAILURE=1
 EXIT_SUCCESS=0

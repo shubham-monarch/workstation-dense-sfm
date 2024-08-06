@@ -42,9 +42,12 @@ def generate_config_files_from_json(json_path : str, input_root = None, output_r
 			config_dict['SVO_END_IDX']=pair[1]
 
 			config_path = os.path.join(output_root, svo_file)
-			config_path = config_path.replace('.svo', f"_{pair[0]}_{pair[1]}.json")
-			config_files.append(config_path)
 			
+			# print(f"config_path: {config_path}")
+			config_path = config_path.replace('.json', f"_{pair[0]}_{pair[1]}.json")
+			# print(f"config_path: {config_path}")
+			
+			config_files.append(config_path)
 			io_utils.create_folders([os.path.dirname(config_path)])
 
 			with open(config_path, 'w') as f:
