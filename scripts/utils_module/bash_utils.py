@@ -3,16 +3,57 @@ import logging, coloredlogs
 from typing import List
 import os
 import random
+from  scripts.utils_module import io_utils
 
 def generate_config_from_json(json_path : str):
-     with open(json_path, 'r') as f:
-        data = json.load(f)
-        # Now `data` contains the list of lists from the JSON file
-        # Example usage:
-        for pair in data:
-            print(pair) 
-        
+	with open(json_path, 'r') as f:
+		data = json.load(f)
+		logging.info(f"json_path: {json_path}")
+		logging.info(f"type(data): {type(data)} len(data): {len(data)}")
+		# print(f"json_path: {json_path}")
+		# print(f"type(data): {type(data)} len(data): {len(data)}")
+		for pair in data:
+			print(pair) 
 
+
+def generate_config_files_from_json(json_path : str, input_root = None, output_root = None):
+	config_files = []
+	
+	# arr to be returned to the bash script
+	bash_arr = []
+
+	if input_root is None:
+		input_root = 'output-backend/vo'
+	svo_file = os.path.relpath(json_path, input_root)
+
+	if output_root is None:
+		output_root = 'output-backend/config'
+	
+	with open(json_path, 'r') as f:
+		data = json.load(f)
+		config_dict = dict()
+		logging.info(f"json_path: {json_path}")
+		logging.info(f"type(data): {type(data)} len(data): {len(data)}")
+		# print(f"json_path: {json_path}")
+		# print(f"type(data): {type(data)} len(data): {len(data)}")
+		for pair in data:
+			config_dict['SVO_FILENAME']=svo_file
+			config_dict['SVO_START_IDX']=pair[0]
+			config_dict['SVO_END_IDX']=pair[1]
+
+			config_path = os.path.join(output_root, svo_file)
+			config_path = config_path.replace('.svo', f"_{pair[0]}_{pair[1]}.json")
+			config_files.append(config_path)
+			
+			io_utils.create_folders([os.path.dirname(config_path)])
+
+			with open(config_path, 'w') as f:
+				json.dump(config_dict, f, indent=4)
+				logging.info(f"Data written to {config_path}")
+
+	bash_arr = ' '.join(config_files)	
+	print(bash_arr)
+	
 def get_file_list(input_path : str) -> List[str]:
 	'''
 	recursively lists all the svo-files inside a folder
