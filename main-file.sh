@@ -160,11 +160,6 @@ echo -e "\n"
 	END_TIME=$(date +%s)
 	DURATION=$((END_TIME - START_TIME)) 
 		
-		echo -e "\n"
-		echo "==============================="
-		echo "Hello World"
-		echo "==============================="
-		echo -e "\n"
 
 	# [SPARSE-RECONSTRUCTION CHECK]
 	if [ $? -eq 0 ]; then
@@ -173,7 +168,7 @@ echo -e "\n"
 		echo "Time taken for SPARSE-RECONSTRUCTION: ${DURATION} seconds"
 		echo "==============================="
 		echo -e "\n"
-		exit $EXIT_SUCCESS
+		# exit $EXIT_SUCCESS
 	else
 		echo -e "\n"
 		echo "[ERROR] STEREO-RECONSTRUCTION FAILED ==> EXITING PIPELINE!"
@@ -189,14 +184,14 @@ echo -e "\n"
 # 	echo -e "\n"
 # fi
 
-return $EXIT_SUCCESS
+# return $EXIT_SUCCESS
 
 # [STEP #3 --> RIG-BUNDLE-ADJUSTMENT]
 RBA_INPUT_DIR="${SPARSE_RECON_OUTPUT_DIR}/ref_locked/"
 RBA_OUTPUT_DIR="${PIPELINE_OUTPUT_DIR}/rig-bundle-adjustment/${SVO_FILENAME}/${SUB_FOLDER_NAME}"
 RBA_CONFIG_PATH="${PIPELINE_CONFIG_DIR}/rig.json"
 
-python3 -c "import scripts.utils_module.zed_utils as zu;  zu.update_rig_json('${$RBA_CONFIG_PATH}','${SVO_FILE_NAME}')"
+python3 -c "import scripts.utils_module.zed_utils as zu;  zu.generate_rig_json('${$RBA_CONFIG_PATH}','${SVO_FILE_NAME}')"
 
 echo -e "\n"
 echo "==============================="
@@ -265,7 +260,7 @@ else
 	echo -e "\n"
 fi
 
-exit 1
+exit $EXIT_SUCCESS
 
 # [STEP #4 --> DENSE RECONSTRUCTION]
 DENSE_RECON_OUTPUT_DIR="${PIPELINE_OUTPUT_DIR}/dense-reconstruction/${SVO_FILENAME}/${SUB_FOLDER_NAME}"

@@ -26,34 +26,45 @@ def get_baseline(svo_path : str) -> float:
     status = zed.open(init)
 
     if status != sl.ERROR_CODE.SUCCESS:
+        logging.error(f"Error while opening the SVO file: {repr(status)} --> [USING BASELINE AS 0.13]")
         return 0.13
 
+    camera_information = zed.get_camera_information()
+    zed_baseline =   camera_information.camera_configuration.calibration_parameters.get_camera_baseline()
     # Get camera information (calibration parameters)
-    calibration_params = zed.get_camera_information().camera_configuration.calibration_parameters
-    left_cam = calibration_params.left_cam
-    right_cam = calibration_params.right_cam
+    # calibration_params = zed.get_camera_information().camera_configuration.calibration_parameters
+    # left_cam = calibration_params.left_cam
+    # right_cam = calibration_params.right_cam
 
-    baseline = abs(right_cam.tx - left_cam.tx)
+    # baseline = abs(right_cam.tx - left_cam.tx)
     zed.close()
-    return baseline
-    
-def update_rig_json(rig_file : str, svo_file : str):
+    return zed_baseline
+
+
+def generate_rig_json(rig_file : str, svo_file : str):
+
+    '''
+    updating rig.json with zed baseline
+    '''    
+
     
     new_value = get_baseline(svo_file) 
+    new_value = 0.15
     # Load the JSON data
     with open(rig_file, 'r') as file:
         data = json.load(file)
 
     # Update the rel_tvec's first value
-    new_value = 0.15  # Example new value
+    # new_value = 0.15  # Example new value
+    
     for rig in data:
         for camera in rig['cameras']:
-            camera['rel_tvec'][0] = new_value
-            break
-
+            if camera['camera_id'] == 1:
+                camera['rel_tvec'][0] = new_value
+            
     # Optionally, write the updated data back to the file
-    io_utils.delete_files([rig_file])
-    io_utils.create_folders([os.path.dirname(rig_file)])
+    # io_utils.delete_files([rig_file])
+    # io_utils.create_folders([os.path.dirname(rig_file)])
     
     with open(rig_file, 'w') as file:
         json.dump(data, file, indent=4)
@@ -149,16 +160,16 @@ if __name__ == "__main__":
 
     coloredlogs.install(level="DEBUG", force=True)  # install a handler on the root logger
 
-    parser = argparse.ArgumentParser(description='Script to process a SVO file')
-    parser.add_argument('--svo_path', type=str, required = True, help='target svo file path')
-    parser.add_argument('--output_dir', type=str, required = True, help='output directory path')
-    parser.add_argument('--svo_step', type=int, required = False, default = 2, help='frame skipping frequency')  
-    args = parser.parse_args()  
+    # parser = argparse.ArgumentParser(description='Script to process a SVO file')
+    # parser.add_argument('--svo_path', type=str, required = True, help='target svo file path')
+    # parser.add_argument('--output_dir', type=str, required = True, help='output directory path')
+    # parser.add_argument('--svo_step', type=int, required = False, default = 2, help='frame skipping frequency')  
+    # args = parser.parse_args()  
 
-
-
-    
-    
+    svo_file = "input-backend/svo-files/vineyards/RJM/front_2024-06-05-09-48-13.svo"
+    # generate_rig_json("config/rig.json", "input-backend/svo-files/vineyards/RJM/front_2024-06-05-09-48-13.svo")
+    baseline = get_baseline(svo_file)
+    logging.warning(f"baseline: {baseline}")
     # logging.warning(f"[svo-to-stereo-images.py]")
     # for key, value in vars(args).items():
     #     logging.info(f"{key}: {value}")
