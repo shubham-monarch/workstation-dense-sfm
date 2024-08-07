@@ -1,62 +1,19 @@
 #!/bin/bash
 
-<<comment
-[TO-DO]
-- aws api integration
-- aws / local input detection
-- pointcloud labelling
-- pointcloud cropping script
-- output-backend -> output folder
-- aws instance setup
-	- add colmap cmake update to sssssssssupport pycolmap installtion 
-	- retag colmap , pycolmap
-	- update requirements.txt
-	- update pipeline tag
-- processed/unprocessed folders
-	- add svo files
-	- cleanup before running the pipeline
-- documentation
-	- update release notes
-	- update installation steps
-	- add + update setup.md
-	- add readme.md
-	- update colmap installation steps in setup.md
-- add segmentation inference script
-- output/input-backend clean-up
-- add images support
-- check if script is being executed from the project root
-- dense reconstruction support for multiple gpus
-- [error-handling / folder deletion] for Ctrl-C / unexpected script termination 
-- update default bb params for pointcloud cropping
-- return -1 for failed jsons
-
-comment
 
 SVO_FILENAME=$1
 SVO_STEP=$4
-
 SVO_START_IDX=$(($2 * $4))
 SVO_END_IDX=$(($3 * $4))
 
 
 
-# SVO_FILENAME="vineyards/gallo/2024_06_07_utc/svo_files/front_2024-06-04-12-22-05.svo"
-# SVO_START_IDX=58
-# SVO_END_IDX=112
-
-
-# {
-#     "SVO_FILENAME": "vineyards/gallo/2024_06_07_utc/svo_files/front_2024-06-04-12-27-05.json",
-#     "SVO_START_IDX": 118,
-#     "SVO_END_IDX": 214
-# }
-
 echo -e "\n"
 echo "==============================="
 echo "[INSIDE MAIN-FILE.SH]"
-echo "SVO_FILENAME: $SVO_FILENAME"
-echo "SVO_START_IDX: $SVO_START_IDX"
-echo "SVO_END_IDX: $SVO_END_IDX"
+# echo "SVO_FILENAME: $SVO_FILENAME"
+# echo "SVO_START_IDX: $SVO_START_IDX"
+# echo "SVO_END_IDX: $SVO_END_IDX"
 echo "==============================="
 echo -e "\n"
 
@@ -120,15 +77,15 @@ SVO_IMAGES_DIR="${SVO_OUTPUT_DIR}/${SVO_FILENAME}/${SUB_FOLDER_NAME}"
 # extracting 1 frame per {SVO_STEP} frames
 # SVO_STEP=2
 
-echo -e "\n"
-echo "==============================="
-echo "[SVO PROCESSING --> EXTRACTING IMAGES]"
-echo "SVO_INPUT_DIR: $SVO_INPUT_DIR"
-echo "SVO_OUTPUT_DIR: $SVO_OUTPUT_DIR"
-echo "SVO_FILE_PATH: $SVO_FILE_PATH"
-echo "SVO_IMAGES_DIR: $SVO_IMAGES_DIR"
-echo "==============================="
-echo -e "\n"
+# echo -e "\n"
+# echo "==============================="
+# echo "[SVO PROCESSING --> EXTRACTING IMAGES]"
+# echo "SVO_INPUT_DIR: $SVO_INPUT_DIR"
+# echo "SVO_OUTPUT_DIR: $SVO_OUTPUT_DIR"
+# echo "SVO_FILE_PATH: $SVO_FILE_PATH"
+# echo "SVO_IMAGES_DIR: $SVO_IMAGES_DIR"
+# echo "==============================="
+# echo -e "\n"
 
 # check if the output folder already exists
 # if [ ! -d "$SVO_IMAGES_DIR" ]; then
@@ -172,7 +129,6 @@ echo -e "\n"
 # fi
 
 
-
 # [STEP #2 --> SPARSE-RECONSTRUCTION FROM STEREO-IMAGES]
 SPARSE_RECON_INPUT_DIR="${PIPELINE_INPUT_DIR}/sparse-reconstruction/${SVO_FILENAME}/${SUB_FOLDER_NAME}"
 SPARSE_RECON_OUTPUT_DIR="${PIPELINE_OUTPUT_DIR}/sparse-reconstruction/${SVO_FILENAME}/${SUB_FOLDER_NAME}"
@@ -203,6 +159,12 @@ echo -e "\n"
 
 	END_TIME=$(date +%s)
 	DURATION=$((END_TIME - START_TIME)) 
+		
+		echo -e "\n"
+		echo "==============================="
+		echo "Hello World"
+		echo "==============================="
+		echo -e "\n"
 
 	# [SPARSE-RECONSTRUCTION CHECK]
 	if [ $? -eq 0 ]; then
@@ -211,13 +173,15 @@ echo -e "\n"
 		echo "Time taken for SPARSE-RECONSTRUCTION: ${DURATION} seconds"
 		echo "==============================="
 		echo -e "\n"
+		exit $EXIT_SUCCESS
 	else
 		echo -e "\n"
 		echo "[ERROR] STEREO-RECONSTRUCTION FAILED ==> EXITING PIPELINE!"
 		echo -e "\n"
 		rm -rf ${SPARSE_RECON_OUTPUT_DIR}
-		return $EXIT_FAILURE
+		exit $EXIT_FAILURE
 	fi
+
 # else 
 # 	echo -e "\n"
 # 	echo "[WARNING] SKIPPING stereo-images to sparse-reconstruction as ${SPARSE_RECON_OUTPUT_DIR} already exists."
@@ -225,7 +189,7 @@ echo -e "\n"
 # 	echo -e "\n"
 # fi
 
-exit 0
+return $EXIT_SUCCESS
 
 # [STEP #3 --> RIG-BUNDLE-ADJUSTMENT]
 RBA_INPUT_DIR="${SPARSE_RECON_OUTPUT_DIR}/ref_locked/"

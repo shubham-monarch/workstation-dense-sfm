@@ -212,7 +212,7 @@ class VisualOdometry(object):
                 seq_len = (self.frame_idx - 1)- self.seq_st
                 
                 # detecting end of sequence
-                if (self.frame_idx == self.total_frames - 1) and (seq_len > self.CUTOFF_SEQ_LEN):
+                if (self.frame_idx == self.total_frames - 1) and (seq_len >= self.CUTOFF_SEQ_LEN):
                     self.sequence_duration.append(seq_len)
                     self.sequence_pairs.append((self.seq_st, self.frame_idx - 1))
                     self.log_frame_addition(self.seq_st, self.frame_idx)
@@ -222,7 +222,7 @@ class VisualOdometry(object):
                     # logging.info("=======================")
 
                 # adding curr seq if len exceeds cutoff
-                elif seq_len >= 2 * self.CUTOFF_SEQ_LEN:
+                elif seq_len >=  self.CUTOFF_SEQ_LEN:
                     self.sequence_duration.append(seq_len)
                     self.sequence_pairs.append((self.seq_st, self.frame_idx))
                     self.log_frame_addition(self.seq_st, self.frame_idx + 1)
