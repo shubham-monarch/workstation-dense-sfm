@@ -32,13 +32,17 @@
 
 comment
 
-# SVO_FILENAME=$1
-# SVO_START_IDX=$2
-# SVO_END_IDX=$3
+SVO_FILENAME=$1
+SVO_STEP=$4
 
-SVO_FILENAME="vineyards/gallo/2024_06_07_utc/svo_files/front_2024-06-04-12-22-05.svo"
-SVO_START_IDX=58
-SVO_END_IDX=112
+SVO_START_IDX=$(($2 * $4))
+SVO_END_IDX=$(($3 * $4))
+
+
+
+# SVO_FILENAME="vineyards/gallo/2024_06_07_utc/svo_files/front_2024-06-04-12-22-05.svo"
+# SVO_START_IDX=58
+# SVO_END_IDX=112
 
 
 # {
@@ -114,7 +118,7 @@ SVO_FILE_PATH="${SVO_INPUT_DIR}/${SVO_FILENAME}"
 SVO_IMAGES_DIR="${SVO_OUTPUT_DIR}/${SVO_FILENAME}/${SUB_FOLDER_NAME}"
 
 # extracting 1 frame per {SVO_STEP} frames
-SVO_STEP=1
+# SVO_STEP=2
 
 echo -e "\n"
 echo "==============================="
@@ -221,7 +225,7 @@ echo -e "\n"
 # 	echo -e "\n"
 # fi
 
-exit 1
+exit 0
 
 # [STEP #3 --> RIG-BUNDLE-ADJUSTMENT]
 RBA_INPUT_DIR="${SPARSE_RECON_OUTPUT_DIR}/ref_locked/"

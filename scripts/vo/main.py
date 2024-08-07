@@ -43,34 +43,34 @@ def keypoints_plot(img, vo):
     return plot_keypoints(img, vo.kptdescs["cur"]["keypoints"], vo.kptdescs["cur"]["scores"])
 
 
-def write_seq_to_disk(input_dir : str, sequences : tuple, output_dir = "outputs"):
+# def write_seq_to_disk(input_dir : str, sequences : tuple, output_dir = "outputs"):
     
-    input_dir_ = os.path.join("test_imgs/sequences/00/", input_dir)
+#     input_dir_ = os.path.join("test_imgs/sequences/00/", input_dir)
 
-    img_N = len([file for file in os.listdir(input_dir_) if file.endswith('.png')]) 
-    # logging.info(f"num_images: {img_N}")   
+#     img_N = len([file for file in os.listdir(input_dir_) if file.endswith('.png')]) 
+#     # logging.info(f"num_images: {img_N}")   
     
-    images_list = os.listdir(input_dir_)
-    filtered_files = fnmatch.filter(images_list, "left_*.png")
-    sorted_images = sorted(filtered_files, key=lambda x: int(x.split('_')[1].split('.')[0]))
+#     images_list = os.listdir(input_dir_)
+#     filtered_files = fnmatch.filter(images_list, "left_*.png")
+#     sorted_images = sorted(filtered_files, key=lambda x: int(x.split('_')[1].split('.')[0]))
     
-    # updating sorted images with full path
-    for i, image in enumerate(sorted_images):
-        image = os.path.join(input_dir_, image) 
-        sorted_images[i] = image
+#     # updating sorted images with full path
+#     for i, image in enumerate(sorted_images):
+#         image = os.path.join(input_dir_, image) 
+#         sorted_images[i] = image
 
-    output_dir = os.path.join(output_dir, input_dir)
-    for (st,en) in tqdm(sequences):
-        output_dir_ = os.path.join(output_dir, f"{st}_{en}")
+#     output_dir = os.path.join(output_dir, input_dir)
+#     for (st,en) in tqdm(sequences):
+#         output_dir_ = os.path.join(output_dir, f"{st}_{en}")
     
-        # logging.warning(f"output_dir: {output_dir_}")
+#         # logging.warning(f"output_dir: {output_dir_}")
         
-        delete_folders([output_dir_])
-        create_folders([output_dir_])
+#         delete_folders([output_dir_])
+#         create_folders([output_dir_])
         
-        for i in range(st, en + 1):
-            # logging.info(f"{i}: {sorted_images[i]}")
-            shutil.copy(sorted_images[i], output_dir_)    
+#         for i in range(st, en + 1):
+#             # logging.info(f"{i}: {sorted_images[i]}")
+#             shutil.copy(sorted_images[i], output_dir_)    
     
 
 # required by main.sh
@@ -140,7 +140,8 @@ if __name__ == "__main__":
                         help='config file')
     # parser.add_argument('--o', type=str, default = "output-backend/vo", help='Root output directory')
     parser.add_argument('--i', type=str, required= True, help='Path to input svo files / folder')
-    
+    parser.add_argument('--svo_step', type=int, required= False, default=2, help='Extract every n-th frame from the SVO file')
+
     
     # root folders for svo-filtering
     ROOT_OUTPUT = "input-backend/vo"
@@ -190,7 +191,7 @@ if __name__ == "__main__":
         error_found = False  # Initialize error_found as False
 
         try:
-            zed_utils.extract_vo_stereo_images(input_path, output_path, 2)
+            zed_utils.extract_vo_stereo_images(input_path, output_path, args.svo_step)
             camera_params = zed_utils.get_camera_params(os.path.join(ROOT_INPUT, svo_folder))
         except Exception as e:
             logging.error(f"An error occurred: {e}")

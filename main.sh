@@ -51,7 +51,7 @@ then
     exit 1
 fi
 
-
+USER_INPUT="vineyards"
 INPUT_PATH="input-backend/svo-files/${USER_INPUT}"
 
 # output=$(python3 -c "import scripts.utils_module.io_utils as io;  io.get_file_list('${INPUT_PATH}')")
@@ -65,11 +65,14 @@ do
 	echo "==============================="
 	echo -e "\n"
 	
-	# generate the viable-segments JSON file
+	# extracting every 2nd frame from the SVO file
+	SVO_STEP=2
+	# generate the viable-segments JSON files
 	python3 -m scripts.vo.main \
-	--i=$SVO_FILE 
+	--i=$SVO_FILE \
+	--svo_step=$SVO_STEP
 
-	# generating viable svo segments
+	# getting json path
 	JSON_FILE=$(python3 -c "import scripts.vo.main as vo;  vo.get_json_path('${SVO_FILE}')")
 
 	echo -e "\n"
@@ -98,34 +101,26 @@ do
 		SVO_START_IDX=$(jq -r '.SVO_START_IDX' "$CONFIG_FILE")
 		SVO_END_IDX=$(jq -r '.SVO_END_IDX' "$CONFIG_FILE")
 
-		# echo -e "\n"
-		# echo "==============================="
-		# echo "SVO_FILENAME: $SVO_FILENAME"
-		# echo "SVO_START_IDX: $SVO_START_IDX"
-		# echo "SVO_END_IDX: $SVO_END_IDX"
-		# echo "==============================="
-		# echo -e "\n"
+		echo -e "\n"
+		echo "==============================="
+		echo "SVO_FILENAME: $SVO_FILENAME"
+		echo "SVO_START_IDX: $SVO_START_IDX"
+		echo "SVO_END_IDX: $SVO_END_IDX"
+		echo "==============================="
+		echo -e "\n"
 
-		# response=$(./main-file.sh "$SVO_FILENAME" "$SVO_START_IDX" "$SVO_END_IDX")
+		response=$(./main-file.sh "$SVO_FILENAME" "$SVO_START_IDX" "$SVO_END_IDX" "$SVO_STEP")
 		
-		#  if [ $response -eq 0 ]; then
-		# 	echo "main-file.sh executed successfully."
-		# 	break # Exit the loop if main-file.sh was successful
-    	# else
-        # 	echo "main-file.sh failed. Continuing to the next CONFIG_FILE..."
-		# 	# Optionally, you can add an exit statement here to stop the script on failure
-		# 	# exit 1
-    	# fi
-		# echo -e "\n"
-		# echo "==============================="
-		# echo "SVO_FILENAME: $SVO_FILENAME"
-		# echo "SVO_START_IDX: $SVO_START_IDX"
-		# echo "SVO_END_IDX: $SVO_END_IDX"
-		# echo "response: $response"
-		# echo "==============================="
-		# echo -e "\n"
-
-		# exit 1
+		 if [ $response -eq 0 ]; then
+			echo "main-file.sh executed successfully."
+			# break # Exit the loop if main-file.sh was successful
+    	else
+        	echo "main-file.sh failed. Continuing to the next CONFIG_FILE..."
+			# Optionally, you can add an exit statement here to stop the script on failure
+			# exit 1
+    	fi
+		
+		
 	done
 
 done
