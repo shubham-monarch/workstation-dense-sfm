@@ -24,7 +24,9 @@ import argparse
 import pyzed.sl as sl
 import logging, coloredlogs
 
-import utils
+# from scriutils_module import io_utils
+# from scripts.utils_module import io_utils
+from utils_module import io_utils
 
 # redirect the C++ outputs to notebook cells
 cpp_out = ostream_redirect(stderr=True, stdout=True)
@@ -66,8 +68,8 @@ def generate_input_folder(src_dir, dst_dir):
     logging.warning(f"src_dir: {src_dir}")
     logging.warning(f"dst_dir: {dst_dir}")
 
-    utils.delete_folders([dst_dir])
-    utils.create_folders([dst_dir])
+    io_utils.delete_folders([dst_dir])
+    io_utils.create_folders([dst_dir])
 
     # Create 'left' and 'right' directories inside 'dataset'
     os.makedirs(os.path.join(dst_dir, 'left'), exist_ok=True)
@@ -114,7 +116,7 @@ def sparse_reconstruction_pipeline( opencv_camera_params,
     #     except OSError as e:
     #         logging.error(f"An error occurred while deleting the directory: {e}")
 
-    utils.delete_folders([outputs])
+    io_utils.delete_folders([outputs])
     
     sfm_pairs = outputs / 'pairs-sfm.txt'
     loc_pairs = outputs / 'pairs-loc.txt'
@@ -166,9 +168,11 @@ def sparse_reconstruction_pipeline( opencv_camera_params,
                     image_options=image_options,
                     camera_mode="PER_FOLDER",
                     mapper_options=mapper_options_two)
-
+    
+    logging.warning("Before sfm.reconstruction")
     K_locked, sfm_outputs_not_locked = sfm.reconstruction(ref_dir_locked, images, sfm_pairs, features, matches, **hloc_args_not_locked)
-
+    logging.warning("After sfm.reconstruction") 
+    
     logging.info("Sparse reconstruction finished!")
     logging.info(f"K_locked.summary(): {K_locked.summary()}")
 

@@ -183,6 +183,16 @@ def generate_config_from_json(json_path : str):
             print(pair) 
         
 
+def delete_files(file_paths):
+    for file_path in file_paths:
+        if os.path.exists(file_path):
+            try:
+                os.remove(file_path)
+            except Exception as e:
+                logging.error(f"Error {e} while deleting {file_path}")
+        else:
+            logging.info(f"The file {file_path} does not exist.")
+
 def delete_folders(folders):
 	for folder_path in folders:
 			# logging.debug(f"Deleting the old files in {folder_path}")

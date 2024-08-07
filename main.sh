@@ -30,15 +30,15 @@
 	- add parent + child config file/script
 	- python for config parsing
 	- output/input-backend clean-up
-- add images / video support
+- add images  support
 - check if script is being executed from the project root
 - dense reconstruction support for multiple gpus
 - [error-handling / folder deletion] for Ctrl-C / unexpected script termination 
 - update default bb params for pointcloud cropping
-- extract baseline from the svo file
 - user feedback mechanism 
 - temp file deletion sttrategy
 - include zed baseline extraction
+- sync frame extraction
 
 comment
 
@@ -81,13 +81,17 @@ do
 	CONFIG_FILES=$(python3 -c "import scripts.utils_module.bash_utils as io;  io.generate_config_files_from_json('${JSON_FILE}')")
 	# echo CONFIG_FILES: $CONFIG_FILES
 
+	# exit 1
+
 	for CONFIG_FILE in $CONFIG_FILES;
 	do 
-		# echo -e "\n"
-		# echo "==============================="
-		# echo "CONFIG_FILE: $CONFIG_FILE"
-		# echo "==============================="
-		# echo -e "\n"
+		echo -e "\n"
+		echo "==============================="
+		echo "CONFIG_FILE: $CONFIG_FILE"
+		echo "==============================="
+		echo -e "\n"
+
+		# break
 
 		# Use jq to parse the JSON and extract values
 		SVO_FILENAME=$(jq -r '.SVO_FILENAME' "$CONFIG_FILE")
@@ -102,17 +106,26 @@ do
 		# echo "==============================="
 		# echo -e "\n"
 
-		response=$(./main-file.sh "$SVO_FILENAME" "$SVO_START_IDX" "$SVO_END_IDX")
+		# response=$(./main-file.sh "$SVO_FILENAME" "$SVO_START_IDX" "$SVO_END_IDX")
 		
-		echo -e "\n"
-		echo "==============================="
-		echo "SVO_FILENAME: $SVO_FILENAME"
-		echo "SVO_START_IDX: $SVO_START_IDX"
-		echo "SVO_END_IDX: $SVO_END_IDX"
-		echo "response: $response"
-		echo "==============================="
-		echo -e "\n"
+		#  if [ $response -eq 0 ]; then
+		# 	echo "main-file.sh executed successfully."
+		# 	break # Exit the loop if main-file.sh was successful
+    	# else
+        # 	echo "main-file.sh failed. Continuing to the next CONFIG_FILE..."
+		# 	# Optionally, you can add an exit statement here to stop the script on failure
+		# 	# exit 1
+    	# fi
+		# echo -e "\n"
+		# echo "==============================="
+		# echo "SVO_FILENAME: $SVO_FILENAME"
+		# echo "SVO_START_IDX: $SVO_START_IDX"
+		# echo "SVO_END_IDX: $SVO_END_IDX"
+		# echo "response: $response"
+		# echo "==============================="
+		# echo -e "\n"
 
+		# exit 1
 	done
 
 done

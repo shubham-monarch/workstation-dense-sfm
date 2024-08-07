@@ -14,6 +14,50 @@ from typing import List
 
 from scripts.utils_module import io_utils
 
+def get_baseline(svo_path : str) -> float:
+    
+    input_type = sl.InputType()
+    input_type.set_from_svo_file(svo_path)
+
+    init = sl.InitParameters(input_t=input_type, svo_real_time_mode=False)
+    init.coordinate_units = sl.UNIT.METER   
+
+    zed = sl.Camera()
+    status = zed.open(init)
+
+    if status != sl.ERROR_CODE.SUCCESS:
+        return 0.13
+
+    # Get camera information (calibration parameters)
+    calibration_params = zed.get_camera_information().camera_configuration.calibration_parameters
+    left_cam = calibration_params.left_cam
+    right_cam = calibration_params.right_cam
+
+    baseline = abs(right_cam.tx - left_cam.tx)
+    zed.close()
+    return baseline
+    
+def update_rig_json(rig_file : str, svo_file : str):
+    
+    new_value = get_baseline(svo_file) 
+    # Load the JSON data
+    with open(rig_file, 'r') as file:
+        data = json.load(file)
+
+    # Update the rel_tvec's first value
+    new_value = 0.15  # Example new value
+    for rig in data:
+        for camera in rig['cameras']:
+            camera['rel_tvec'][0] = new_value
+            break
+
+    # Optionally, write the updated data back to the file
+    io_utils.delete_files([rig_file])
+    io_utils.create_folders([os.path.dirname(rig_file)])
+    
+    with open(rig_file, 'w') as file:
+        json.dump(data, file, indent=4)
+
 def extract_vo_stereo_images(filepath, output_folder, svo_step = 2):
     
     # logging.warning(f"[svo-to-stereo-images.py]")
@@ -51,7 +95,7 @@ def extract_vo_stereo_images(filepath, output_folder, svo_step = 2):
     io_utils.create_folders([os.path.join(output_path)])
     
 
-    for frame_idx in tqdm(range(0, 1000, svo_step)):
+    for frame_idx in tqdm(range(0, 500, svo_step)):
         try:
             if zed.grab(runtime_parameters) == sl.ERROR_CODE.SUCCESS:
                 zed.set_svo_position(frame_idx)
@@ -64,6 +108,7 @@ def extract_vo_stereo_images(filepath, output_folder, svo_step = 2):
         # else:
         #     sys.exit(1)
     zed.close()
+
 
 
 def get_camera_params(svo_file : str) -> dict: 

@@ -28,12 +28,24 @@
 - dense reconstruction support for multiple gpus
 - [error-handling / folder deletion] for Ctrl-C / unexpected script termination 
 - update default bb params for pointcloud cropping
+- return -1 for failed jsons
 
 comment
 
-SVO_FILENAME=$1
-SVO_START_IDX=$2
-SVO_END_IDX=$3
+# SVO_FILENAME=$1
+# SVO_START_IDX=$2
+# SVO_END_IDX=$3
+
+SVO_FILENAME="vineyards/gallo/2024_06_07_utc/svo_files/front_2024-06-04-12-22-05.svo"
+SVO_START_IDX=58
+SVO_END_IDX=112
+
+
+# {
+#     "SVO_FILENAME": "vineyards/gallo/2024_06_07_utc/svo_files/front_2024-06-04-12-27-05.json",
+#     "SVO_START_IDX": 118,
+#     "SVO_END_IDX": 214
+# }
 
 echo -e "\n"
 echo "==============================="
@@ -44,7 +56,7 @@ echo "SVO_END_IDX: $SVO_END_IDX"
 echo "==============================="
 echo -e "\n"
 
-exit 0
+# exit 0
 
 # [GLOBAL PARAMS]
 EXIT_FAILURE=1
@@ -82,14 +94,14 @@ fi
 # print(getattr(cfg, "SVO_END_IDX", -1))
 # ')
 
-echo -e "\n"
-echo "==============================="
-echo "[PARSING CONFIG.JSON]"
-echo "SVO_FILENAME: $SVO_FILENAME"
-echo "SVO_START_IDX: $SVO_START_IDX"
-echo "SVO_END_IDX: $SVO_END_IDX"
-echo "==============================="
-echo -e "\n"
+# echo -e "\n"
+# echo "==============================="
+# echo "[PARSING CONFIG.JSON]"
+# echo "SVO_FILENAME: $SVO_FILENAME"
+# echo "SVO_START_IDX: $SVO_START_IDX"
+# echo "SVO_END_IDX: $SVO_END_IDX"
+# echo "==============================="
+# echo -e "\n"
 
 # folder to store results
 SUB_FOLDER_NAME="${SVO_START_IDX}_to_${SVO_END_IDX}"
@@ -102,7 +114,7 @@ SVO_FILE_PATH="${SVO_INPUT_DIR}/${SVO_FILENAME}"
 SVO_IMAGES_DIR="${SVO_OUTPUT_DIR}/${SVO_FILENAME}/${SUB_FOLDER_NAME}"
 
 # extracting 1 frame per {SVO_STEP} frames
-SVO_STEP=2
+SVO_STEP=1
 
 echo -e "\n"
 echo "==============================="
@@ -115,10 +127,17 @@ echo "==============================="
 echo -e "\n"
 
 # check if the output folder already exists
-if [ ! -d "$SVO_IMAGES_DIR" ]; then
+# if [ ! -d "$SVO_IMAGES_DIR" ]; then
 
 	START_TIME=$(date +%s) 
-	python3 "${PIPELINE_SCRIPT_DIR}/svo-to-stereo-images.py" \
+	# python3 "${PIPELINE_SCRIPT_DIR}/svo-to-stereo-images.py" \
+	# 	--svo_path=$SVO_FILE_PATH \
+	# 	--start_frame=$SVO_START_IDX \
+	# 	--end_frame=$SVO_END_IDX \
+	# 	--output_dir=$SVO_IMAGES_DIR \
+	# 	--svo_step=$SVO_STEP
+
+	python3 -m scripts.svo-to-stereo-images \
 		--svo_path=$SVO_FILE_PATH \
 		--start_frame=$SVO_START_IDX \
 		--end_frame=$SVO_END_IDX \
@@ -141,12 +160,14 @@ if [ ! -d "$SVO_IMAGES_DIR" ]; then
 		rm -rf ${SVO_IMAGES_DIR}
 		exit $EXIT_FAILURE
 	fi
-else
-	echo -e "\n"
-	echo "[WARNING] SKIPPING svo to stereo-images generation as ${SVO_IMAGES_DIR} already exists."
-	echo "[WARNING] Delete [${SVO_IMAGES_DIR}] folder and try again!"
-	echo -e "\n"
-fi
+# else
+# 	echo -e "\n"
+# 	echo "[WARNING] SKIPPING svo to stereo-images generation as ${SVO_IMAGES_DIR} already exists."
+# 	echo "[WARNING] Delete [${SVO_IMAGES_DIR}] folder and try again!"
+# 	echo -e "\n"
+# fi
+
+
 
 # [STEP #2 --> SPARSE-RECONSTRUCTION FROM STEREO-IMAGES]
 SPARSE_RECON_INPUT_DIR="${PIPELINE_INPUT_DIR}/sparse-reconstruction/${SVO_FILENAME}/${SUB_FOLDER_NAME}"
@@ -160,15 +181,21 @@ echo "SPARSE_RECON_OUTPUT_DIR: $SPARSE_RECON_OUTPUT_DIR"
 echo "==============================="
 echo -e "\n"
 
-if [ ! -d "$SPARSE_RECON_OUTPUT_DIR" ]; then
+# if [ ! -d "$SPARSE_RECON_OUTPUT_DIR" ]; then
 
 	START_TIME=$(date +%s) 
 
-	python3 "${PIPELINE_SCRIPT_DIR}/sparse-reconstruction.py" \
+	python3 "${PIPELINE_SCRIPT_DIR}/sparse_reconstruction.py" \
 	    --svo_images=$SVO_IMAGES_DIR \
 		--input_dir=$SPARSE_RECON_INPUT_DIR \
 		--output_dir=$SPARSE_RECON_OUTPUT_DIR \
 		--svo_file=$SVO_FILE_PATH  
+
+	# python3 -m scripts.sparse_reconstruction \
+	#     --svo_images=$SVO_IMAGES_DIR \
+	# 	--input_dir=$SPARSE_RECON_INPUT_DIR \
+	# 	--output_dir=$SPARSE_RECON_OUTPUT_DIR \
+	# 	--svo_file=$SVO_FILE_PATH  
 
 	END_TIME=$(date +%s)
 	DURATION=$((END_TIME - START_TIME)) 
@@ -187,17 +214,21 @@ if [ ! -d "$SPARSE_RECON_OUTPUT_DIR" ]; then
 		rm -rf ${SPARSE_RECON_OUTPUT_DIR}
 		return $EXIT_FAILURE
 	fi
-else 
-	echo -e "\n"
-	echo "[WARNING] SKIPPING stereo-images to sparse-reconstruction as ${SPARSE_RECON_OUTPUT_DIR} already exists."
-	echo "[WARNING] Delete [${SPARSE_RECON_OUTPUT_DIR}] folder and try again!"
-	echo -e "\n"
-fi
+# else 
+# 	echo -e "\n"
+# 	echo "[WARNING] SKIPPING stereo-images to sparse-reconstruction as ${SPARSE_RECON_OUTPUT_DIR} already exists."
+# 	echo "[WARNING] Delete [${SPARSE_RECON_OUTPUT_DIR}] folder and try again!"
+# 	echo -e "\n"
+# fi
+
+exit 1
 
 # [STEP #3 --> RIG-BUNDLE-ADJUSTMENT]
 RBA_INPUT_DIR="${SPARSE_RECON_OUTPUT_DIR}/ref_locked/"
 RBA_OUTPUT_DIR="${PIPELINE_OUTPUT_DIR}/rig-bundle-adjustment/${SVO_FILENAME}/${SUB_FOLDER_NAME}"
 RBA_CONFIG_PATH="${PIPELINE_CONFIG_DIR}/rig.json"
+
+python3 -c "import scripts.utils_module.zed_utils as zu;  zu.update_rig_json('${$RBA_CONFIG_PATH}','${SVO_FILE_NAME}')"
 
 echo -e "\n"
 echo "==============================="
@@ -265,6 +296,8 @@ else
 	echo "[WARNING] Delete [${RBA_OUTPUT_DIR}] folder and try again!"
 	echo -e "\n"
 fi
+
+exit 1
 
 # [STEP #4 --> DENSE RECONSTRUCTION]
 DENSE_RECON_OUTPUT_DIR="${PIPELINE_OUTPUT_DIR}/dense-reconstruction/${SVO_FILENAME}/${SUB_FOLDER_NAME}"
