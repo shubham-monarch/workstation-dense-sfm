@@ -167,9 +167,9 @@ if __name__ == "__main__":
     # args = parser.parse_args()  
 
     svo_file = "input-backend/svo-files/vineyards/RJM/front_2024-06-05-09-48-13.svo"
-    # generate_rig_json("config/rig.json", "input-backend/svo-files/vineyards/RJM/front_2024-06-05-09-48-13.svo")
-    baseline = get_baseline(svo_file)
-    logging.warning(f"baseline: {baseline}")
+    # baseline = get_baseline(svo_file)
+    generate_rig_json("config/rig.json", svo_file)
+    # logging.warning(f"baseline: {baseline}")
     # logging.warning(f"[svo-to-stereo-images.py]")
     # for key, value in vars(args).items():
     #     logging.info(f"{key}: {value}")
