@@ -57,15 +57,21 @@ def check_ba_convergence(rig_ba_rel_poses, baseline, threshold=0.01):
 
     # Check if all standard deviations are below the threshold
     if np.all(std_dev < threshold):
+        logging.info(f"std_dev < threshold")
         delta_x = abs(translations[0][0]) - abs(baseline)
-        delta_y = abs(translations[0][1]) - abs(baseline)
-        delta_z = abs(translations[0][2]) - abs(baseline)
+        delta_y = abs(translations[0][1]) 
+        delta_z = abs(translations[0][2]) 
         
+        logging.info(f"delta_x: {delta_x} delta_y: {delta_y} delta_z: {delta_z}")
+
         delta_x = abs(delta_x)
         delta_y = abs(delta_y)
-        delta_z = abs(delta_z)
+        delta_z = abs(delta_z)  
 
-        if(delta_x <= 0.015 and delta_y < 0.01 and delta_z < 0.01):
+        logging.info(f"delta_x: {delta_x} delta_y: {delta_y} delta_z: {delta_z}")
+
+        if(delta_x <= 0.015 and delta_y <=0.01 and delta_z <=0.01):
+            logging.info("delta_x <= 0.015 and delta_y < 0.01 and delta_z <= 0.01")
             return True
         else:
             return False        

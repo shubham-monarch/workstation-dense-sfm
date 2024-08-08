@@ -1,17 +1,23 @@
 #!/bin/bash
 
 
-SVO_FILENAME=$1
-SVO_STEP=$4
-SVO_START_IDX=$(($2 * $4))
-SVO_END_IDX=$(($3 * $4))
+# SVO_FILENAME=$1
+# SVO_STEP=$4
+# SVO_START_IDX=$(($2 * $4))
+# SVO_END_IDX=$(($3 * $4))
 
 
+# [CASE 1] -> RBA converges to 0.06
 # SVO_FILENAME="vineyards/RJM/front_2024-06-06-09-26-19.svo"
 # SVO_STEP=2
 # SVO_START_IDX=4
 # SVO_END_IDX=126
 
+
+SVO_FILENAME="vineyards/gallo/2024_06_07_utc/svo_files/front_2024-06-04-12-32-05.svo"
+SVO_START_IDX=234
+SVO_END_IDX=436
+SVO_STEP=2
 
 echo -e "\n"
 echo "==============================="
