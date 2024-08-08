@@ -23,7 +23,8 @@
 # [CASE 3] -> MEMORY ERROR
 SVO_FILENAME="vineyards/gallo/2024_06_07_utc/svo_files/front_2024-06-04-11-34-23.svo"
 SVO_START_IDX=$((468 * 2))
-SVO_END_IDX=$((569 * 2))
+SVO_END_IDX=$((558 * 2))
+# SVO_END_IDX=$((569 * 2))
 SVO_STEP=2
 
 echo -e "\n"
@@ -167,89 +168,95 @@ else
 	echo -e "\n"
 fi
 
-return $EXIT_SUCCESS
 
 # [STEP #3 --> RIG-BUNDLE-ADJUSTMENT]
 RBA_INPUT_DIR="${SPARSE_RECON_OUTPUT_DIR}/ref_locked/"
 RBA_OUTPUT_DIR="${PIPELINE_OUTPUT_DIR}/rig-bundle-adjustment/${SVO_FILENAME}/${SUB_FOLDER_NAME}"
 RBA_CONFIG_PATH="${PIPELINE_CONFIG_DIR}/rig.json"
 
-# python3 -c "import scripts.utils_module.zed_utils as zu;  zu.generate_rig_json('${$RBA_CONFIG_PATH}','${SVO_FILE_NAME}')"
-python3 -c "import scripts.utils_module.zed_utils as zu;  zu.generate_rig_json('${RBA_CONFIG_PATH}','${SVO_FILENAME}')"
+if [ ! -d "$SPARSE_RECON_OUTPUT_DIR" ]; then
 
+	# python3 -c "import scripts.utils_module.zed_utils as zu;  zu.generate_rig_json('${$RBA_CONFIG_PATH}','${SVO_FILE_NAME}')"
+	python3 -c "import scripts.utils_module.zed_utils as zu;  zu.generate_rig_json('${RBA_CONFIG_PATH}','${SVO_FILENAME}')"
 
-echo -e "\n"
-echo "==============================="
-echo "[RIG BUNDLE ADJUSTMENT]"
-echo "RBA_INPUT_DIR: $RBA_INPUT_DIR"
-echo "RBA_OUTPUT_DIR: $RBA_OUTPUT_DIR"
-echo "RBA_CONFIG_PATH: $RBA_CONFIG_PATH"
-echo "==============================="
-echo -e "\n"
-
-# if [ ! -d "$RBA_OUTPUT_DIR" ]; then
-
-rm -rf "${RBA_OUTPUT_DIR}"
-mkdir -p "${RBA_OUTPUT_DIR}"
-
-START_TIME=$(date +%s) 
-
-$COLMAP_EXE_PATH/colmap rig_bundle_adjuster \
-	--input_path $RBA_INPUT_DIR \
-	--output_path $RBA_OUTPUT_DIR \
-	--rig_config_path $RBA_CONFIG_PATH \
-	--BundleAdjustment.refine_focal_length 0 \
-	--BundleAdjustment.refine_principal_point 0 \
-	--BundleAdjustment.refine_extra_params 0 \
-	--BundleAdjustment.refine_extrinsics 1 \
-	--BundleAdjustment.max_num_iterations 500 \
-	--estimate_rig_relative_poses False
-
-
-# [RBA CONVERGENCE CHECK]
-if [ $? -ne 0 ]; then
-	END_TIME=$(date +%s)
-	DURATION=$((END_TIME - START_TIME)) 
 
 	echo -e "\n"
 	echo "==============================="
-	echo "RBA FAILED ==> EXITING PIPELINE!"
+	echo "[RIG BUNDLE ADJUSTMENT]"
+	echo "RBA_INPUT_DIR: $RBA_INPUT_DIR"
+	echo "RBA_OUTPUT_DIR: $RBA_OUTPUT_DIR"
+	echo "RBA_CONFIG_PATH: $RBA_CONFIG_PATH"
 	echo "==============================="
 	echo -e "\n"
+
+	# if [ ! -d "$RBA_OUTPUT_DIR" ]; then
+
 	rm -rf "${RBA_OUTPUT_DIR}"
-	exit $EXIT_FAILURE
-fi
+	mkdir -p "${RBA_OUTPUT_DIR}"
 
-# ZED_BASELINE
-ZED_BASELINE=$(python3 -c "import scripts.utils_module.bash_utils as bu;  bu.get_baseline('${SVO_FILENAME}')")
+	START_TIME=$(date +%s) 
 
-echo -e "\n"
-echo "==============================="
-echo "ZED_BASELINE: ${ZED_BASELINE}"
-echo "==============================="
-echo -e "\n"
+	$COLMAP_EXE_PATH/colmap rig_bundle_adjuster \
+		--input_path $RBA_INPUT_DIR \
+		--output_path $RBA_OUTPUT_DIR \
+		--rig_config_path $RBA_CONFIG_PATH \
+		--BundleAdjustment.refine_focal_length 0 \
+		--BundleAdjustment.refine_principal_point 0 \
+		--BundleAdjustment.refine_extra_params 0 \
+		--BundleAdjustment.refine_extrinsics 1 \
+		--BundleAdjustment.max_num_iterations 500 \
+		--estimate_rig_relative_poses False
 
-# [VERIFYING RBA RESULTS]
-python3 -m scripts.rba_check \
-	--rba_output=$RBA_OUTPUT_DIR \
-	--baseline=$ZED_BASELINE
 
-# [RBA RESULTS CHECK]
-if [ $? -eq 0 ]; then
+	# [RBA CONVERGENCE CHECK]
+	if [ $? -ne 0 ]; then
+		END_TIME=$(date +%s)
+		DURATION=$((END_TIME - START_TIME)) 
+
+		echo -e "\n"
+		echo "==============================="
+		echo "RBA FAILED ==> EXITING PIPELINE!"
+		echo "==============================="
+		echo -e "\n"
+		rm -rf "${RBA_OUTPUT_DIR}"
+		exit $EXIT_FAILURE
+	fi
+
+	# ZED_BASELINE
+	ZED_BASELINE=$(python3 -c "import scripts.utils_module.bash_utils as bu;  bu.get_baseline('${SVO_FILENAME}')")
+
 	echo -e "\n"
 	echo "==============================="
-	echo "Time taken for RIG-BUNDLE-ADJUSTMENT: ${DURATION} seconds"
+	echo "ZED_BASELINE: ${ZED_BASELINE}"
 	echo "==============================="
 	echo -e "\n"
+
+	# [VERIFYING RBA RESULTS]
+	python3 -m scripts.rba_check \
+		--rba_output=$RBA_OUTPUT_DIR \
+		--baseline=$ZED_BASELINE
+
+	# [RBA RESULTS CHECK]
+	if [ $? -eq 0 ]; then
+		echo -e "\n"
+		echo "==============================="
+		echo "Time taken for RIG-BUNDLE-ADJUSTMENT: ${DURATION} seconds"
+		echo "==============================="
+		echo -e "\n"
+	else
+		echo -e "\n"
+		echo "[ERROR] RIG-BUNDLE-ADJUSTMENT FAILED ==> EXITING PIPELINE!"
+		echo -e "\n"
+		rm -rf "${RBA_OUTPUT_DIR}"
+		exit $EXIT_FAILURE
+	fi
 else
 	echo -e "\n"
-	echo "[ERROR] RIG-BUNDLE-ADJUSTMENT FAILED ==> EXITING PIPELINE!"
+	echo "[WARNING] SKIPPING RIG-BUNDLE-ADJUSTMENT as ${RBA_OUTPUT_DIR} already exists."
+	echo "[WARNING] Delete [${RBA_OUTPUT_DIR}] folder and try again!"
 	echo -e "\n"
-	rm -rf "${RBA_OUTPUT_DIR}"
-	exit $EXIT_FAILURE
 fi
 
-exit $EXIT_SUCCESS
 
 # [STEP #4 --> DENSE RECONSTRUCTION]
 DENSE_RECON_OUTPUT_DIR="${PIPELINE_OUTPUT_DIR}/dense-reconstruction/${SVO_FILENAME}/${SUB_FOLDER_NAME}"
@@ -258,7 +265,12 @@ if [ ! -d "$DENSE_RECON_OUTPUT_DIR" ]; then
 
 	START_TIME=$(date +%s) 
 
-	python3 "${PIPELINE_SCRIPT_DIR}/dense-reconstruction.py" \
+	# python3 "${PIPELINE_SCRIPT_DIR}/dense-reconstruction.py" \
+	# --mvs_path="$DENSE_RECON_OUTPUT_DIR" \
+	# --output_path="$RBA_OUTPUT_DIR" \
+	# --image_dir="$SPARSE_RECON_INPUT_DIR"
+
+	python3 -m ${PIPELINE_SCRIPT_DIR}.dense-reconstruction \
 	--mvs_path="$DENSE_RECON_OUTPUT_DIR" \
 	--output_path="$RBA_OUTPUT_DIR" \
 	--image_dir="$SPARSE_RECON_INPUT_DIR"
@@ -288,6 +300,10 @@ else
 	echo "[WARNING] Delete [${DENSE_RECON_OUTPUT_DIR}] folder and try again!"
 	echo -e "\n"
 fi
+
+exit $EXIT_SUCCESS
+
+
 
 # [STEP #5 --> FRAME-TO-FRAME (CROPPED) POINTCLOUD GENERATION]
 P360_MODULE="p360"

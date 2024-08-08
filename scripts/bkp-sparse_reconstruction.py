@@ -104,80 +104,84 @@ def generate_input_folder(src_dir, dst_dir):
 '''
 
 # @profile
-def sparse_reconstruction_pipeline(opencv_camera_params, images, outputs):
-    try:
-        # Your existing code for sparse reconstruction pipeline
-        io_utils.delete_folders([outputs])
-        
-        sfm_pairs = outputs / 'pairs-sfm.txt'
-        loc_pairs = outputs / 'pairs-loc.txt'
-        features = outputs / 'features.h5'
-        matches = outputs / 'matches.h5'
-        raw_dir = outputs / "raw"
-        ref_dir_locked = outputs / "ref_locked"
+def sparse_reconstruction_pipeline( opencv_camera_params,
+                                    images, 
+                                    outputs):
+    
+    print(f"torch.__version__: {torch.__version__}")
+    print(f"torch.cuda.get_arch_list(): {torch.cuda.get_arch_list()}")
+    #print(f"camera_params: {opencv_camera_params}")
+    
+    
+    # if(outputs.exists()):
+    #     try:
+    #         shutil.rmtree(outputs)
+    #         logging.info(f"{os.path.abspath(outputs)} removed")
+    #     except OSError as e:
+    #         logging.error(f"An error occurred while deleting the directory: {e}")
 
-        print(f"{os.listdir(images)}")
+    io_utils.delete_folders([outputs])
+    
+    sfm_pairs = outputs / 'pairs-sfm.txt'
+    loc_pairs = outputs / 'pairs-loc.txt'
+    features = outputs / 'features.h5'
+    matches = outputs / 'matches.h5'
+    raw_dir = outputs / "raw"
+    ref_dir_locked = outputs / "ref_locked"
 
-        feature_conf = extract_features.confs['superpoint_aachen']
-        matcher_conf = match_features.confs['superglue']
+    print(f"{os.listdir(images)}")
 
-        references_left = [str(p.relative_to(images)) for i, p in enumerate((images / 'left/').iterdir())]
-        references_right = [str(p.relative_to(images)) for i, p in enumerate((images / 'right/').iterdir())]
+    feature_conf = extract_features.confs['superpoint_aachen']
+    matcher_conf = match_features.confs['superglue']
 
-        references_left = sorted(references_left, key=lambda x: int(x.split('/')[-1].split('_')[1]))
-        references_right = sorted(references_right, key=lambda x: int(x.split('/')[-1].split('_')[1]))
+    references_left = [str(p.relative_to(images)) for i, p in enumerate((images / 'left/').iterdir())]
+    references_right = [str(p.relative_to(images)) for i, p in enumerate((images / 'right/').iterdir())]
 
-        references = references_left + references_right
-        references = sorted(references, key=lambda x: int(x.split('/')[-1].split('_')[1]))
+    references_left = sorted(references_left, key=lambda x: int(x.split('/')[-1].split('_')[1]))
+    references_right = sorted(references_right, key=lambda x: int(x.split('/')[-1].split('_')[1]))
 
-        features_path_ = extract_features.main(feature_conf, images, image_list=references, feature_path=features)
 
-        pairs_from_exhaustive.stereo_main(sfm_pairs, image_list=references)
+    references = references_left + references_right
 
-        match_features.main(matcher_conf, sfm_pairs, features=features, matches=matches)
+    '''sorting references so that each stereo pair is together in the list '''
+    references = sorted(references, key=lambda x: int(x.split('/')[-1].split('_')[1]))
 
-        gc.collect()
-        
-        conf2 = {
-            "BA": {"optimizer": {"refine_focal_length": False,"refine_extra_params": False, "refine_extrinsics": False}},
-            "dense_features": {"max_edge":1024}
-        }
+    features_path_ = extract_features.main(feature_conf, images, image_list= references, feature_path=features)
 
-        sfm = PixSfM(conf=conf2)
+    pairs_from_exhaustive.stereo_main(sfm_pairs, image_list=references)
 
-        image_options = dict(camera_model='OPENCV', camera_params=opencv_camera_params)
+    match_features.main(matcher_conf, sfm_pairs, features=features, matches=matches)
 
-        mapper_options_two = dict(ba_refine_focal_length=False, ba_refine_extra_params=False, ba_refine_principal_point=False)
+    gc.collect()
+    
+    conf2 = {
+        "BA": {"optimizer": {"refine_focal_length": False,"refine_extra_params": False, "refine_extrinsics": False}},
+        "dense_features": {"max_edge":1024}
+    }
 
-        hloc_args_not_locked = dict(image_list=references, image_options=image_options, camera_mode="PER_FOLDER", mapper_options=mapper_options_two)
-        
-        logging.warning("Before sfm.reconstruction")
-        K_locked, sfm_outputs_not_locked = sfm.reconstruction(ref_dir_locked, images, sfm_pairs, features, matches, **hloc_args_not_locked)
-        logging.warning("After sfm.reconstruction")
+    sfm = PixSfM(conf=conf2)
 
-        logging.info("Sparse reconstruction finished!")
-        logging.info(f"K_locked.summary(): {K_locked.summary()}")
+    image_options = dict(camera_model='OPENCV', 
+                        camera_params=opencv_camera_params
+                        )
 
-    except MemoryError as e:
-        logging.error(f"Memory error occurred: {e}")
-        logging.error("Attempting to free up memory and continue...")
+    mapper_options_two = dict(ba_refine_focal_length=False, 
+                        ba_refine_extra_params=False,
+                        ba_refine_principal_point=False)
 
-        # Add your custom logic to free up memory and continue
-        # For example, you can try to clear caches, release objects, or reduce the workload
-        gc.collect()
-        torch.cuda.empty_cache()
+    hloc_args_not_locked = dict(image_list=references,
+                    image_options=image_options,
+                    camera_mode="PER_FOLDER",
+                    mapper_options=mapper_options_two)
+    
+    logging.warning("Before sfm.reconstruction")
+    # gc.collect()
+    K_locked, sfm_outputs_not_locked = sfm.reconstruction(ref_dir_locked, images, sfm_pairs, features, matches, **hloc_args_not_locked)
+    logging.warning("After sfm.reconstruction") 
+    # gc.collect()
 
-        # If the memory issue persists, you can choose to exit the script or continue with a reduced workload
-        # if still_memory_issue():
-        #     logging.error("Unable to free up enough memory. Exiting the script.")
-        #     sys.exit(1)
-        # else:
-        #     logging.info("Memory freed up. Continuing the sparse reconstruction pipeline.")
-        #     # Resume the pipeline with reduced workload or modified parameters
-            
-    except Exception as e:
-        logging.error(f"An unexpected error occurred: {e}")
-        raise
+    logging.info("Sparse reconstruction finished!")
+    logging.info(f"K_locked.summary(): {K_locked.summary()}")
 
 
 

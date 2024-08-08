@@ -6,12 +6,13 @@ import shutil
 import os
 import argparse
 import logging, coloredlogs
-import utils
+# import utils
+from scripts.utils_module import io_utils
 
 def dense_sfm_pipeline(mvs_path, output_path, image_dir):
 
-    utils.delete_folders([mvs_path])
-    utils.create_folders([mvs_path])
+    io_utils.delete_folders([mvs_path])
+    io_utils.create_folders([mvs_path])
 
     pycolmap.undistort_images(mvs_path, output_path, image_dir)
     pycolmap.patch_match_stereo(mvs_path)  # requires compilation with CUDA
