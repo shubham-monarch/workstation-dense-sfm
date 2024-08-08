@@ -119,7 +119,7 @@ if __name__ == "__main__":
         logging.info(f"{key}: {value}")
 
     success = check_results(args.rba_output, args.baseline)
-    # success = False
+    
     if success:
         logging.info("RBA results are consistent")
         sys.exit(0)
