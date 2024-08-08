@@ -51,6 +51,8 @@
 - user feedback mechanism 
 - module post-processing cleaning => [vo / dense ]
 - fix script kill issue
+- modularize python script calls in main-file.sh 
+- change output-dir name for p360 module
 
 comment
 

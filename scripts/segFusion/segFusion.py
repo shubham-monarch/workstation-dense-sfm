@@ -1,10 +1,13 @@
-from segmentation.pidnet import PIDNet, get_seg_model
-from segmentation.utils import input_transform
 import torch
 import cv2
 import numpy as np
 import open3d as o3d
 import torch.nn.functional as F
+from scripts.utils_module import io_utils
+import logging, coloredlogs
+from scripts.segFusion.segmentation.pidnet import PIDNet, get_seg_model
+from scripts.segFusion.segmentation.utils import input_transform
+import os
 
 
 class Config:
@@ -103,13 +106,56 @@ class SegInfer:
 
 		return seg_mask
 
-def main():
+def segment(path_RGB : str, path_SEGMENTED : str) -> None:
+	'''
+	writes the segmented image to the img_seg path
 	
+	:param path_RGB: path to the rgb image
+	:param path_SEGMENTED: path to the segmented image
+	'''
 	config = Config()
 	inferencer = SegInfer(config=config)
-	img = cv2.imread('test.jpg')
-	seg_mask = inferencer.run(img)
+	img_RGB= cv2.imread(path_RGB)
+	img_SEGMENTED = inferencer.run(img_RGB)
 
+	cv2.imwrite(path_SEGMENTED, img_SEGMENTED)
+	
+def generate_segmented_images(input_dir, output_dir):
+	for root, dirs, files in os.walk(input_dir):
+		
+		output_root = root.replace(input_dir, output_dir, 1)
+		
+		io_utils.create_folders([output_root])
+
+		for file in files:
+			
+			# Only process image files (you can add more extensions if needed)
+			if file.lower().endswith(('.png', '.jpg', '.jpeg', '.bmp', '.tiff')):
+				
+				input_path = os.path.join(root, file)
+				output_path = os.path.join(output_root, file)
+				
+				segment(input_path, output_path)
+				
+				break
+				
+
+# TODO: 
+# Add argparse
+# swap images / images-segmented / images-rgb
 
 if __name__ == '__main__':
-	main()
+
+	coloredlogs.install(level="INFO", force = True)
+
+	images_RGB = "output-backend/dense-reconstruction/vineyards/gallo/2024_06_07_utc/svo_files/front_2024-06-04-11-34-23.svo/936_to_1116/images"
+	base_folder = os.path.dirname(images_RGB)
+	images_SEG = os.path.join(base_folder, "images-segmented")
+	
+	
+	logging.info(f"base_folder: {base_folder}")
+	logging.info(f"images_RGB: {images_RGB}")
+	logging.info(f"images_SEG: {images_SEG}")
+
+	# generate [images-segmented] at the same level as [images] 
+	generate_segmented_images(images_RGB, images_SEG)
