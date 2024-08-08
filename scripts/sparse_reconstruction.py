@@ -23,10 +23,12 @@ import numpy as np
 import argparse 
 import pyzed.sl as sl
 import logging, coloredlogs
+import gc
+# from memory_profiler import profile
 
 # from scriutils_module import io_utils
 # from scripts.utils_module import io_utils
-from utils_module import io_utils
+from scripts.utils_module import io_utils
 
 # redirect the C++ outputs to notebook cells
 cpp_out = ostream_redirect(stderr=True, stdout=True)
@@ -100,6 +102,8 @@ def generate_input_folder(src_dir, dst_dir):
 :param outputs: Path to the directory where the output files will be stored
 :param opencv_camera_params: Camera parameters in the opencv format
 '''
+
+# @profile
 def sparse_reconstruction_pipeline( opencv_camera_params,
                                     images, 
                                     outputs):
@@ -148,6 +152,7 @@ def sparse_reconstruction_pipeline( opencv_camera_params,
 
     match_features.main(matcher_conf, sfm_pairs, features=features, matches=matches)
 
+    gc.collect()
     
     conf2 = {
         "BA": {"optimizer": {"refine_focal_length": False,"refine_extra_params": False, "refine_extrinsics": False}},
@@ -170,9 +175,11 @@ def sparse_reconstruction_pipeline( opencv_camera_params,
                     mapper_options=mapper_options_two)
     
     logging.warning("Before sfm.reconstruction")
+    # gc.collect()
     K_locked, sfm_outputs_not_locked = sfm.reconstruction(ref_dir_locked, images, sfm_pairs, features, matches, **hloc_args_not_locked)
     logging.warning("After sfm.reconstruction") 
-    
+    # gc.collect()
+
     logging.info("Sparse reconstruction finished!")
     logging.info(f"K_locked.summary(): {K_locked.summary()}")
 
@@ -183,6 +190,8 @@ if __name__ == "__main__":
    
     coloredlogs.install(level="DEBUG", force=True)  # install a handler on the root logger
     
+    # gc.collect()
+
     logging.warning(f"[sparse-recosntruction.py]")
     
     parser = argparse.ArgumentParser(description='Sparse Reconstruction Pipeline')
@@ -202,6 +211,7 @@ if __name__ == "__main__":
     zed_camera_params = get_zed_camera_params(args.svo_file)
     logging.warning(f"zed_camera_params ==> {zed_camera_params}")
     
+        
     sparse_reconstruction_pipeline( zed_camera_params, 
                                     Path(args.input_dir),
                                     Path(args.output_dir))

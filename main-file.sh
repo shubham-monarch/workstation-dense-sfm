@@ -13,10 +13,17 @@
 # SVO_START_IDX=4
 # SVO_END_IDX=126
 
+# [CASE 2] -> RBA converges to 0.12
+# SVO_FILENAME="vineyards/gallo/2024_06_07_utc/svo_files/front_2024-06-04-12-32-05.svo"
+# SVO_START_IDX=234
+# SVO_END_IDX=436
+# SVO_STEP=2
 
-SVO_FILENAME="vineyards/gallo/2024_06_07_utc/svo_files/front_2024-06-04-12-32-05.svo"
-SVO_START_IDX=234
-SVO_END_IDX=436
+
+# [CASE 3] -> MEMORY ERROR
+SVO_FILENAME="vineyards/gallo/2024_06_07_utc/svo_files/front_2024-06-04-11-34-23.svo"
+SVO_START_IDX=$((468 * 2))
+SVO_END_IDX=$((569 * 2))
 SVO_STEP=2
 
 echo -e "\n"
@@ -25,6 +32,7 @@ echo "[INSIDE MAIN-FILE.SH]"
 echo "SVO_FILENAME: $SVO_FILENAME"
 echo "SVO_START_IDX: $SVO_START_IDX"
 echo "SVO_END_IDX: $SVO_END_IDX"
+echo "SVO_STEP: $SVO_STEP"	
 echo "==============================="
 echo -e "\n"
 
@@ -60,18 +68,6 @@ SVO_OUTPUT_DIR="${PIPELINE_OUTPUT_DIR}/stereo-images"
 SVO_FILE_PATH="${SVO_INPUT_DIR}/${SVO_FILENAME}"
 SVO_IMAGES_DIR="${SVO_OUTPUT_DIR}/${SVO_FILENAME}/${SUB_FOLDER_NAME}"
 
-# extracting 1 frame per {SVO_STEP} frames
-# SVO_STEP=2
-
-# echo -e "\n"
-# echo "==============================="
-# echo "[SVO PROCESSING --> EXTRACTING IMAGES]"
-# echo "SVO_INPUT_DIR: $SVO_INPUT_DIR"
-# echo "SVO_OUTPUT_DIR: $SVO_OUTPUT_DIR"
-# echo "SVO_FILE_PATH: $SVO_FILE_PATH"
-# echo "SVO_IMAGES_DIR: $SVO_IMAGES_DIR"
-# echo "==============================="
-# echo -e "\n"
 
 # check if the output folder already exists
 # if [ ! -d "$SVO_IMAGES_DIR" ]; then
@@ -130,7 +126,13 @@ echo -e "\n"
 if [ ! -d "$SPARSE_RECON_OUTPUT_DIR" ]; then
 	START_TIME=$(date +%s) 
 
-	python3 "${PIPELINE_SCRIPT_DIR}/sparse_reconstruction.py" \
+	# python3 "${PIPELINE_SCRIPT_DIR}/sparse_reconstruction.py" \
+	#     --svo_images=$SVO_IMAGES_DIR \
+	# 	--input_dir=$SPARSE_RECON_INPUT_DIR \
+	# 	--output_dir=$SPARSE_RECON_OUTPUT_DIR \
+	# 	--svo_file=$SVO_FILE_PATH  
+	
+	python3 -m ${PIPELINE_SCRIPT_DIR}.sparse_reconstruction \
 	    --svo_images=$SVO_IMAGES_DIR \
 		--input_dir=$SPARSE_RECON_INPUT_DIR \
 		--output_dir=$SPARSE_RECON_OUTPUT_DIR \
@@ -165,7 +167,7 @@ else
 	echo -e "\n"
 fi
 
-# return $EXIT_SUCCESS
+return $EXIT_SUCCESS
 
 # [STEP #3 --> RIG-BUNDLE-ADJUSTMENT]
 RBA_INPUT_DIR="${SPARSE_RECON_OUTPUT_DIR}/ref_locked/"
@@ -261,10 +263,12 @@ if [ ! -d "$DENSE_RECON_OUTPUT_DIR" ]; then
 	--output_path="$RBA_OUTPUT_DIR" \
 	--image_dir="$SPARSE_RECON_INPUT_DIR"
 
-	END_TIME=$(date +%s)
-	DURATION=$((END_TIME - START_TIME)) 
-
+	
 	if [ $? -eq 0 ]; then
+		
+		END_TIME=$(date +%s)
+		DURATION=$((END_TIME - START_TIME)) 
+		
 		echo -e "\n"
 		echo "==============================="
 		echo "Time taken for dense-reconstruction: ${DURATION} seconds"
@@ -275,7 +279,7 @@ if [ ! -d "$DENSE_RECON_OUTPUT_DIR" ]; then
 		echo "[ERROR] DENSE-RECONSTRUCTION FAILED ==> EXITING PIPELINE!"
 		echo -e "\n"
 		rm -rf ${DENSE_RECON_OUTPUT_DIR}
-		return $EXIT_FAILURE
+		exit $EXIT_FAILURE
 	fi
 
 else 
@@ -305,10 +309,11 @@ else
 	--pcl_folder="${CAMERA_FRAME_PCL}" \
 	--pcl_cropped_folder="${CAMERA_FRAME_PCL_CROPPED}"
 	
-	END_TIME=$(date +%s)
-	DURATION=$((END_TIME - START_TIME)) 
-
+	
 	if [ $? -eq 0 ]; then
+		END_TIME=$(date +%s)
+		DURATION=$((END_TIME - START_TIME)) 
+		
 		echo -e "\n"
 		echo "==============================="
 		echo "Time taken for generating frame-wise pointclouds: ${DURATION} seconds"

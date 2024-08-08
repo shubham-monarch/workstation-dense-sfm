@@ -190,8 +190,8 @@ class P360DatasetGenerator:
             PLY_path = self.write_sfm_model_to_disk(sfm_in_camera_frame_model, image_id, self.pcl_output)
             
             # # cropping the sfm_in_camera frame pointcloud
-            cropped_pcl = self.generate_cropped_pcl(PLY_path)
-            self.write_cropped_pcl_to_disk(cropped_pcl, image_id, self.pcl_cropped_output)
+            # cropped_pcl = self.generate_cropped_pcl(PLY_path)
+            # self.write_cropped_pcl_to_disk(cropped_pcl, image_id, self.pcl_cropped_output)
             
             #break
             
