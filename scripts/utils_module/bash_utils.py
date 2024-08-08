@@ -7,14 +7,6 @@ from  scripts.utils_module import io_utils
 import pyzed.sl as sl
 import logging, coloredlogs
 
-# logging.getLogger('ZED').addHandler(logging.NullHandler())
-logging.getLogger().addHandler(logging.NullHandler())
-
-# logging.basicConfig(level=logging.CRITICAL)
-# logging.basicConfig(filename='log_filename.log', level=logging.ERROR, format='%(asctime)s:%(levelname)s:%(message)s')
-
-logger = logging.getLogger('sl')
-logger.disabled = True
 
 def generate_config_from_json(json_path : str):
 	with open(json_path, 'r') as f:

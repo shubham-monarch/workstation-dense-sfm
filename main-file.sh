@@ -10,7 +10,8 @@
 SVO_FILENAME="vineyards/RJM/front_2024-06-06-09-26-19.svo"
 SVO_STEP=2
 SVO_START_IDX=4
-SVO_END_IDX=126
+# SVO_END_IDX=126
+SVO_END_IDX=8
 
 
 echo -e "\n"
@@ -154,30 +155,14 @@ if [ ! -d "$SPARSE_RECON_OUTPUT_DIR" ]; then
 		--input_dir=$SPARSE_RECON_INPUT_DIR \
 		--output_dir=$SPARSE_RECON_OUTPUT_DIR \
 		--svo_file=$SVO_FILE_PATH  
-
-	# python3 -m scripts.sparse_reconstruction \
-	#     --svo_images=$SVO_IMAGES_DIR \
-	# 	--input_dir=$SPARSE_RECON_INPUT_DIR \
-	# 	--output_dir=$SPARSE_RECON_OUTPUT_DIR \
-	# 	--svo_file=$SVO_FILE_PATH  
-
 	
-	SPARSE_REC_EXIT_STATUS=$?
-	
-	echo -e "\n"
-	echo "==============================="
-	echo "SPARSE_REC_EXIT_STATUS: $SPARSE_REC_EXIT_STATUS"
-	echo "==============================="
-	echo -e "\n"
-
-
-	
-	END_TIME=$(date +%s)
-	DURATION=$((END_TIME - START_TIME)) 
-		
 	
 	# [SPARSE-RECONSTRUCTION CHECK]
 	if [ $? -eq 0 ]; then
+		
+		END_TIME=$(date +%s)
+		DURATION=$((END_TIME - START_TIME)) 
+		
 		echo -e "\n"
 		echo "==============================="
 		echo "Time taken for SPARSE-RECONSTRUCTION: ${DURATION} seconds"
@@ -187,8 +172,9 @@ if [ ! -d "$SPARSE_RECON_OUTPUT_DIR" ]; then
 	else
 		echo -e "\n"
 		echo "[ERROR] STEREO-RECONSTRUCTION FAILED ==> EXITING PIPELINE!"
-		echo -e "\n"
+		echo "Deleting ${SPARSE_RECON_OUTPUT_DIR}"
 		rm -rf ${SPARSE_RECON_OUTPUT_DIR}
+		echo -e "\n"
 		exit $EXIT_FAILURE
 	fi
 
