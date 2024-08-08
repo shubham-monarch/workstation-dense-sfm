@@ -2,7 +2,7 @@
 
 import logging,coloredlogs
 import argparse
-from read_write_model import read_images_binary, qvec2rotmat
+from .read_write_model import read_images_binary, qvec2rotmat
 import numpy as np
 import os
 import sys
@@ -35,7 +35,7 @@ def calculate_relative_pose(e_lw, e_rw):
         rel_pose.append(q)
     return rel_pose
 
-def check_ba_convergence(rig_ba_rel_poses, threshold=0.01):
+def check_ba_convergence(rig_ba_rel_poses, baseline, threshold=0.01):
     """
     Checks if the bundle adjustment converged successfully by ensuring the standard deviation
     of dx, dy, dz across relative poses is below a certain threshold.
@@ -57,17 +57,26 @@ def check_ba_convergence(rig_ba_rel_poses, threshold=0.01):
 
     # Check if all standard deviations are below the threshold
     if np.all(std_dev < threshold):
-        print("Bundle adjustment converged successfully.")
-        return True
+        delta_x = abs(translations[0][0]) - abs(baseline)
+        delta_y = abs(translations[0][1]) - abs(baseline)
+        delta_z = abs(translations[0][2]) - abs(baseline)
+        
+        delta_x = abs(delta_x)
+        delta_y = abs(delta_y)
+        delta_z = abs(delta_z)
+
+        if(delta_x <= 0.015 and delta_y < 0.01 and delta_z < 0.01):
+            return True
+        else:
+            return False        
     else:
-        print(f"Bundle adjustment did not converge successfully. Standard deviations: {std_dev}")
         return False
 
 
 '''
 check rba results for consistency
 '''
-def check_results(rba_folder: str) -> bool:
+def check_results(rba_folder: str, baseline : float) -> bool:
     
     images_BIN = f"{rba_folder}/images.bin"
     dict_images = read_images_binary(images_BIN) 
@@ -93,7 +102,7 @@ def check_results(rba_folder: str) -> bool:
     for pose in rig_ba_rel_poses[:10]:
         logging.info(f"{pose[:3]}")
 
-    flag = check_ba_convergence(rig_ba_rel_poses)
+    flag = check_ba_convergence(rig_ba_rel_poses, baseline)
     # logging.info(f"flag: {flag}")
     return flag
 
@@ -103,12 +112,13 @@ if __name__ == "__main__":
 
     parser = argparse.ArgumentParser(description='Script to process a SVO file')
     parser.add_argument('--rba_output', type=str, required = True, help='Path to the rba output file')
+    parser.add_argument('--baseline', type=float, required = True, help='ZED Camera Baseline')
     args = parser.parse_args()  
     logging.warning(f"[rba_check.py]")
     for key, value in vars(args).items():
         logging.info(f"{key}: {value}")
 
-    success = check_results(args.rba_output)
+    success = check_results(args.rba_output, args.baseline)
     # success = False
     if success:
         logging.info("RBA results are consistent")

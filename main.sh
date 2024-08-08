@@ -5,59 +5,43 @@
 
 - aws api integration
 - aws / local input detection
-- pointcloud labelling
-- pointcloud cropping script
+
 - output-backend -> output folder
 - aws instance setup
-	- add colmap cmake update to sssssssssupport pycolmap installtion 
+	- add colmap cmake update to s pycolmap installtion 
 	- retag colmap , pycolmap
 	- update requirements.txt
 	- update pipeline tag
 - processed/unprocessed folders
 	- add svo files
-	- cleanup before running the pipeline
+	- cleanup before running the pipelines
 - documentation
 	- update release notes
 	- update installation steps
-	- add + update setup.md
+	- add + update setup.mds
 	- add readme.md
 	- update colmap installation steps in setup.md
 - add segmentation inference script
-- output/input-backend clean-up
-- add images support
+
 - check if script is being executed from the project root
 - dense reconstruction support for multiple gpus
 - [error-handling / folder deletion] for Ctrl-C / unexpected script termination 
 - update default bb params for pointcloud cropping
 - return -1 for failed jsons
-- implement svo-filter.py
-- integrate svo-filter.py with main.sh	
-
-[LATER]
 - add colmap cmake update to support pycolmap installtion 
 - retag colmap , pycolmap
+- update COLMAP tags with pycolmap bindings integration
 - update requirements.txt
 - update pipeline tag
 - cleanup for all the modules
-- documentation
-	- update release notes
-	- update installation steps
-	- add + update setup.md
-	- add readme.md
-	- update colmap installation steps in setup.md
-- refactoring
-	- add python-scripts / bash-scripts
-	- refactor script folders into separate modules
-- new scripts
-	- add main-ws.sh, main-aws.sh
-	- aws integration
-	- add status-processed / unprocessed folders for user feeback
-	- add segmentation inference script
-	- move output-backend ---> output script
-	- add folder / file support
-	- add parent + child config file/script
-	- python for config parsing
-	- output/input-backend clean-up
+- aws integration 
+- segmentation module integration
+- ply to labelled ply
+- add main-ws.sh, main-aws.sh
+- aws integration
+- add status-processed / unprocessed folders for user feeback
+- move output-backend ---> output script
+- output/input-backend clean-up
 - add images  support
 - check if script is being executed from the project root
 - dense reconstruction support for multiple gpus
@@ -65,10 +49,13 @@
 - update default bb params for pointcloud cropping
 - user feedback mechanism 
 - temp file deletion sttrategy
-- include zed baseline extraction
-- sync frame extraction
 
 comment
+
+# SCRIPT [TO-DO]
+# - sparse-reconstruction bash-based failure check not working
+# - add RBA value check
+
 
 # ---------------------------------------------
 # [VIRTUAL ENVIRONMENT CHECK]

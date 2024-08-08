@@ -54,10 +54,11 @@ class VisualOdometry(object):
 
         # defining cutoff
         self.CUTOFF_INLIER_CNT = 100
-        # self.CUTOFF_THETA_Y = 1.0
-        self.CUTOFF_THETA_Y = 0.5
+        # self.CUTOFF_THETA_Y = 0.5
+        self.CUTOFF_THETA_Y = 0.7
         # sequence length cutoff
-        self.CUTOFF_SEQ_LEN = 50
+        # self.CUTOFF_SEQ_LEN = 60
+        self.CUTOFF_SEQ_LEN = 100
 
             
         

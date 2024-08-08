@@ -1,19 +1,24 @@
 #!/bin/bash
 
 
-SVO_FILENAME=$1
-SVO_STEP=$4
-SVO_START_IDX=$(($2 * $4))
-SVO_END_IDX=$(($3 * $4))
+# SVO_FILENAME=$1
+# SVO_STEP=$4
+# SVO_START_IDX=$(($2 * $4))
+# SVO_END_IDX=$(($3 * $4))
 
+
+SVO_FILENAME="vineyards/RJM/front_2024-06-06-09-26-19.svo"
+SVO_STEP=2
+SVO_START_IDX=4
+SVO_END_IDX=126
 
 
 echo -e "\n"
 echo "==============================="
 echo "[INSIDE MAIN-FILE.SH]"
-# echo "SVO_FILENAME: $SVO_FILENAME"
-# echo "SVO_START_IDX: $SVO_START_IDX"
-# echo "SVO_END_IDX: $SVO_END_IDX"
+echo "SVO_FILENAME: $SVO_FILENAME"
+echo "SVO_START_IDX: $SVO_START_IDX"
+echo "SVO_END_IDX: $SVO_END_IDX"
 echo "==============================="
 echo -e "\n"
 
@@ -141,8 +146,7 @@ echo "SPARSE_RECON_OUTPUT_DIR: $SPARSE_RECON_OUTPUT_DIR"
 echo "==============================="
 echo -e "\n"
 
-# if [ ! -d "$SPARSE_RECON_OUTPUT_DIR" ]; then
-
+if [ ! -d "$SPARSE_RECON_OUTPUT_DIR" ]; then
 	START_TIME=$(date +%s) 
 
 	python3 "${PIPELINE_SCRIPT_DIR}/sparse_reconstruction.py" \
@@ -157,10 +161,21 @@ echo -e "\n"
 	# 	--output_dir=$SPARSE_RECON_OUTPUT_DIR \
 	# 	--svo_file=$SVO_FILE_PATH  
 
+	
+	SPARSE_REC_EXIT_STATUS=$?
+	
+	echo -e "\n"
+	echo "==============================="
+	echo "SPARSE_REC_EXIT_STATUS: $SPARSE_REC_EXIT_STATUS"
+	echo "==============================="
+	echo -e "\n"
+
+
+	
 	END_TIME=$(date +%s)
 	DURATION=$((END_TIME - START_TIME)) 
 		
-
+	
 	# [SPARSE-RECONSTRUCTION CHECK]
 	if [ $? -eq 0 ]; then
 		echo -e "\n"
@@ -177,12 +192,12 @@ echo -e "\n"
 		exit $EXIT_FAILURE
 	fi
 
-# else 
-# 	echo -e "\n"
-# 	echo "[WARNING] SKIPPING stereo-images to sparse-reconstruction as ${SPARSE_RECON_OUTPUT_DIR} already exists."
-# 	echo "[WARNING] Delete [${SPARSE_RECON_OUTPUT_DIR}] folder and try again!"
-# 	echo -e "\n"
-# fi
+else 
+	echo -e "\n"
+	echo "[WARNING] SKIPPING stereo-images to sparse-reconstruction as ${SPARSE_RECON_OUTPUT_DIR} already exists."
+	echo "[WARNING] Delete [${SPARSE_RECON_OUTPUT_DIR}] folder and try again!"
+	echo -e "\n"
+fi
 
 # return $EXIT_SUCCESS
 
@@ -191,7 +206,9 @@ RBA_INPUT_DIR="${SPARSE_RECON_OUTPUT_DIR}/ref_locked/"
 RBA_OUTPUT_DIR="${PIPELINE_OUTPUT_DIR}/rig-bundle-adjustment/${SVO_FILENAME}/${SUB_FOLDER_NAME}"
 RBA_CONFIG_PATH="${PIPELINE_CONFIG_DIR}/rig.json"
 
-python3 -c "import scripts.utils_module.zed_utils as zu;  zu.generate_rig_json('${$RBA_CONFIG_PATH}','${SVO_FILE_NAME}')"
+# python3 -c "import scripts.utils_module.zed_utils as zu;  zu.generate_rig_json('${$RBA_CONFIG_PATH}','${SVO_FILE_NAME}')"
+python3 -c "import scripts.utils_module.zed_utils as zu;  zu.generate_rig_json('${RBA_CONFIG_PATH}','${SVO_FILENAME}')"
+
 
 echo -e "\n"
 echo "==============================="
@@ -202,7 +219,7 @@ echo "RBA_CONFIG_PATH: $RBA_CONFIG_PATH"
 echo "==============================="
 echo -e "\n"
 
-if [ ! -d "$RBA_OUTPUT_DIR" ]; then
+# if [ ! -d "$RBA_OUTPUT_DIR" ]; then
 
 	rm -rf "${RBA_OUTPUT_DIR}"
 	mkdir -p "${RBA_OUTPUT_DIR}"
@@ -234,9 +251,25 @@ if [ ! -d "$RBA_OUTPUT_DIR" ]; then
 		exit $EXIT_FAILURE
 	fi
 
+	# ZED_BASELINE
+	ZED_BASELINE=$(python3 -c "import scripts.utils_module.bash_utils as bu;  bu.get_baseline('${SVO_FILENAME}')")
+
+	echo -e "\n"
+	echo "==============================="
+	echo "ZED_BASELINE: ${ZED_BASELINE}"
+	echo "==============================="
+	echo -e "\n"
+
 	# [VERIFYING RBA RESULTS]
-	python3 "${PIPELINE_SCRIPT_DIR}/rba_check.py" \
-		--rba_output=$RBA_OUTPUT_DIR
+	
+	
+	
+	# python3 "${PIPELINE_SCRIPT_DIR}/rba_check.py" \
+	# 	--rba_output=$RBA_OUTPUT_DIR
+
+	python3 -m scripts.rba_check \
+		--rba_output=$RBA_OUTPUT_DIR \
+		--baseline=$ZED_BASELINE
 
 	# [RBA RESULTS CHECK]
 	if [ $? -eq 0 ]; then
@@ -253,12 +286,12 @@ if [ ! -d "$RBA_OUTPUT_DIR" ]; then
 		exit $EXIT_FAILURE
 	fi
 
-else
-	echo -e "\n"
-	echo "[WARNING] SKIPPING rig-bundle-adjustment as ${RBA_OUTPUT_DIR} already exists."
-	echo "[WARNING] Delete [${RBA_OUTPUT_DIR}] folder and try again!"
-	echo -e "\n"
-fi
+# else
+# 	echo -e "\n"
+# 	echo "[WARNING] SKIPPING rig-bundle-adjustment as ${RBA_OUTPUT_DIR} already exists."
+# 	echo "[WARNING] Delete [${RBA_OUTPUT_DIR}] folder and try again!"
+# 	echo -e "\n"
+# fi
 
 exit $EXIT_SUCCESS
 

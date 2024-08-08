@@ -4,6 +4,17 @@ from typing import List
 import os
 import random
 from  scripts.utils_module import io_utils
+import pyzed.sl as sl
+import logging, coloredlogs
+
+# logging.getLogger('ZED').addHandler(logging.NullHandler())
+logging.getLogger().addHandler(logging.NullHandler())
+
+# logging.basicConfig(level=logging.CRITICAL)
+# logging.basicConfig(filename='log_filename.log', level=logging.ERROR, format='%(asctime)s:%(levelname)s:%(message)s')
+
+logger = logging.getLogger('sl')
+logger.disabled = True
 
 def generate_config_from_json(json_path : str):
 	with open(json_path, 'r') as f:
@@ -15,6 +26,38 @@ def generate_config_from_json(json_path : str):
 		for pair in data:
 			print(pair) 
 
+
+def get_baseline(svo_path : str, svo_root = None) -> float:
+	# logger = logging.getLogger('sl')
+	# logger.disabled = True
+	# logging.getLogger('ZED').setLevel(logging.CRITICAL)	
+	if svo_root is None:
+		svo_root = 'input-backend/svo-files'
+
+	svo_path = os.path.join(svo_root, svo_path)
+
+	input_type = sl.InputType()
+	input_type.set_from_svo_file(svo_path)
+
+	init = sl.InitParameters(input_t=input_type, svo_real_time_mode=False, sdk_verbose=False)
+	init.coordinate_units = sl.UNIT.METER   
+
+	zed = sl.Camera()
+	status = zed.open(init)
+
+	zed_baseline = None
+	if status != sl.ERROR_CODE.SUCCESS:
+		logging.error(f"Error while opening the SVO file: {repr(status)} --> [USING BASELINE AS 0.13]")
+		zed_baseline = 0.13
+
+	else:
+		camera_information = zed.get_camera_information()
+		zed_baseline =   camera_information.camera_configuration.calibration_parameters.get_camera_baseline()
+		
+	zed.close()
+	
+	print (zed_baseline)
+	# os.environ['ZED_BASELINE'] = str(zed_baseline) 
 
 def generate_config_files_from_json(json_path : str, input_root = None, output_root = None):
 	

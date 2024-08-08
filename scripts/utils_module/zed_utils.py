@@ -46,10 +46,10 @@ def generate_rig_json(rig_file : str, svo_file : str):
     '''
     updating rig.json with zed baseline
     '''    
-
-    
-    new_value = get_baseline(svo_file) 
-    new_value = 0.15
+    input_root = 'input-backend/svo-files'
+    svo_path= os.path.join(input_root, svo_file)
+    new_value = get_baseline(svo_path) 
+    # new_value = 0.15
     # Load the JSON data
     with open(rig_file, 'r') as file:
         data = json.load(file)
@@ -166,7 +166,9 @@ if __name__ == "__main__":
     # parser.add_argument('--svo_step', type=int, required = False, default = 2, help='frame skipping frequency')  
     # args = parser.parse_args()  
 
-    svo_file = "input-backend/svo-files/vineyards/RJM/front_2024-06-05-09-48-13.svo"
+    svo_file = "vineyards/RJM/front_2024-06-05-09-48-13.svo"
+    # svo_file = "input-backend/svo-files/vineyards/RJM/front_2024-06-05-09-48-13.svo"
+
     # baseline = get_baseline(svo_file)
     generate_rig_json("config/rig.json", svo_file)
     # logging.warning(f"baseline: {baseline}")
