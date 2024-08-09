@@ -53,6 +53,8 @@
 - fix script kill issue
 - modularize python script calls in main-file.sh 
 - change output-dir name for p360 module
+- tracking weight files
+- check with p360 module works with updated PLY files
 
 comment
 

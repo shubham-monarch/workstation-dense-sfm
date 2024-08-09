@@ -7,11 +7,14 @@ from scripts.utils_module import io_utils
 import logging, coloredlogs
 from scripts.segFusion.segmentation.pidnet import PIDNet, get_seg_model
 from scripts.segFusion.segmentation.utils import input_transform
-import os
+from scripts.utils_module import io_utils
 import argparse
 import yaml
 from tqdm import tqdm
 import pycolmap
+import shutil
+from pathlib import Path
+import os
 
 class Config:
 	def __init__(self, farm_type = 'vineyards'):
@@ -148,6 +151,8 @@ def generate_segmented_images(input_dir : str, output_dir : str) -> None:
 	:param input_dir: path to the [images] folder
 	:param output_dir: path to the [images-segmented] folder
 	'''
+
+	logging.warning(f"[generate_segmented_images]")
 	for root, dirs, files in os.walk(input_dir):
 		output_root = root.replace(input_dir, output_dir, 1)
 		
@@ -157,12 +162,10 @@ def generate_segmented_images(input_dir : str, output_dir : str) -> None:
 			if file.lower().endswith(('.png', '.jpg', '.jpeg', '.bmp', '.tiff')):		
 				input_path = os.path.join(root, file)
 				output_path = os.path.join(output_root, file)
-				
+				# logging.info(f"{input_path} ==> {output_path}")
 				segment(input_path, output_path)		
 				# break	
 
-# TODO: 
-# swap images / images-segmented / images-rgb
 
 if __name__ == '__main__':
 
@@ -178,20 +181,30 @@ if __name__ == '__main__':
 	dense_recon_folder = args.dense_recon_folder
 	farm_type = args.farm_type
 
-	images_RGB = os.path.join(dense_recon_folder, "images")
+	images = os.path.join(dense_recon_folder, "images")
+	images_RGB = os.path.join(dense_recon_folder, "images-rgb")
+	images_SEG = os.path.join(dense_recon_folder, "images-segmented")
 	
-	# images_RGB = "/home/skumar/ext_ssd/workstation-sfm-setup/output-backend/dense-reconstruction/vineyards/gallo/2024_06_07_utc/svo_files/front_2024-06-04-11-34-23.svo/936_to_1116/images"
-	# farm_type = "vineyards"
+	# copy files from [images] to [images-rgb]
+	io_utils.copy_files(images, images_RGB)
 
-	
-	base_folder = os.path.dirname(images_RGB)
-	images_SEG = os.path.join(base_folder, "images-segmented")
-	
-	logging.info(f"base_folder: {base_folder}")
+	logging.info(f"images: {images}")
 	logging.info(f"images_RGB: {images_RGB}")
 	logging.info(f"images_SEG: {images_SEG}")
 
 	# generate [images-segmented] at the same level as [images] 
-	generate_segmented_images(images_RGB, images_SEG)
+	generate_segmented_images(images, images_SEG)
+
+	io_utils.delete_folders([images])
+	io_utils.create_folders([images])
+
+	io_utils.copy_files(images_SEG, images)
+	
+	
+	# images, images_SEG  = images_SEG, images
+	
+	pycolmap.stereo_fusion(Path(dense_recon_folder) / "dense-segmented.ply", Path(dense_recon_folder))
+
+
 
 	# 

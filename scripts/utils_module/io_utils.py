@@ -146,6 +146,25 @@ def save_npy_as_ply(ply_file: str, array: np.ndarray, colors: np.ndarray) -> Non
 			color = color.astype(int)
 			f.write(f"{point[0]} {point[1]} {point[2]} {color[0]} {color[1]} {color[2]}\n")
 
+def copy_files(src_folder : str, dest_folder : str):
+	'''
+	Copy all files from src_folder to dest_folder
+	:param src_folder: str: path to the source folder
+	:param dest_folder: str: path to the destination folder
+	'''
+	for dirpath, dirnames, filenames in os.walk(src_folder):
+		# Construct the destination directory path
+		dest_dir = dirpath.replace(src_folder, dest_folder, 1)
+		
+		# Ensure the destination directory existss
+		if not os.path.exists(dest_dir):
+			os.makedirs(dest_dir)
+		
+		# Copy each file
+		for filename in filenames:
+			src_file = os.path.join(dirpath, filename)
+			dest_file = os.path.join(dest_dir, filename)
+			shutil.copy(src_file, dest_file)
 
 def get_file_list(input_path : str) -> List[str]:
 	'''
