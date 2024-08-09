@@ -35,3 +35,4 @@ test/*
 *.txt
 *.zip
 *.log
+*.pt

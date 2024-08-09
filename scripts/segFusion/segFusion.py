@@ -11,7 +11,7 @@ import os
 import argparse
 import yaml
 from tqdm import tqdm
-
+import pycolmap
 
 class Config:
 	def __init__(self, farm_type = 'vineyards'):
@@ -166,20 +166,24 @@ def generate_segmented_images(input_dir : str, output_dir : str) -> None:
 
 if __name__ == '__main__':
 
+	coloredlogs.install(level="INFO", force = True)
+
 	parser = argparse.ArgumentParser()
-	parser.add_argument("--rgb_images", type=str, required= True)
+	# parser.add_argument("--rgb_images", type=str, required= True)
+	parser.add_argument("--dense-recon-folder", type=str, required= True)
 	parser.add_argument("--farm_type", type=str, default="vineyards")
 
 	args = parser.parse_args()
 
-	images_RGB = args.rgb_images
+	dense_recon_folder = args.dense_recon_folder
 	farm_type = args.farm_type
 
+	images_RGB = os.path.join(dense_recon_folder, "images")
+	
 	# images_RGB = "/home/skumar/ext_ssd/workstation-sfm-setup/output-backend/dense-reconstruction/vineyards/gallo/2024_06_07_utc/svo_files/front_2024-06-04-11-34-23.svo/936_to_1116/images"
 	# farm_type = "vineyards"
 
-	coloredlogs.install(level="INFO", force = True)
-
+	
 	base_folder = os.path.dirname(images_RGB)
 	images_SEG = os.path.join(base_folder, "images-segmented")
 	
@@ -189,3 +193,5 @@ if __name__ == '__main__':
 
 	# generate [images-segmented] at the same level as [images] 
 	generate_segmented_images(images_RGB, images_SEG)
+
+	# 

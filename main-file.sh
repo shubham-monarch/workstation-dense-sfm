@@ -347,7 +347,7 @@ fi
 
 
 # [STEP #6 --> SEGMENTATION FUSION]
-SEG_FUSION_INPUT_DIR="${DENSE_RECON_OUTPUT_DIR}/images"
+SEG_FUSION_INPUT_DIR="${DENSE_RECON_OUTPUT_DIR}"
 
 echo -e "\n"
 echo "==============================="
@@ -356,7 +356,7 @@ echo "==============================="
 echo -e "\n"
 
 python3 -m scripts.segFusion.segFusion \
-	--rgb_images="${SEG_FUSION_INPUT_DIR}" \
+	--dense-recon-folder="${SEG_FUSION_INPUT_DIR}" \
 	--farm_type="${FARM_TYPE}" 
 
 
