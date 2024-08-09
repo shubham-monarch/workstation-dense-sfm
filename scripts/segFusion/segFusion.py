@@ -8,6 +8,8 @@ import logging, coloredlogs
 from scripts.segFusion.segmentation.pidnet import PIDNet, get_seg_model
 from scripts.segFusion.segmentation.utils import input_transform
 import os
+import argparse
+import yaml
 
 
 class Config:
@@ -33,6 +35,7 @@ class SegInfer:
 	def __init__(self, config):
 		
 		self.config = config
+		self.farm_type = config.farm_type
 		self.device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 		self.seg_model = get_seg_model(config, config.imgnet_pretrained)
 		model_state_file = config.seg_pretrained
@@ -73,12 +76,22 @@ class SegInfer:
 		cmap[5] = [121, 119, 148] 
 		cmap[6] = [253, 75, 40] 
 		cmap[7] = [170, 60, 100] 
-		cmap[8] = [60, 100, 179] 
+		cmap[8] = [60, 100, 179]
 		cmap[9] = [170, 100, 60]
 	
 		return cmap
+	
+	def load_cmap(self, cmap_file):
+		
+		with open(cmap_file, 'r') as f:
+			config = yaml.safe_load(f)
+		
+		cmap = config['color_map']
 
-	def img2seg(self, img, viz=False):
+		return cmap
+		
+
+	def img2seg(self, img):
 		
 		img = input_transform(img)
 		img = img.transpose((2, 0, 1)).copy()
@@ -87,16 +100,19 @@ class SegInfer:
 		pred_val = self.seg_model(img)
 		pred = F.interpolate(input=pred_val[0], size=size[-2:], mode='bilinear', align_corners=True)
 		seg_mask = torch.argmax(pred, dim=1).squeeze(0).cpu().numpy()
-
-		if viz:
-			# seg_mask = cv2.resize(seg_mask, (img.size(2), img.size(3)), interpolation=cv2.INTER_NEAREST)
-			seg_mask_ = np.array(seg_mask, dtype=np.uint8)*5
-			seg_mask_ = cv2.applyColorMap(seg_mask_, cv2.COLORMAP_RAINBOW)
-			seg_mask_ = cv2.cvtColor(seg_mask_, cv2.COLOR_BGR2RGB)
-			# seg_mask_ = cv2.addWeighted(img, 0.5, seg_mask, 0.5, 0)
-			cv2.imwrite('seg_mask.jpg', seg_mask_)
+		if self.farm_type == 'vineyard_mapping':
+			cmap = self.load_cmap('Mavis.yaml')
+			colored_seg_mask = np.zeros((seg_mask.shape[0], seg_mask.shape[1], 3), dtype=np.uint8)
+			for label, color in cmap.items():
+				colored_seg_mask[seg_mask == label] = color
 		
-		return seg_mask
+		else:
+			cmap = self.mavis_cmap()
+			colored_seg_mask = np.zeros((seg_mask.shape[0], seg_mask.shape[1], 3), dtype=np.uint8)
+			for label, color in cmap.items():
+				colored_seg_mask[seg_mask == label] = color
+		
+		return colored_seg_mask
 	
 	def run(self, img):
 		
@@ -138,18 +154,24 @@ def generate_segmented_images(input_dir : str, output_dir : str) -> None:
 				output_path = os.path.join(output_root, file)
 				
 				segment(input_path, output_path)		
-				break
-				
+				break	
 
 # TODO: 
-# Add argparse
 # swap images / images-segmented / images-rgb
 
 if __name__ == '__main__':
 
+	parser = argparse.ArgumentParser()
+	parser.add_argument("--input_path", type=str, default="./images")
+	parser.add_argument("--farm_type", type=str, default="vineyards")
+
+	args = parser.parse_args()
+
+	images_RGB = args.input_path
+	farm_type = args.farm_type
+
 	coloredlogs.install(level="INFO", force = True)
 
-	images_RGB = "output-backend/dense-reconstruction/vineyards/gallo/2024_06_07_utc/svo_files/front_2024-06-04-11-34-23.svo/936_to_1116/images"
 	base_folder = os.path.dirname(images_RGB)
 	images_SEG = os.path.join(base_folder, "images-segmented")
 	
