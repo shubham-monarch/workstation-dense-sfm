@@ -10,11 +10,14 @@ from scripts.segFusion.segmentation.utils import input_transform
 import os
 import argparse
 import yaml
+from tqdm import tqdm
 
 
 class Config:
 	def __init__(self, farm_type = 'vineyards'):
 		
+		self.farm_type = farm_type
+
 		if farm_type == 'vineyard_mapping':
 			self.seg_model = 'pidnet_large'
 			self.num_classes = 5
@@ -23,13 +26,15 @@ class Config:
 		elif farm_type == 'vineyards':
 			self.seg_model = 'pidnet_large'
 			self.num_classes = 5
-			self.seg_pretrained = './segmentation/pretrained/2024.06.14.V.PID.V1.0_4cls.pt'
+			# self.seg_pretrained = './segmentation/pretrained/2024.06.14.V.PID.V1.0_4cls.pt'
+			module_dir = os.path.dirname(__file__)  # Get the directory where the module is located
+			self.seg_pretrained = os.path.join(module_dir, 'segmentation/pretrained/2024.06.14.V.PID.V1.0_4cls.pt')
 			self.imgnet_pretrained = False
-		elif farm_type == 'dairy':
-			self.seg_model = 'pidnet_large'
-			self.num_classes = 5
-			self.seg_pretrained = './segmentation/pretrained/2024.06.14.D.PID.V1.0_4cls.pt'
-			self.imgnet_pretrained = False
+		# elif farm_type == 'dairy':
+		# 	self.seg_model = 'pidnet_large'
+		# 	self.num_classes = 5
+		# 	self.seg_pretrained = './segmentation/pretrained/2024.06.14.D.PID.V1.0_4cls.pt'
+		# 	self.imgnet_pretrained = False
 		
 class SegInfer:
 	def __init__(self, config):
@@ -148,13 +153,13 @@ def generate_segmented_images(input_dir : str, output_dir : str) -> None:
 		
 		io_utils.create_folders([output_root])
 
-		for file in files:
+		for file in tqdm(files):
 			if file.lower().endswith(('.png', '.jpg', '.jpeg', '.bmp', '.tiff')):		
 				input_path = os.path.join(root, file)
 				output_path = os.path.join(output_root, file)
 				
 				segment(input_path, output_path)		
-				break	
+				# break	
 
 # TODO: 
 # swap images / images-segmented / images-rgb
@@ -167,8 +172,11 @@ if __name__ == '__main__':
 
 	args = parser.parse_args()
 
-	images_RGB = args.input_path
-	farm_type = args.farm_type
+	# images_RGB = args.input_path
+	# farm_type = args.farm_type
+
+	images_RGB = "/home/skumar/ext_ssd/workstation-sfm-setup/output-backend/dense-reconstruction/vineyards/gallo/2024_06_07_utc/svo_files/front_2024-06-04-11-34-23.svo/936_to_1116/images"
+	farm_type = "vineyards"
 
 	coloredlogs.install(level="INFO", force = True)
 
