@@ -167,16 +167,16 @@ def generate_segmented_images(input_dir : str, output_dir : str) -> None:
 if __name__ == '__main__':
 
 	parser = argparse.ArgumentParser()
-	parser.add_argument("--input_path", type=str, default="./images")
+	parser.add_argument("--rgb_images", type=str, required= True)
 	parser.add_argument("--farm_type", type=str, default="vineyards")
 
 	args = parser.parse_args()
 
-	# images_RGB = args.input_path
-	# farm_type = args.farm_type
+	images_RGB = args.rgb_images
+	farm_type = args.farm_type
 
-	images_RGB = "/home/skumar/ext_ssd/workstation-sfm-setup/output-backend/dense-reconstruction/vineyards/gallo/2024_06_07_utc/svo_files/front_2024-06-04-11-34-23.svo/936_to_1116/images"
-	farm_type = "vineyards"
+	# images_RGB = "/home/skumar/ext_ssd/workstation-sfm-setup/output-backend/dense-reconstruction/vineyards/gallo/2024_06_07_utc/svo_files/front_2024-06-04-11-34-23.svo/936_to_1116/images"
+	# farm_type = "vineyards"
 
 	coloredlogs.install(level="INFO", force = True)
 

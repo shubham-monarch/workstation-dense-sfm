@@ -5,7 +5,7 @@
 # SVO_STEP=$4
 # SVO_START_IDX=$(($2 * $4))
 # SVO_END_IDX=$(($3 * $4))
-
+# FARM_TYPE="vineyards"	
 
 # [CASE 1] -> RBA converges to 0.06
 # SVO_FILENAME="vineyards/RJM/front_2024-06-06-09-26-19.svo"
@@ -26,6 +26,7 @@ SVO_START_IDX=$((468 * 2))
 SVO_END_IDX=$((558 * 2))
 # SVO_END_IDX=$((569 * 2))
 SVO_STEP=2
+FARM_TYPE="vineyards"
 
 echo -e "\n"
 echo "==============================="
@@ -301,48 +302,62 @@ else
 	echo -e "\n"
 fi
 
-exit $EXIT_SUCCESS
 
 
 
-# [STEP #5 --> FRAME-TO-FRAME (CROPPED) POINTCLOUD GENERATION]
-P360_MODULE="p360"
-BOUNDING_BOX="-5 5 -1 1 -1 1"
-CAMERA_FRAME_PCL="${PIPELINE_OUTPUT_DIR}/pointcloud-camera-frame/${SVO_FILENAME}/${SUB_FOLDER_NAME}"
-CAMERA_FRAME_PCL_CROPPED="${PIPELINE_OUTPUT_DIR}/pointcloud-cropped-camera-frame/${SVO_FILENAME}/${SUB_FOLDER_NAME}"
+# # [STEP #5 --> FRAME-TO-FRAME (CROPPED) POINTCLOUD GENERATION]
+# P360_MODULE="p360"
+# BOUNDING_BOX="-5 5 -1 1 -1 1"
+# CAMERA_FRAME_PCL="${PIPELINE_OUTPUT_DIR}/pointcloud-camera-frame/${SVO_FILENAME}/${SUB_FOLDER_NAME}"
+# CAMERA_FRAME_PCL_CROPPED="${PIPELINE_OUTPUT_DIR}/pointcloud-cropped-camera-frame/${SVO_FILENAME}/${SUB_FOLDER_NAME}"
 
-if [ -d "$CAMERA_FRAME_PCL" ] && [ -d "$CAMERA_FRAME_PCL_CROPPED" ]; then
-	echo -e "\n"
-	echo "[WARNING] SKIPPING frame-wise pointcloud generation as ${CAMERA_FRAME_PCL} and ${CAMERA_FRAME_PCL_CROPPED} already exist."
-	echo "[WARNING] Delete [${CAMERA_FRAME_PCL}] or [${CAMERA_FRAME_PCL_CROPPED}] and try again!"
-	echo -e "\n"
-else 
-	START_TIME=$(date +%s) 
+# if [ -d "$CAMERA_FRAME_PCL" ] && [ -d "$CAMERA_FRAME_PCL_CROPPED" ]; then
+# 	echo -e "\n"
+# 	echo "[WARNING] SKIPPING frame-wise pointcloud generation as ${CAMERA_FRAME_PCL} and ${CAMERA_FRAME_PCL_CROPPED} already exist."
+# 	echo "[WARNING] Delete [${CAMERA_FRAME_PCL}] or [${CAMERA_FRAME_PCL_CROPPED}] and try again!"
+# 	echo -e "\n"
+# else 
+# 	START_TIME=$(date +%s) 
 
-	python3 -m ${PIPELINE_SCRIPT_DIR}.${P360_MODULE}.main \
-	--bounding_box $BOUNDING_BOX \
-	--dense_reconstruction_folder="${DENSE_RECON_OUTPUT_DIR}" \
-	--pcl_folder="${CAMERA_FRAME_PCL}" \
-	--pcl_cropped_folder="${CAMERA_FRAME_PCL_CROPPED}"
+# 	python3 -m ${PIPELINE_SCRIPT_DIR}.${P360_MODULE}.main \
+# 	--bounding_box $BOUNDING_BOX \
+# 	--dense_reconstruction_folder="${DENSE_RECON_OUTPUT_DIR}" \
+# 	--pcl_folder="${CAMERA_FRAME_PCL}" \
+# 	--pcl_cropped_folder="${CAMERA_FRAME_PCL_CROPPED}"
 	
 	
-	if [ $? -eq 0 ]; then
-		END_TIME=$(date +%s)
-		DURATION=$((END_TIME - START_TIME)) 
+# 	if [ $? -eq 0 ]; then
+# 		END_TIME=$(date +%s)
+# 		DURATION=$((END_TIME - START_TIME)) 
 		
-		echo -e "\n"
-		echo "==============================="
-		echo "Time taken for generating frame-wise pointclouds: ${DURATION} seconds"
-		echo "==============================="
-		echo -e "\n"
-	else
-		echo -e "\n"
-		echo "[ERROR] FRAME-BY-FRAME POINTCLOUD GENERATION FAILED ==> EXITING PIPELINE!"
-		echo -e "\n"
-		rm -rf ${CAMERA_FRAME_PCL}
-		rm -rf ${CAMERA_FRAME_PCL_CROPPED}
-		exit $EXIT_FAILURE
-	fi
-fi
+# 		echo -e "\n"
+# 		echo "==============================="
+# 		echo "Time taken for generating frame-wise pointclouds: ${DURATION} seconds"
+# 		echo "==============================="
+# 		echo -e "\n"
+# 	else
+# 		echo -e "\n"
+# 		echo "[ERROR] FRAME-BY-FRAME POINTCLOUD GENERATION FAILED ==> EXITING PIPELINE!"
+# 		echo -e "\n"
+# 		rm -rf ${CAMERA_FRAME_PCL}
+# 		rm -rf ${CAMERA_FRAME_PCL_CROPPED}
+# 		exit $EXIT_FAILURE
+# 	fi
+# fi
+
+
+# [STEP #6 --> SEGMENTATION FUSION]
+SEG_FUSION_INPUT_DIR="${DENSE_RECON_OUTPUT_DIR}/images"
+
+echo -e "\n"
+echo "==============================="
+echo "SEGMENTATION_FUSION_OUTPUT_DIR: $SEG_FUSION_INPUT_DIR"
+echo "==============================="
+echo -e "\n"
+
+python3 -m scripts.segFusion.segFusion \
+	--rgb_images="${SEG_FUSION_INPUT_DIR}" \
+	--farm_type="${FARM_TYPE}" 
+
 
 exit $EXIT_SUCCESS
