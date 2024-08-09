@@ -1,0 +1,1 @@
+scripts/segFusion/segmentation/pretrained/2024.06.14.V.PID.V1.0_4cls.pt filter=lfs diff=lfs merge=lfs -text
