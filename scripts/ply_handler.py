@@ -46,9 +46,6 @@ def create_xyzrgbl_ply(rgb_ply_file, seg_ply_file, yml_file, output_ply_file):
         for point, rgb, label in zip(points, (rgb_values*255).astype(np.uint8), labels):
             f.write(f"{point[0]} {point[1]} {point[2]} {rgb[0]} {rgb[1]} {rgb[2]} {label}\n")
 
-# Example usage
-# create_xyzrgbl_ply("original_rgb.ply", "segmentation_rgb.ply", "color_map.yml", "output_xyzrgbl.ply")
-
 def main():
         
         parser = argparse.ArgumentParser()
@@ -59,3 +56,6 @@ def main():
         args = parser.parse_args()
         
         create_xyzrgbl_ply(args.rgb_ply, args.seg_ply, args.yml, args.output)
+
+if __name__ == "__main__":
+    main()
