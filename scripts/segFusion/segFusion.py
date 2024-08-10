@@ -185,6 +185,8 @@ if __name__ == '__main__':
 	images_RGB = os.path.join(dense_recon_folder, "images-rgb")
 	images_SEG = os.path.join(dense_recon_folder, "images-segmented")
 	
+	io_utils.delete_folders([images_RGB, images_SEG])
+
 	# copy files from [images] to [images-rgb]
 	io_utils.copy_files(images, images_RGB)
 
@@ -195,16 +197,20 @@ if __name__ == '__main__':
 	# generate [images-segmented] at the same level as [images] 
 	generate_segmented_images(images, images_SEG)
 
+	# copy files from [images-segmented] to [images]
 	io_utils.delete_folders([images])
 	io_utils.create_folders([images])
-
 	io_utils.copy_files(images_SEG, images)
 	
 	
 	# images, images_SEG  = images_SEG, images
-	
 	pycolmap.stereo_fusion(Path(dense_recon_folder) / "dense-segmented.ply", Path(dense_recon_folder))
 
 
-
-	# 
+	# copy files from [images-segmented] to [images]
+	io_utils.delete_folders([images])
+	io_utils.create_folders([images])
+	io_utils.copy_files(images_RGB, images)
+	
+	# restoring dense-recon folder to original state
+	io_utils.delete_folders([images_RGB])
