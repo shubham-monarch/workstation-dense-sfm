@@ -204,7 +204,9 @@ if __name__ == '__main__':
 	
 	
 	# images, images_SEG  = images_SEG, images
-	pycolmap.stereo_fusion(Path(dense_recon_folder) / "dense-segmented.ply", Path(dense_recon_folder))
+	# pycolmap.stereo_fusion(Path(dense_recon_folder) / "dense-segmented.ply", Path(dense_recon_folder))
+	pycolmap.stereo_fusion(Path(dense_recon_folder) / "seg-1.ply", Path(dense_recon_folder))
+	pycolmap.stereo_fusion(Path(dense_recon_folder) / "seg-2.ply", Path(dense_recon_folder))
 
 
 	# copy files from [images-segmented] to [images]

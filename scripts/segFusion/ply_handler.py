@@ -13,26 +13,28 @@ def load_ply(ply_file):
     pcd = o3d.io.read_point_cloud(ply_file)
     return np.asarray(pcd.points), np.asarray(pcd.colors)
 
-def load_yml(yml_file):
-    logging.warning(f"[load_yml]")
-    with open(yml_file, 'r') as f:
-        color_map = yaml.safe_load(f)
+# def load_yml(yml_file):
+#     logging.warning(f"[load_yml]")
+#     with open(yml_file, 'r') as f:
+#         color_map = yaml.safe_load(f)
 
-    logging.info(f"type(color_map): {type(color_map)}")
-    logging.info(f"color_map: {color_map}")
+#     logging.info(f"type(color_map): {type(color_map)}")
+#     logging.info(f"color_map: {color_map}")
 
-    # return
-    # return {tuple(map(int, key.split(','))): value for key, value in color_map.items()}
-    logging.info("=====================================")
-    a = [value for key, value in color_map.items()]
-    logging.info(f"a: {a}")
-    logging.info("=====================================")
+#     # return
+#     # return {tuple(map(int, key.split(','))): value for key, value in color_map.items()}
+#     logging.info("=====================================")
+#     a = [value for key, value in color_map.items()]
+#     logging.info(f"a: {a}")
+#     logging.info("=====================================")
     
 def get_label(segmentation_rgb, color_map):
     return color_map.get(tuple((segmentation_rgb * 255).astype(int)), 0)  # Default to 0 if not found
 
-def create_xyzrgbl_ply(rgb_ply_file, seg_ply_file, yml_file, output_ply_file):
-    
+def add_seg_label(rgb_ply_file, seg_ply_file, yml_file, output_ply_file):
+    '''
+    convert XYZRGB to XYZRGBL pointcloud
+    '''
     points, rgb_values = load_ply(rgb_ply_file)
     points_seg, seg_rgb_values = load_ply(seg_ply_file)
     
@@ -53,10 +55,6 @@ def create_xyzrgbl_ply(rgb_ply_file, seg_ply_file, yml_file, output_ply_file):
     # logging.info(f"seg_rgb_values[:5]\n: {seg_rgb_values[:20]* 255}")
     # logging.info("=====================================")
     
-    # # return
-    random_indices = random.sample(range(len(seg_rgb_values)), 30)
-    for index in random_indices:    
-        logging.info(f"{index} {seg_rgb_values[index] * 255}")
 
     # color_map = load_yml(yml_file)
     # logging.info(f"type(color_map): {type(color_map)}")
@@ -84,63 +82,73 @@ def create_xyzrgbl_ply(rgb_ply_file, seg_ply_file, yml_file, output_ply_file):
         
         
 if __name__ == "__main__":
-    coloredlogs.install(level="INFO", force=True)
-    parser = argparse.ArgumentParser()
+    
+    logging.info("HELLO")
+    module_path = os.path.dirname(__file__)
+    ply_seg = os.path.join(module_path,"dense-segmented.ply")
+    ply_rgb = os.path.join(module_path, "dense.ply")
 
-    # Define the color map and labels
-    color_map = {
-        0: [0, 0, 0],
-        1: [246, 4, 228],
-        2: [173, 94, 48],
-        3: [68, 171, 117],
-        4: [162, 122, 174],
-        5: [121, 119, 148],
-        6: [253, 75, 40],
-        7: [170, 60, 100],
-        8: [60, 100, 179]
-    }
+    seg_pcd = o3d.io.read_point_cloud(ply_seg)
+    rgb_pcd = o3d.io.read_point_cloud(ply_rgb)
 
-    labels = {
-        0: "void",
-        1: "obstacle",
-        2: "navigable_space",
-        3: "vine_canopy",
-        4: "vine_stem",
-        5: "vine_pole",
-        6: "vegetation",
-        7: "tractor_hood",
-        8: "sky"
-    }
+    logging.info(f"dir(seg_pcd): {dir(seg_pcd)}")   
+    # coloredlogs.install(level="INFO", force=True)
+    # parser = argparse.ArgumentParser()
 
-    # Function to check if two colors are close within a given tolerance
-    def is_close_color(color1, color2, tolerance=10):
-        return all(abs(c1 - c2) <= tolerance for c1, c2 in zip(color1, color2))
+    # # Define the color map and labels
+    # color_map = {
+    #     0: [0, 0, 0],
+    #     1: [246, 4, 228],
+    #     2: [173, 94, 48],
+    #     3: [68, 171, 117],
+    #     4: [162, 122, 174],
+    #     5: [121, 119, 148],
+    #     6: [253, 75, 40],
+    #     7: [170, 60, 100],
+    #     8: [60, 100, 179]
+    # }
 
-    # Convert the color map to tuples
-    color_map = {key: tuple(value) for key, value in color_map.items()}
+    # labels = {
+    #     0: "void",
+    #     1: "obstacle",
+    #     2: "navigable_space",
+    #     3: "vine_canopy",
+    #     4: "vine_stem",
+    #     5: "vine_pole",
+    #     6: "vegetation",
+    #     7: "tractor_hood",
+    #     8: "sky"
+    # }
 
-    logging.info(f"color_map: {color_map}")
+    # # Function to check if two colors are close within a given tolerance
+    # def is_close_color(color1, color2, tolerance=10):
+    #     return all(abs(c1 - c2) <= tolerance for c1, c2 in zip(color1, color2))
 
-    module_dir = os.path.dirname(__file__)  # Get the directory where the module is located
-    image_dir = "images-segmented/left/frame_1000_.jpg"
-    image = Image.open(os.path.join(module_dir, image_dir))
+    # # Convert the color map to tuples
+    # color_map = {key: tuple(value) for key, value in color_map.items()}
 
-    w, h = image.size
+    # logging.info(f"color_map: {color_map}")
 
-    logging.info(f"w: {w} h: {h}")
+    # module_dir = os.path.dirname(__file__)  # Get the directory where the module is located
+    # image_dir = "images-segmented/left/frame_1000_.jpg"
+    # image = Image.open(os.path.join(module_dir, image_dir))
 
-    for i in range(20):
-        x = random.randint(0, w - 1)
-        y = random.randint(0, h - 1)
+    # w, h = image.size
+
+    # logging.info(f"w: {w} h: {h}")
+
+    # for i in range(20):
+    #     x = random.randint(0, w - 1)
+    #     y = random.randint(0, h - 1)
         
-        rgb_val = image.getpixel((x, y))
-        bgr_val = rgb_val[::-1]  # Convert to BGR
-        label = "not found"
+    #     rgb_val = image.getpixel((x, y))
+    #     bgr_val = rgb_val[::-1]  # Convert to BGR
+    #     label = "not found"
         
-        # Check if the pixel color is close to any color in the color_map
-        for key, color in color_map.items():
-            if is_close_color(bgr_val, color):
-                label = labels[key]
-                break
+    #     # Check if the pixel color is close to any color in the color_map
+    #     for key, color in color_map.items():
+    #         if is_close_color(bgr_val, color):
+    #             label = labels[key]
+    #             break
         
-        print(f"Pixel at ({x}, {y}): BGR={bgr_val}, Label={label}")
+    #     print(f"Pixel at ({x}, {y}): BGR={bgr_val}, Label={label}")

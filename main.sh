@@ -55,7 +55,8 @@
 - change output-dir name for p360 module
 - tracking weight files
 - check with p360 module works with updated PLY files
-
+- fix number of points in different in ply-rgb and ply-seg
+- add labels to colmap points3d 
 comment
 
 # SCRIPT [TO-DO]
