@@ -80,31 +80,33 @@ if __name__ == "__main__":
     # labels = np.array([get_label(color_bgr, color_map) for color_bgr in colors_bgr])
     labels = np.array([get_label(color_bgr * 255, color_map) for color_bgr in tqdm(colors_bgr, desc="Processing labels")])
     
-    import matplotlib.pyplot as plt
-    from collections import Counter
+    # import matplotlib.pyplot as plt
+    # from collections import Counter
 
-    # Assuming labels is a list or array of labels obtained from your code
-    label_counts = Counter(labels)
+    # # Assuming labels is a list or array of labels obtained from your code
+    # label_counts = Counter(labels)
 
-    # Sort labels and counts for consistent plotting
-    sorted_labels, sorted_counts = zip(*sorted(label_counts.items()))
+    # # Sort labels and counts for consistent plotting
+    # sorted_labels, sorted_counts = zip(*sorted(label_counts.items()))
 
-    plt.figure(figsize=(10, 8))
-    plt.bar(sorted_labels, sorted_counts, color='skyblue')
-    plt.xlabel('Label')
-    plt.ylabel('Count')
-    plt.title('Histogram of Labels')
-    plt.xticks(rotation=45)
-    plt.show()
+    # plt.figure(figsize=(10, 8))
+    # plt.bar(sorted_labels, sorted_counts, color='skyblue')
+    # plt.xlabel('Label')
+    # plt.ylabel('Count')
+    # plt.title('Histogram of Labels')
+    # plt.xticks(rotation=45)
+    # plt.show()
+
     # logging.info(f"labels: {labels[:100]}")
     # logging.info(f"type(labels): {type(labels)} labels.shape: {labels.shape}")
     # logging.info(f"labels: {labels}")
      
-    # with open(ply_segmented, 'w') as f:
-    #     f.write(f"ply\nformat ascii 1.0\nelement vertex {len(points)}\n")
-    #     f.write("property float x\nproperty float y\nproperty float z\n")
-    #     f.write("property uchar red\nproperty uchar green\nproperty uchar blue\n")
-    #     f.write("property uchar label\n")
-    #     f.write("end_header\n")
-    #     for point, rgb, label in zip(points, (rgb_values*255).astype(np.uint8), labels):
-    #         f.write(f"{point[0]} {point[1]} {point[2]} {rgb[0]} {rgb[1]} {rgb[2]} {label}\n")
+    with open(ply_segmented, 'w') as f:
+        logging.info(f"Writing to {ply_segmented}")
+        f.write(f"ply\nformat ascii 1.0\nelement vertex {len(points)}\n")
+        f.write("property float x\nproperty float y\nproperty float z\n")
+        f.write("property uchar red\nproperty uchar green\nproperty uchar blue\n")
+        f.write("property uchar label\n")
+        f.write("end_header\n")
+        for point, rgb, label in zip(points, (colors_rgb*255).astype(np.uint8), labels):
+            f.write(f"{point[0]} {point[1]} {point[2]} {rgb[0]} {rgb[1]} {rgb[2]} {label}\n")
