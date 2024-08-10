@@ -349,15 +349,14 @@ fi
 # [STEP #6 --> SEGMENTATION FUSION]
 SEG_FUSION_INPUT_DIR="${DENSE_RECON_OUTPUT_DIR}"
 
-echo -e "\n"
-echo "==============================="
-echo "SEGMENTATION_FUSION_OUTPUT_DIR: $SEG_FUSION_INPUT_DIR"
-echo "==============================="
-echo -e "\n"
-
 python3 -m scripts.segFusion.segFusion \
 	--dense-recon-folder="${SEG_FUSION_INPUT_DIR}" \
 	--farm_type="${FARM_TYPE}" 
 
+
+# [STEP #7 --> ADDDING CLASS LABELS TO WORLD POINTCLOUD]
+
+
+# [STEP #8 --> GENERATE FRAME WISE POINTCLOUDS]
 
 exit $EXIT_SUCCESS
