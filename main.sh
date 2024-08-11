@@ -59,7 +59,6 @@
 - add labels to colmap points3d 
 
 
-- added stereo-images data in p360 module
 - update segmention module for better integration with p360
  
 

@@ -121,30 +121,6 @@ class P360DatasetGenerator:
         frame_id = int(name_.split("/")[-1].split("_")[1])
         return frame_id
 
-    # def write_sfm_model_to_disk(self, model, image_id, output_folder):
-    #     """
-    #     writes the model as a PLY file to the disk
-    #     default location: ply/sfm_in_camera_frame/left/frame_id.ply
-    #     :param model pycolmap.Reconstruction object
-    #     :param image_id 
-    #     :return str: path to the written PLY file
-    #     """
-
-    #     image_name = self.sfm_model.images[image_id].name
-    #     # checks for left/right frame
-    #     is_left = (image_name.split("/")[0] == "left")
-    #     frame_id = self._frame_id(image_id) 
-        
-    #     ply_file_path = output_folder + ("/left/" if is_left else "/right/")
-        
-    #     io_utils.create_folders([ply_file_path])
-        
-    #     ply_file_path += "frame_" + str(frame_id) + ".ply"
-        
-    #     # exporting the model as PLY file
-    #     model.export_PLY(ply_file_path)
-    #     return ply_file_path
-    
     def write_PLY(self, model : pycolmap.Reconstruction,  output_folder : str, is_left : bool) -> None:
 
         ply_file_path = os.path.join(output_folder, "left.ply" if is_left else "right.ply")
@@ -226,22 +202,16 @@ class P360DatasetGenerator:
             image_LEFT = sfm_images_dict[image_id_LEFT]
             image_RIGHT = sfm_images_dict[image_id_RIGHT]
             
-            frame_id = self.frame_from_name(image_LEFT.name)
-        
+            frame_id = self.frame_from_name(image_LEFT.name)        
             
             # camera extrinsics for the current image id
-            # cam_Rt = self.camera_helper.cam_extrinsics(sfm_image)   
             cam_Rt_LEFT = self.camera_helper.cam_extrinsics(image_LEFT)   
             cam_Rt_RIGHT = self.camera_helper.cam_extrinsics(image_RIGHT)   
             
-
             # sfm model transformed from WORLD to CAMERA frame
             sfm_camera_frame_LEFT = self.transform_model_to_camera_frame(cam_Rt_LEFT)
             sfm_camera_frame_RIGHT = self.transform_model_to_camera_frame(cam_Rt_RIGHT)
 
-            # ply_LEFT = self.write_sfm_model_to_disk(sfm_camera_frame_LEFT, image_id_LEFT, self.pcl_output)
-            # ply_RIGHT = self.write_sfm_model_to_disk(sfm_camera_frame_RIGHT, image_id_RIGHT, self.pcl_output)
-            
             # save (ply_LEFT, ply_RIGHT) and (img_LEFT, img_RIGHT) to [frame_folder]
             frame_folder = os.path.join(self.pcl_output, f"frame-{frame_id}")
             
@@ -261,10 +231,6 @@ class P360DatasetGenerator:
             io_utils.copy_file(left_image, frame_folder, name = "left.jpg")
             io_utils.copy_file(right_image, frame_folder, name = "right.jpg")
             
-            # io_utils.copy_file(left_image, frame_folder)
-            # io_utils.copy_file(right_image, frame_folder)
-            
-
             # logging.info(f"frame_folder: {frame_folder}")
             # # # cropping the sfm_in_camera frame pointcloud
             # cropped_pcl = self.generate_cropped_pcl(PLY_path)
