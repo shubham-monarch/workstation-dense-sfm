@@ -146,6 +146,22 @@ def save_npy_as_ply(ply_file: str, array: np.ndarray, colors: np.ndarray) -> Non
 			color = color.astype(int)
 			f.write(f"{point[0]} {point[1]} {point[2]} {color[0]} {color[1]} {color[2]}\n")
 
+
+def copy_file(src_file : str, dest_folder : str, name : str = None):
+	'''
+	copy the src_file to the dest_folder
+	: param name : optional renaming of the copied file
+	'''
+	
+	try: 
+		if name is None:
+			shutil.copy(src_file, dest_folder)
+		else:
+			shutil.copy(src_file, os.path.join(dest_folder, name))
+	except Exception as e:
+		
+		logging.error(f"Error {e} while copying {src_file} to {dest_folder}")	
+
 def copy_files(src_folder : str, dest_folder : str):
 	'''
 	Copy all files from src_folder to dest_folder
@@ -225,10 +241,7 @@ def delete_folders(folders):
 				except Exception as e :
 					logging.error(f"Error {e} while deleting {folder_path}")
 					# time.sleep(1)  # wait for 1 second before retrying
-			else:
-				logging.info(f"The folder {folder_path} does not exist.")	
-	# logging.warning(f"Deleted the old files in {folders}!")
-		
+			
 def create_folders(folders):
 	for path in folders:
 		os.makedirs(path, exist_ok=True)
