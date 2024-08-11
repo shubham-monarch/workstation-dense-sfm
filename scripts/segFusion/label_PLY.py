@@ -7,6 +7,8 @@ import numpy as np
 import yaml
 from tqdm import tqdm
 import argparse
+from scripts.utils_module import io_utils
+import shutil
 
 def is_close_color(color1: np.ndarray, color2: np.ndarray, tolerance=10) -> bool:
 	'''
@@ -29,25 +31,9 @@ def get_label(bgr: np.ndarray, color_map: dict) -> int:
 	# default to 0 if not found
 	return 0
 
-
-	
-if __name__ == "__main__":
-	coloredlogs.install(level="INFO", force=True)
-	
-	logging.info("=======================")
-	logging.info("ADDING LABELS TO POINTCLOUD")
-	logging.info("=======================")
-	
-
-	parser = argparse.ArgumentParser()
-	# parser.add_argument("--rgb_images", type=str, required= True)
-	parser.add_argument("--PLY_segmented", type=str, required= True, help="Path to the segmented PLY file")
-	parser.add_argument("--mavis", type=str, required=True, help="Path to the Mavis.yaml file")
-
-	args = parser.parse_args()
-
-	ply_segmented = args.PLY_segmented
-	mavis_file = args.mavis
+def label_PLY(ply_segmented: str, mavis_file: str) -> None:
+	# ply_segmented = args.PLY_segmented
+	# mavis_file = args.mavis
 
 	with open(mavis_file, 'r') as f:
 		data = yaml.safe_load(f)
@@ -63,7 +49,6 @@ if __name__ == "__main__":
 	
 	labels = np.array([get_label(color_bgr * 255, color_map) for color_bgr in tqdm(colors_bgr, desc="Processing labels for PLY file")])
 
-	logging.info("Updating the segmented PLY file with labels...")
 	# update the segmented PLY file with labels 
 	with open(ply_segmented, 'w') as f:
 		f.write(f"ply\nformat ascii 1.0\nelement vertex {len(points)}\n")
@@ -74,4 +59,38 @@ if __name__ == "__main__":
 		for point, rgb, label in zip(points, (colors_rgb*255).astype(np.uint8), labels):
 			f.write(f"{point[0]} {point[1]} {point[2]} {rgb[0]} {rgb[1]} {rgb[2]} {label}\n")
 
-	logging.info("Finished adding labels to the segmented PLY file!")
+	# logging.info("Finished adding labels to the segmented PLY file!")
+	
+if __name__ == "__main__":
+	coloredlogs.install(level="INFO", force=True)
+	
+	logging.info("=======================")
+	logging.info("ADDING LABELS TO POINTCLOUD")
+	logging.info("=======================")
+	
+
+	parser = argparse.ArgumentParser()
+	# parser.add_argument("--rgb_images", type=str, required= True)
+	parser.add_argument("--PLY_folder", type=str, required= True, help="Folder with frame-to-frame PLY files")
+	parser.add_argument("--output_folder", type=str, required= True, help="Output folder for the labelled PLY files")
+	parser.add_argument("--mavis", type=str, required=True, help="Path to the Mavis.yaml file")
+
+	args = parser.parse_args()
+
+	PLY_folder = args.PLY_folder
+	input_folder = args.PLY_folder
+	output_folder = args.output_folder
+
+	# clear the output folder
+	io_utils.delete_folders([output_folder])
+	io_utils.create_folders([output_folder])
+
+	# copy the PLY files to the output folder
+	shutil.copytree(PLY_folder, output_folder,  dirs_exist_ok=True)
+	
+	for root, dirs, files in os.walk(output_folder):
+		for file in tqdm(files):
+			if file.lower().endswith('.ply'):	
+				ply_segmented = os.path.join(root, file)
+				label_PLY(ply_segmented, args.mavis)
+			
