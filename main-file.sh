@@ -1,11 +1,11 @@
 #!/bin/bash
 
 
-# SVO_FILENAME=$1
-# SVO_STEP=$4
-# SVO_START_IDX=$(($2 * $4))
-# SVO_END_IDX=$(($3 * $4))
-# FARM_TYPE="vineyards"	
+SVO_FILENAME=$1
+SVO_STEP=$4
+SVO_START_IDX=$(($2 * $4))
+SVO_END_IDX=$(($3 * $4))
+FARM_TYPE=$5	
 
 # [CASE 1] -> RBA converges to 0.06
 # SVO_FILENAME="vineyards/RJM/front_2024-06-06-09-26-19.svo"
@@ -20,13 +20,13 @@
 # SVO_STEP=2
 
 
-# [CASE 3] -> MEMORY ERROR
-SVO_FILENAME="vineyards/gallo/2024_06_07_utc/svo_files/front_2024-06-04-11-34-23.svo"
-SVO_START_IDX=$((468 * 2))
-SVO_END_IDX=$((558 * 2))
-# SVO_END_IDX=$((569 * 2))
-SVO_STEP=2
-FARM_TYPE="vineyards"
+# # [CASE 3] -> MEMORY ERROR
+# SVO_FILENAME="vineyards/gallo/2024_06_07_utc/svo_files/front_2024-06-04-11-34-23.svo"
+# SVO_START_IDX=$((468 * 2))
+# SVO_END_IDX=$((558 * 2))
+# # SVO_END_IDX=$((569 * 2))
+# SVO_STEP=2
+# FARM_TYPE="vineyards"
 
 echo -e "\n"
 echo "==============================="
@@ -100,13 +100,6 @@ else
 fi
 
 
-# else
-# 	echo -e "\n"
-# 	echo "[WARNING] SKIPPING svo to stereo-images generation as ${SVO_IMAGES_DIR} already exists."
-# 	echo "[WARNING] Delete [${SVO_IMAGES_DIR}] folder and try again!"
-# 	echo -e "\n"
-# fi
-
 # =====================================
 # [STEP 2 --> SPARSE-RECONSTRUCTION FROM STEREO-IMAGES]
 # =====================================
@@ -122,15 +115,9 @@ echo "SPARSE_RECON_OUTPUT_DIR: $SPARSE_RECON_OUTPUT_DIR"
 echo "==============================="
 echo -e "\n"
 
-if [ ! -d "$SPARSE_RECON_OUTPUT_DIR" ]; then
+# if [ ! -d "$SPARSE_RECON_OUTPUT_DIR" ]; then
 	START_TIME=$(date +%s) 
 
-	# python3 "${PIPELINE_SCRIPT_DIR}/sparse_reconstruction.py" \
-	#     --svo_images=$SVO_IMAGES_DIR \
-	# 	--input_dir=$SPARSE_RECON_INPUT_DIR \
-	# 	--output_dir=$SPARSE_RECON_OUTPUT_DIR \
-	# 	--svo_file=$SVO_FILE_PATH  
-	
 	python3 -m ${PIPELINE_SCRIPT_DIR}.sparse_reconstruction \
 	    --svo_images=$SVO_IMAGES_DIR \
 		--input_dir=$SPARSE_RECON_INPUT_DIR \
@@ -159,12 +146,12 @@ if [ ! -d "$SPARSE_RECON_OUTPUT_DIR" ]; then
 		exit $EXIT_FAILURE
 	fi
 
-else 
-	echo -e "\n"
-	echo "[WARNING] SKIPPING SPARSE-RECONSTTRUCTION as ${SPARSE_RECON_OUTPUT_DIR} already exists."
-	echo "[WARNING] Delete [${SPARSE_RECON_OUTPUT_DIR}] folder and try again!"
-	echo -e "\n"
-fi
+# else 
+# 	echo -e "\n"
+# 	echo "[WARNING] SKIPPING SPARSE-RECONSTTRUCTION as ${SPARSE_RECON_OUTPUT_DIR} already exists."
+# 	echo "[WARNING] Delete [${SPARSE_RECON_OUTPUT_DIR}] folder and try again!"
+# 	echo -e "\n"
+# fi
 
 
 # =====================================
@@ -175,11 +162,9 @@ RBA_INPUT_DIR="${SPARSE_RECON_OUTPUT_DIR}/ref_locked/"
 RBA_OUTPUT_DIR="${PIPELINE_OUTPUT_DIR}/rig-bundle-adjustment/${SVO_FILENAME}/${SUB_FOLDER_NAME}"
 RBA_CONFIG_PATH="${PIPELINE_CONFIG_DIR}/rig.json"
 
-if [ ! -d "$RBA_OUTPUT_DIR" ]; then
+# if [ ! -d "$RBA_OUTPUT_DIR" ]; then
 
-	# python3 -c "import scripts.utils_module.zed_utils as zu;  zu.generate_rig_json('${$RBA_CONFIG_PATH}','${SVO_FILE_NAME}')"
 	python3 -c "import scripts.utils_module.zed_utils as zu;  zu.generate_rig_json('${RBA_CONFIG_PATH}','${SVO_FILENAME}')"
-
 
 	echo -e "\n"
 	echo "==============================="
@@ -251,12 +236,12 @@ if [ ! -d "$RBA_OUTPUT_DIR" ]; then
 		rm -rf "${RBA_OUTPUT_DIR}"
 		exit $EXIT_FAILURE
 	fi
-else
-	echo -e "\n"
-	echo "[WARNING] SKIPPING RIG-BUNDLE-ADJUSTMENT as ${RBA_OUTPUT_DIR} already exists."
-	echo "[WARNING] Delete [${RBA_OUTPUT_DIR}] folder and try again!"
-	echo -e "\n"
-fi
+# else
+# 	echo -e "\n"
+# 	echo "[WARNING] SKIPPING RIG-BUNDLE-ADJUSTMENT as ${RBA_OUTPUT_DIR} already exists."
+# 	echo "[WARNING] Delete [${RBA_OUTPUT_DIR}] folder and try again!"
+# 	echo -e "\n"
+# fi
 
 # =====================================
 # [STEP 4 --> DENSE RECONSTRUCTION]

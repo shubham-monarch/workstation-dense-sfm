@@ -57,10 +57,8 @@
 - check with p360 module works with updated PLY fsiles
 - fix number of points in different in ply-rgb and ply-seg
 - add labels to colmap points3d 
+- python script existing folder detection
 
-
-- update segmention module for better integration with p360
-- add step by step error-handling in main-file.sh
 
 
 
