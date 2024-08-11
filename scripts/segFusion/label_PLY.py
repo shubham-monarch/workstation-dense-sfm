@@ -42,10 +42,12 @@ if __name__ == "__main__":
 	args = parser.parse_args()
 
 
-	module_path = os.path.dirname(__file__)
+	# module_path = os.path.dirname(__file__)
 	
-	ply_segmented = os.path.join(module_path, args.PLY_segmented)
-	mavis_file = os.path.join(module_path, args.mavis)
+	# ply_segmented = os.path.join(module_path, args.PLY_segmented)
+	ply_segmented = args.PLY_segmented
+	# mavis_file = os.path.join(module_path, args.mavis)
+	mavis_file = args.mavis
 
 	
 	with open(mavis_file, 'r') as f:
@@ -61,7 +63,7 @@ if __name__ == "__main__":
 	points, colors_rgb = np.asarray(pcd.points), np.asarray(pcd.colors)
 	colors_bgr = colors_rgb[:, [2, 1, 0]]  # Reorder RGB to BGR
 	
-	labels = np.array([get_label(color_bgr * 255, color_map) for color_bgr in tqdm(colors_bgr, desc="Processing labels")])
+	labels = np.array([get_label(color_bgr * 255, color_map) for color_bgr in tqdm(colors_bgr, desc="Processing labels for PLY file")])
 
 	logging.info("Updating the segmented PLY file with labels...")
 	# update the segmented PLY file with labels 

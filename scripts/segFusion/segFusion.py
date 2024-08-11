@@ -152,7 +152,6 @@ def generate_segmented_images(input_dir : str, output_dir : str) -> None:
 	:param output_dir: path to the [images-segmented] folder
 	'''
 
-	logging.warning(f"[generate_segmented_images]")
 	for root, dirs, files in os.walk(input_dir):
 		output_root = root.replace(input_dir, output_dir, 1)
 		
@@ -170,7 +169,11 @@ def generate_segmented_images(input_dir : str, output_dir : str) -> None:
 if __name__ == '__main__':
 
 	coloredlogs.install(level="INFO", force = True)
-
+	
+	logging.info("=======================")
+	logging.info("GENERATING DENSE-SEGMENTED.PLY")
+	logging.info("=======================")
+	
 	parser = argparse.ArgumentParser()
 	# parser.add_argument("--rgb_images", type=str, required= True)
 	parser.add_argument("--dense-recon-folder", type=str, required= True)
@@ -202,13 +205,8 @@ if __name__ == '__main__':
 	io_utils.create_folders([images])
 	io_utils.copy_files(images_SEG, images)
 	
+	pycolmap.stereo_fusion(Path(dense_recon_folder) / "dense-segmented.ply", Path(dense_recon_folder))
 	
-	# images, images_SEG  = images_SEG, images
-	# pycolmap.stereo_fusion(Path(dense_recon_folder) / "dense-segmented.ply", Path(dense_recon_folder))
-	pycolmap.stereo_fusion(Path(dense_recon_folder) / "seg-1.ply", Path(dense_recon_folder))
-	pycolmap.stereo_fusion(Path(dense_recon_folder) / "seg-2.ply", Path(dense_recon_folder))
-
-
 	# copy files from [images-segmented] to [images]
 	io_utils.delete_folders([images])
 	io_utils.create_folders([images])

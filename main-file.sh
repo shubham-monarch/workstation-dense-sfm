@@ -302,6 +302,20 @@ else
 	echo -e "\n"
 fi
 
+# [STEP #5 --> SEGMENTATION FUSION]
+
+# generate [dense-segmented.ply] at [dense_recon_output_dir]
+python3 -m scripts.segFusion.segFusion \
+	--dense-recon-folder="${DENSE_RECON_OUTPUT_DIR}" \
+	--farm_type="${FARM_TYPE}" 
+
+
+# [STEP #6 --> LABEL THE SEGMENTED POINTCLOUDS]
+SEG_FUSION_DIR="${PIPELINE_SCRIPT_DIR}/segFusion"
+
+python3 -m scripts.segFusion.label_PLY \
+	--PLY_segmented="${DENSE_RECON_OUTPUT_DIR}/dense-segmented.ply" \
+	--mavis="${SEG_FUSION_DIR}/Mavis.yaml"
 
 
 
@@ -346,15 +360,8 @@ fi
 # fi
 
 
-# [STEP #6 --> SEGMENTATION FUSION]
-SEG_FUSION_INPUT_DIR="${DENSE_RECON_OUTPUT_DIR}"
 
-python3 -m scripts.segFusion.segFusion \
-	--dense-recon-folder="${SEG_FUSION_INPUT_DIR}" \
-	--farm_type="${FARM_TYPE}" 
-
-
-# [STEP #7 --> ADDDING CLASS LABELS TO WORLD POINTCLOUD]
+# [STEP #7 --> ADDDING CLASS LABELS TO SEGMENTED POINTCLOUDS]
 
 
 # [STEP #8 --> GENERATE FRAME WISE POINTCLOUDS]
