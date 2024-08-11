@@ -212,7 +212,7 @@ if __name__ == '__main__':
 
 	# generate [dense-segmented.ply]	
 	pycolmap.stereo_fusion(Path(output_folder) / "dense.ply", Path(output_folder))
-	pycolmap.stereo_fusion(Path(output_folder) , Path(input_folder))
+	pycolmap.stereo_fusion(Path(output_folder) , Path(output_folder))
 
 	# delete [sterero / sparse] folders	
 	io_utils.delete_folders([sparse_folder_OUTPUT, stereo_folder_OUTPUT])

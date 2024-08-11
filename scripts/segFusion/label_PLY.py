@@ -34,6 +34,11 @@ def get_label(bgr: np.ndarray, color_map: dict) -> int:
 if __name__ == "__main__":
 	coloredlogs.install(level="INFO", force=True)
 	
+	logging.info("=======================")
+	logging.info("ADDING LABELS TO POINTCLOUD")
+	logging.info("=======================")
+	
+
 	parser = argparse.ArgumentParser()
 	# parser.add_argument("--rgb_images", type=str, required= True)
 	parser.add_argument("--PLY_segmented", type=str, required= True, help="Path to the segmented PLY file")
@@ -41,15 +46,9 @@ if __name__ == "__main__":
 
 	args = parser.parse_args()
 
-
-	# module_path = os.path.dirname(__file__)
-	
-	# ply_segmented = os.path.join(module_path, args.PLY_segmented)
 	ply_segmented = args.PLY_segmented
-	# mavis_file = os.path.join(module_path, args.mavis)
 	mavis_file = args.mavis
 
-	
 	with open(mavis_file, 'r') as f:
 		data = yaml.safe_load(f)
 	
@@ -58,7 +57,6 @@ if __name__ == "__main__":
 	# {label : (r, g, b)} to {(r, g, b) : label}
 	color_map = {key: tuple(value) for key, value in color_map.items()}
 
-	
 	pcd = o3d.io.read_point_cloud(ply_segmented)
 	points, colors_rgb = np.asarray(pcd.points), np.asarray(pcd.colors)
 	colors_bgr = colors_rgb[:, [2, 1, 0]]  # Reorder RGB to BGR
