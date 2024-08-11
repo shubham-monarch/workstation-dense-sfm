@@ -152,6 +152,10 @@ def copy_files(src_folder : str, dest_folder : str):
 	:param src_folder: str: path to the source folder
 	:param dest_folder: str: path to the destination folder
 	'''
+	
+	delete_folders([dest_folder])
+	create_folders([dest_folder])
+	
 	for dirpath, dirnames, filenames in os.walk(src_folder):
 		# Construct the destination directory path
 		dest_dir = dirpath.replace(src_folder, dest_folder, 1)

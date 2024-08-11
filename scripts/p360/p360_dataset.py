@@ -15,6 +15,8 @@ from .camera_helpers import CameraHelpers
 from . import read_write_model
 from ..utils_module import io_utils
 
+from scripts.utils_module import io_utils
+
 coloredlogs.install(level='INFO', force=True)
 
 BoundingBox = namedtuple('BoundingBox', ['min_x', 'max_x', 'min_y', 'max_y', 'min_z', 'max_z'])
@@ -28,27 +30,57 @@ class P360DatasetGenerator:
     """
 
     def __init__(self, 
+                 mode,
                  bounding_box, 
-                 sfm_folder_path, 
+                 dense_recon_folder, 
                  pcl_output, 
                  pcl_cropped_output):
+
+
+        self.dense_recon_folder = dense_recon_folder
+        self.mode = mode
+
+        # if self.mode == "SEGMENTATION":    
+        #     images = os.path.join(self.dense_recon_folder, "images")
+        #     images_SEG = os.path.join(self.dense_recon_folder, "images-segmented")
+        #     images_RGB = os.path.join(self.dense_recon_folder, "images-rgb") 
+            
+        #     if not os.path.exists(images_SEG):
+        #         raise ValueError(f"images-segmented folder not found at {images_SEG}")
+        #         sys.exit(1)
+
+        #     # copy images from [images] to [images-rgb]             
+        #     io_utils.create_folders([images_RGB])
+        #     io_utils.copy_files(images, images_RGB)
+
+        #     # copy images from [images-segmented] to [images]
+        #     io_utils.delete_folders([images])
+        #     io_utils.create_folders([images])
+        #     io_utils.copy_files(images_SEG, images)
+
+
 
         # dimensions of the bounding box
         self.bb = BoundingBox(*bounding_box)
 
         # path to the dense reconstruction folder
-        self.sfm_path = sfm_folder_path
+        self.sfm_path = dense_recon_folder
         
         # initializing and updating the pycolmap model
         self.sfm_model = pycolmap.Reconstruction()
-        self.sfm_model.read_binary(sfm_folder_path)
+        self.sfm_model.read_binary(dense_recon_folder)
         
         # initializing camera helper
         self.camera_helper = CameraHelpers()    
 
         # path to write the camera-frame (cropped) pointclouds
+        
         self.pcl_output = pcl_output
         self.pcl_cropped_output = pcl_cropped_output
+
+        logging.info(f"pcl_output: {pcl_output}")
+        logging.info(f"pcl_cropped_output: {pcl_cropped_output}")
+        
 
         io_utils.delete_folders([self.pcl_output, self.pcl_cropped_output])
         io_utils.create_folders([self.pcl_output, self.pcl_cropped_output])
@@ -151,6 +183,20 @@ class P360DatasetGenerator:
         output_path += "frame_" + str(frame_id) + ".ply"
         o3d.io.write_point_cloud(output_path, cropped_pcl)
 
+    def restore_rgb_images(self):
+        '''
+        restore images folder in dense_recon_folder with rgb images
+        '''
+        logging.info("Moving RGB images back to images folder...")
+        images = os.path.join(self.dense_recon_folder, "images")
+        images_RGB = os.path.join(self.dense_recon_folder, "images-rgb")
+        images_SEG = os.path.join(self.dense_recon_folder, "images-segmented")
+        
+        # copy images from [images-RGB] to [images]
+        io_utils.delete_folders([images])
+        io_utils.create_folders([images])
+        io_utils.copy_files(images_RGB, images)
+
     def generate_cropped_pcl(self, ply_path):
         """
         transforms the pointcloud from the WORLD to CAMERA frame 
@@ -195,4 +241,5 @@ class P360DatasetGenerator:
             
             #break
             
-    
+        # restore images folder with rgb images
+        self.restore_rgb_images()
