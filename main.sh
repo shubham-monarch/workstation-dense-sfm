@@ -57,6 +57,15 @@
 - check with p360 module works with updated PLY files
 - fix number of points in different in ply-rgb and ply-seg
 - add labels to colmap points3d 
+
+
+- fix left/right frame consistency in p360 module
+- added stereo-images data in p360 module
+- update segmention module for better integration with p360
+ 
+
+
+
 comment
 
 # SCRIPT [TO-DO]

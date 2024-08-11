@@ -32,7 +32,10 @@ if __name__ == '__main__':
 										   args.dense_reconstruction_folder, 
 										   args.frame_to_frame_folder, 
 										   args.frame_to_frame_folder_CROPPED)
-	p360_generator_.generate()
+	
+	# cropping [1] frame every [10] frames
+	frame_skip_rate = 10
+	p360_generator_.generate(frame_skip_rate)
 
 	# example usage
 	# bounding_box = (-50, 50, -5, 5, -3, 3)

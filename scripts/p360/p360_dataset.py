@@ -40,26 +40,6 @@ class P360DatasetGenerator:
         self.dense_recon_folder = dense_recon_folder
         self.mode = mode
 
-        # if self.mode == "SEGMENTATION":    
-        #     images = os.path.join(self.dense_recon_folder, "images")
-        #     images_SEG = os.path.join(self.dense_recon_folder, "images-segmented")
-        #     images_RGB = os.path.join(self.dense_recon_folder, "images-rgb") 
-            
-        #     if not os.path.exists(images_SEG):
-        #         raise ValueError(f"images-segmented folder not found at {images_SEG}")
-        #         sys.exit(1)
-
-        #     # copy images from [images] to [images-rgb]             
-        #     io_utils.create_folders([images_RGB])
-        #     io_utils.copy_files(images, images_RGB)
-
-        #     # copy images from [images-segmented] to [images]
-        #     io_utils.delete_folders([images])
-        #     io_utils.create_folders([images])
-        #     io_utils.copy_files(images_SEG, images)
-
-
-
         # dimensions of the bounding box
         self.bb = BoundingBox(*bounding_box)
 
@@ -122,7 +102,7 @@ class P360DatasetGenerator:
         Xc =  Xc_homo[:, :3] / Xc_homo[:, 3:] #dehomogenizing
         return Xc
     
-    def transform_model_to_camera_frame(self,camera_Rt):
+    def transform_model_to_camera_frame(self,camera_Rt) -> pycolmap.Reconstruction:
         """ 
         transforms the pycolmap model from WORLD to CAMERA frame 
         :param camera_rt (np.ndaary): 3 * 4 camera extrinsics matrix
@@ -183,19 +163,6 @@ class P360DatasetGenerator:
         output_path += "frame_" + str(frame_id) + ".ply"
         o3d.io.write_point_cloud(output_path, cropped_pcl)
 
-    def restore_rgb_images(self):
-        '''
-        restore images folder in dense_recon_folder with rgb images
-        '''
-        logging.info("Moving RGB images back to images folder...")
-        images = os.path.join(self.dense_recon_folder, "images")
-        images_RGB = os.path.join(self.dense_recon_folder, "images-rgb")
-        images_SEG = os.path.join(self.dense_recon_folder, "images-segmented")
-        
-        # copy images from [images-RGB] to [images]
-        io_utils.delete_folders([images])
-        io_utils.create_folders([images])
-        io_utils.copy_files(images_RGB, images)
 
     def generate_cropped_pcl(self, ply_path):
         """
@@ -216,24 +183,56 @@ class P360DatasetGenerator:
         cropped_pcd = pcd.crop(bbox)
         return cropped_pcd
         
-    def generate(self):
+    def generate(self, frame_skip_rate):
         ''' Generate frame-wise cropped pointcloud around the camera'''
         
         sfm_image_ids = []
         sfm_images_dict = self.sfm_model.images
+        
+
         for image_id, _  in sfm_images_dict.items():
-            sfm_image_ids.append(image_id)        
+            if image_id <= len(sfm_images_dict) // 2:
+                sfm_image_ids.append(image_id)        
+        
         sfm_image_ids = sorted(sfm_image_ids)
 
-        for image_id in tqdm(sfm_image_ids):
-            sfm_image = sfm_images_dict[image_id]
+        # for id in sfm_image_ids:
+        #     logging.info(f"{id} {sfm_images_dict[id].name}")
+
+        # for image_id in tqdm(sfm_image_ids):
+        for index, image_id in enumerate(tqdm(sfm_image_ids)):
+            
+            # cropping [1 / 10] frames
+            if index % frame_skip_rate != 0:
+                continue
+            
+            # logging.info(f"index: {index}, image_id: {image_id}")
+            # sfm_image = sfm_images_dict[image_id]
+            image_id_LEFT = image_id
+            image_id_RIGHT = image_id + len(sfm_images_dict) // 2
+            
+            image_LEFT = sfm_images_dict[image_id_LEFT]
+            image_RIGHT = sfm_images_dict[image_id_RIGHT]
             
             # camera extrinsics for the current image id
-            cam_Rt = self.camera_helper.cam_extrinsics(sfm_image)   
+            # cam_Rt = self.camera_helper.cam_extrinsics(sfm_image)   
+            cam_Rt_LEFT = self.camera_helper.cam_extrinsics(image_LEFT)   
+            cam_Rt_RIGHT = self.camera_helper.cam_extrinsics(image_RIGHT)   
             
             # sfm model transformed from WORLD to CAMERA frame
-            sfm_in_camera_frame_model = self.transform_model_to_camera_frame(cam_Rt)
-            PLY_path = self.write_sfm_model_to_disk(sfm_in_camera_frame_model, image_id, self.pcl_output)
+            # sfm_in_camera_frame_model = self.transform_model_to_camera_frame(cam_Rt)
+            sfm_camera_frame_LEFT = self.transform_model_to_camera_frame(cam_Rt_LEFT)
+            sfm_camera_frame_RIGHT = self.transform_model_to_camera_frame(cam_Rt_RIGHT)
+            
+            
+            # for image_id, image in sfm_in_camera_frame_model.images.items():
+            #     print(image_id, image)
+            
+            # break
+
+            # PLY_path = self.write_sfm_model_to_disk(sfm_in_camera_frame_model, image_id, self.pcl_output)
+            ply_LEFT = self.write_sfm_model_to_disk(sfm_camera_frame_LEFT, image_id_LEFT, self.pcl_output)
+            ply_RIGHT = self.write_sfm_model_to_disk(sfm_camera_frame_RIGHT, image_id_RIGHT, self.pcl_output)
             
             # # cropping the sfm_in_camera frame pointcloud
             # cropped_pcl = self.generate_cropped_pcl(PLY_path)
@@ -242,4 +241,4 @@ class P360DatasetGenerator:
             #break
             
         # restore images folder with rgb images
-        self.restore_rgb_images()
+        # self.restore_rgb_images()
