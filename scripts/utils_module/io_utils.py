@@ -11,6 +11,7 @@ import math
 from typing import List
 import random
 import json
+import sys
 
 
 
@@ -210,8 +211,7 @@ def get_file_list(input_path : str) -> List[str]:
 	# print(f"svo_path_abs: {svo_path_abs}")
 	bash_arr = ' '.join(svo_path_abs)
 	print (bash_arr)
-	
-
+			
 
 def generate_config_from_json(json_path : str):
      with open(json_path, 'r') as f:

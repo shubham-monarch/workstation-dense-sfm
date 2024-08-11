@@ -146,9 +146,9 @@ def segment(path_RGB : str, path_SEGMENTED : str) -> None:
 	
 def generate_segmented_images(input_dir : str, output_dir : str) -> None:
 	'''
-	generate [images-segmented] at the same level as [images]
+	write segmented images to the output_dir
 	
-	:param input_dir: path to the [images] folder
+	:param input_dir: path to the [images-rgb] folder
 	:param output_dir: path to the [images-segmented] folder
 	'''
 
@@ -176,41 +176,43 @@ if __name__ == '__main__':
 	
 	parser = argparse.ArgumentParser()
 	# parser.add_argument("--rgb_images", type=str, required= True)
-	parser.add_argument("--dense-recon-folder", type=str, required= True)
+	parser.add_argument("--input_folder", type=str, required= True)
+	parser.add_argument("--output_folder", type=str, required= True)
 	parser.add_argument("--farm_type", type=str, default="vineyards")
 
 	args = parser.parse_args()
 
-	dense_recon_folder = args.dense_recon_folder
+	# dense_recon_folder = args.dense_recon_folder
+	input_folder = args.input_folder
+	output_folder = args.output_folder
 	farm_type = args.farm_type
 
-	images = os.path.join(dense_recon_folder, "images")
-	images_RGB = os.path.join(dense_recon_folder, "images-rgb")
-	images_SEG = os.path.join(dense_recon_folder, "images-segmented")
-	
-	io_utils.delete_folders([images_RGB, images_SEG])
+	images_RGB = os.path.join(input_folder, "images")
+	images_SEG = os.path.join(output_folder, "images")
 
-	# copy files from [images] to [images-rgb]
-	io_utils.copy_files(images, images_RGB)
+	# clear the images_SEG folder
+	io_utils.delete_folders([output_folder])
+	io_utils.create_folders([output_folder])
 
-	logging.info(f"images: {images}")
 	logging.info(f"images_RGB: {images_RGB}")
 	logging.info(f"images_SEG: {images_SEG}")
 
-	# generate [images-segmented] at the same level as [images] 
-	generate_segmented_images(images, images_SEG)
+	# populate images_SEG folder with segmented images
+	generate_segmented_images(images_RGB, images_SEG)
 
-	# copy files from [images-segmented] to [images]
-	io_utils.delete_folders([images])
-	io_utils.create_folders([images])
-	io_utils.copy_files(images_SEG, images)
-	
-	pycolmap.stereo_fusion(Path(dense_recon_folder) / "dense-segmented.ply", Path(dense_recon_folder))
-	
-	# copy files from [images-segmented] to [images]
-	io_utils.delete_folders([images])
-	io_utils.create_folders([images])
-	io_utils.copy_files(images_RGB, images)
-	
-	# restoring dense-recon folder to original state
-	io_utils.delete_folders([images_RGB])
+	# copy [sparse / stereo] folder to [dense-segmented-recon] folder
+	sparse_folder_INPUT = os.path.join(input_folder, "sparse")	
+	stereo_folder_INPUT = os.path.join(input_folder, "stereo")
+
+	sparse_folder_OUTPUT = os.path.join(output_folder, "sparse")
+	stereo_folder_OUTPUT = os.path.join(output_folder, "stereo")
+
+	shutil.copytree(sparse_folder_INPUT, sparse_folder_OUTPUT,  dirs_exist_ok=True)
+	shutil.copytree(stereo_folder_INPUT, stereo_folder_OUTPUT,  dirs_exist_ok=True)
+
+	# generate [dense-segmented.ply]	
+	pycolmap.stereo_fusion(Path(output_folder) / "dense.ply", Path(output_folder))
+	pycolmap.stereo_fusion(Path(output_folder) , Path(input_folder))
+
+	# delete [sterero / sparse] folders	
+	io_utils.delete_folders([sparse_folder_OUTPUT, stereo_folder_OUTPUT])
