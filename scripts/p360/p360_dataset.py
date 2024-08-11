@@ -30,7 +30,6 @@ class P360DatasetGenerator:
     """
 
     def __init__(self, 
-                 mode,
                  bounding_box, 
                  dense_recon_folder, 
                  pcl_output, 
@@ -38,8 +37,7 @@ class P360DatasetGenerator:
 
 
         self.dense_recon_folder = dense_recon_folder
-        self.mode = mode
-
+        
         # dimensions of the bounding box
         self.bb = BoundingBox(*bounding_box)
 
@@ -91,6 +89,7 @@ class P360DatasetGenerator:
         """
 
         sfm_points_dict = self.sfm_model.points3D
+        # logging.warning(f"len(sfm_points_dict): {len(sfm_points_dict)}")
 
         X = np.array([value.xyz for value in sfm_points_dict.values()]) #co-ordinates in world frame
         ones = np.ones((X.shape[0], 1))

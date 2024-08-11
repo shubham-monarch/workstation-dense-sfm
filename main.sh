@@ -146,6 +146,7 @@ do
 		SVO_FILENAME=$(jq -r '.SVO_FILENAME' "$CONFIG_FILE")
 		SVO_START_IDX=$(jq -r '.SVO_START_IDX' "$CONFIG_FILE")
 		SVO_END_IDX=$(jq -r '.SVO_END_IDX' "$CONFIG_FILE")
+		FARM_TYPE="vineyards"
 
 		echo -e "\n"
 		echo "==============================="
@@ -156,7 +157,7 @@ do
 		echo -e "\n"
 
 		# response=$(./main-file.sh "$SVO_FILENAME" "$SVO_START_IDX" "$SVO_END_IDX" "$SVO_STEP")
-		./main-file.sh "$SVO_FILENAME" "$SVO_START_IDX" "$SVO_END_IDX" "$SVO_STEP"
+		./main-file.sh "$SVO_FILENAME" "$SVO_START_IDX" "$SVO_END_IDX" "$SVO_STEP" "$FARM_TYPE"
 		exit_status=$?
 
 		echo -e "\n"

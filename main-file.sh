@@ -63,48 +63,43 @@ fi
 # folder to store results
 SUB_FOLDER_NAME="${SVO_START_IDX}_to_${SVO_END_IDX}"
 
-# [STEP #1 --> EXTRACT STEREO-IMAGES FROM SVO FILE]
+# =====================================
+# [STEP 1 --> EXTRACT STEREO-IMAGES FROM SVO FILE]
+# =====================================
+
 SVO_INPUT_DIR="${PIPELINE_INPUT_DIR}/svo-files"
 SVO_OUTPUT_DIR="${PIPELINE_OUTPUT_DIR}/stereo-images"
 
 SVO_FILE_PATH="${SVO_INPUT_DIR}/${SVO_FILENAME}"
 SVO_IMAGES_DIR="${SVO_OUTPUT_DIR}/${SVO_FILENAME}/${SUB_FOLDER_NAME}"
 
+START_TIME=$(date +%s) 
 
-# check if the output folder already exists
-# if [ ! -d "$SVO_IMAGES_DIR" ]; then
+python3 -m scripts.svo-to-stereo-images \
+	--svo_path=$SVO_FILE_PATH \
+	--start_frame=$SVO_START_IDX \
+	--end_frame=$SVO_END_IDX \
+	--output_dir=$SVO_IMAGES_DIR \
+	--svo_step=$SVO_STEP
 
-	START_TIME=$(date +%s) 
-	# python3 "${PIPELINE_SCRIPT_DIR}/svo-to-stereo-images.py" \
-	# 	--svo_path=$SVO_FILE_PATH \
-	# 	--start_frame=$SVO_START_IDX \
-	# 	--end_frame=$SVO_END_IDX \
-	# 	--output_dir=$SVO_IMAGES_DIR \
-	# 	--svo_step=$SVO_STEP
+END_TIME=$(date +%s)
+DURATION=$((END_TIME - START_TIME)) 
 
-	python3 -m scripts.svo-to-stereo-images \
-		--svo_path=$SVO_FILE_PATH \
-		--start_frame=$SVO_START_IDX \
-		--end_frame=$SVO_END_IDX \
-		--output_dir=$SVO_IMAGES_DIR \
-		--svo_step=$SVO_STEP
+if [ $? -eq 0 ]; then
+	echo -e "\n"
+	echo "==============================="
+	echo "Time taken for SVO TO STEREO-IMAGES generation: ${DURATION} seconds"
+	echo "==============================="
+	echo -e "\n"
+else
+	echo -e "\n"
+	echo "[ERROR] SVO TO STEREO-IMAGES FAILED ==> EXITING PIPELINE!"
+	echo -e "\n"
+	rm -rf ${SVO_IMAGES_DIR}
+	exit $EXIT_FAILURE
+fi
 
-	END_TIME=$(date +%s)
-	DURATION=$((END_TIME - START_TIME)) 
 
-	if [ $? -eq 0 ]; then
-		echo -e "\n"
-		echo "==============================="
-		echo "Time taken for SVO TO STEREO-IMAGES generation: ${DURATION} seconds"
-		echo "==============================="
-		echo -e "\n"
-	else
-		echo -e "\n"
-		echo "[ERROR] SVO TO STEREO-IMAGES FAILED ==> EXITING PIPELINE!"
-		echo -e "\n"
-		rm -rf ${SVO_IMAGES_DIR}
-		exit $EXIT_FAILURE
-	fi
 # else
 # 	echo -e "\n"
 # 	echo "[WARNING] SKIPPING svo to stereo-images generation as ${SVO_IMAGES_DIR} already exists."
@@ -112,8 +107,10 @@ SVO_IMAGES_DIR="${SVO_OUTPUT_DIR}/${SVO_FILENAME}/${SUB_FOLDER_NAME}"
 # 	echo -e "\n"
 # fi
 
+# =====================================
+# [STEP 2 --> SPARSE-RECONSTRUCTION FROM STEREO-IMAGES]
+# =====================================
 
-# [STEP #2 --> SPARSE-RECONSTRUCTION FROM STEREO-IMAGES]
 SPARSE_RECON_INPUT_DIR="${PIPELINE_INPUT_DIR}/sparse-reconstruction/${SVO_FILENAME}/${SUB_FOLDER_NAME}"
 SPARSE_RECON_OUTPUT_DIR="${PIPELINE_OUTPUT_DIR}/sparse-reconstruction/${SVO_FILENAME}/${SUB_FOLDER_NAME}"
 
@@ -164,18 +161,21 @@ if [ ! -d "$SPARSE_RECON_OUTPUT_DIR" ]; then
 
 else 
 	echo -e "\n"
-	echo "[WARNING] SKIPPING stereo-images to sparse-reconstruction as ${SPARSE_RECON_OUTPUT_DIR} already exists."
+	echo "[WARNING] SKIPPING SPARSE-RECONSTTRUCTION as ${SPARSE_RECON_OUTPUT_DIR} already exists."
 	echo "[WARNING] Delete [${SPARSE_RECON_OUTPUT_DIR}] folder and try again!"
 	echo -e "\n"
 fi
 
 
-# [STEP #3 --> RIG-BUNDLE-ADJUSTMENT]
+# =====================================
+# [STEP 3 --> RIG-BUNDLE-ADJUSTMENT]
+# =====================================
+
 RBA_INPUT_DIR="${SPARSE_RECON_OUTPUT_DIR}/ref_locked/"
 RBA_OUTPUT_DIR="${PIPELINE_OUTPUT_DIR}/rig-bundle-adjustment/${SVO_FILENAME}/${SUB_FOLDER_NAME}"
 RBA_CONFIG_PATH="${PIPELINE_CONFIG_DIR}/rig.json"
 
-if [ ! -d "$SPARSE_RECON_OUTPUT_DIR" ]; then
+if [ ! -d "$RBA_OUTPUT_DIR" ]; then
 
 	# python3 -c "import scripts.utils_module.zed_utils as zu;  zu.generate_rig_json('${$RBA_CONFIG_PATH}','${SVO_FILE_NAME}')"
 	python3 -c "import scripts.utils_module.zed_utils as zu;  zu.generate_rig_json('${RBA_CONFIG_PATH}','${SVO_FILENAME}')"
@@ -258,8 +258,10 @@ else
 	echo -e "\n"
 fi
 
+# =====================================
+# [STEP 4 --> DENSE RECONSTRUCTION]
+# =====================================
 
-# [STEP #4 --> DENSE RECONSTRUCTION]
 DENSE_RECON_OUTPUT_DIR="${PIPELINE_OUTPUT_DIR}/dense-reconstruction/${SVO_FILENAME}/${SUB_FOLDER_NAME}"
 
 if [ ! -d "$DENSE_RECON_OUTPUT_DIR" ]; then
@@ -297,131 +299,117 @@ if [ ! -d "$DENSE_RECON_OUTPUT_DIR" ]; then
 
 else 
 	echo -e "\n"
-	echo "[WARNING] SKIPPING dense-reconstruction as ${DENSE_RECON_OUTPUT_DIR} already exists."
+	echo "[WARNING] SKIPPING DENSE-RECONSTRUCTION as ${DENSE_RECON_OUTPUT_DIR} already exists."
 	echo "[WARNING] Delete [${DENSE_RECON_OUTPUT_DIR}] folder and try again!"
 	echo -e "\n"
 fi
 
-# # [STEP #5 --> FRAME-TO-FRAME [CROPPED] POINTCLOUD GENERATION]
-# P360_MODULE="p360"
-# BOUNDING_BOX="-5 5 -1 1 -1 1"
-# FRAME_TO_FRAME_RGB_FOLDER="${PIPELINE_OUTPUT_DIR}/frame-to-frame-rgb/${SVO_FILENAME}/${SUB_FOLDER_NAME}"
-# FRAME_TO_FRAME_RGB_CROPPED_FOLDER="${PIPELINE_OUTPUT_DIR}/frame-to-frame-rgb-cropped/${SVO_FILENAME}/${SUB_FOLDER_NAME}"
+# =====================================
+# [STEP 5 --> FRAME-TO-FRAME [RGB] POINTCLOUD GENERATION]
+# =====================================
 
+P360_MODULE="p360"
+BOUNDING_BOX="-5 5 -1 1 -1 1"
+FRAME_TO_FRAME_RGB_FOLDER="${PIPELINE_OUTPUT_DIR}/frame-to-frame-rgb/${SVO_FILENAME}/${SUB_FOLDER_NAME}"
+FRAME_TO_FRAME_RGB_CROPPED_FOLDER="${PIPELINE_OUTPUT_DIR}/frame-to-frame-rgb-cropped/${SVO_FILENAME}/${SUB_FOLDER_NAME}"
 
+START_TIME=$(date +%s) 
 
-# # if [ -d "$CAMERA_FRAME_PCL" ] && [ -d "$CAMERA_FRAME_PCL_CROPPED" ]; then
-# # 	echo -e "\n"
-# # 	echo "[WARNING] SKIPPING frame-wise pointcloud generation as ${CAMERA_FRAME_PCL} and ${CAMERA_FRAME_PCL_CROPPED} already exist."
-# # 	echo "[WARNING] Delete [${CAMERA_FRAME_PCL}] or [${CAMERA_FRAME_PCL_CROPPED}] and try again!"
-# # 	echo -e "\n"
-# # else 
-# 	START_TIME=$(date +%s) 
+python3 -m ${PIPELINE_SCRIPT_DIR}.${P360_MODULE}.main \
+--bounding_box $BOUNDING_BOX \
+--dense_reconstruction_folder="${DENSE_RECON_OUTPUT_DIR}" \
+--frame_to_frame_folder="${FRAME_TO_FRAME_RGB_FOLDER}" \
+--frame_to_frame_folder_CROPPED="${FRAME_TO_FRAME_RGB_CROPPED_FOLDER}"
 
-# 	python3 -m ${PIPELINE_SCRIPT_DIR}.${P360_MODULE}.main \
-# 	--mode="RGB" \
-# 	--bounding_box $BOUNDING_BOX \
-# 	--dense_reconstruction_folder="${DENSE_RECON_OUTPUT_DIR}" \
-# 	--frame_to_frame_folder="${FRAME_TO_FRAME_RGB_FOLDER}" \
-# 	--frame_to_frame_folder_CROPPED="${FRAME_TO_FRAME_RGB_CROPPED_FOLDER}"
+if [ $? -eq 0 ]; then
+	END_TIME=$(date +%s)
+	DURATION=$((END_TIME - START_TIME)) 
 	
-# 	if [ $? -eq 0 ]; then
-# 		END_TIME=$(date +%s)
-# 		DURATION=$((END_TIME - START_TIME)) 
-		
-# 		echo -e "\n"
-# 		echo "==============================="
-# 		echo "Time taken for generating frame-wise pointclouds: ${DURATION} seconds"
-# 		echo "==============================="
-# 		echo -e "\n"
-# 	else
-# 		echo -e "\n"
-# 		echo "[ERROR] FRAME-BY-FRAME POINTCLOUD GENERATION FAILED ==> EXITING PIPELINE!"
-# 		echo -e "\n"
-# 		rm -rf ${CAMERA_FRAME_PCL}
-# 		rm -rf ${CAMERA_FRAME_PCL_CROPPED}
-# 		exit $EXIT_FAILURE
-# 	fi
-# # fi
+	echo -e "\n"
+	echo "==============================="
+	echo "Time taken for generating frame-wise pointclouds: ${DURATION} seconds"
+	echo "==============================="
+	echo -e "\n"
+else
+	echo -e "\n"
+	echo "[ERROR] FRAME-BY-FRAME [RGB] POINTCLOUD GENERATION FAILED ==> EXITING PIPELINE!"
+	echo -e "\n"
+	rm -rf ${CAMERA_FRAME_PCL}
+	rm -rf ${CAMERA_FRAME_PCL_CROPPED}
+	exit $EXIT_FAILURE
+fi
 
+# =====================================
+# [STEP 6 --> GENERATE DENSE-SEGMENTED-RECONSTRUCTION]
+# =====================================
 
-# [STEP #6 --> GENERATE DENSE-SEGMENTED-RECONSTRUCTION]
-# DENSE_SEGMENTED_INPUT_FOLDER=${DENSE_RECON_OUTPUT_DIR}
-# DENSE_SEGMENTED_OUTPUT_FOLDER=${PIPELINE_OUTPUT_DIR}/dense-segmented-reconstruction/${SVO_FILENAME}/${SUB_FOLDER_NAME}
+DENSE_SEGMENTED_INPUT_FOLDER=${DENSE_RECON_OUTPUT_DIR}
+DENSE_SEGMENTED_OUTPUT_FOLDER=${PIPELINE_OUTPUT_DIR}/dense-segmented-reconstruction/${SVO_FILENAME}/${SUB_FOLDER_NAME}
 
-# # python3 -m ${PIPELINE_SCRIPT_DIR}.segFusion.segFusion \
-# # 	--dense-recon-folder="${DENSE_RECON_OUTPUT_DIR}" \
-# # 	--farm_type="${FARM_TYPE}" 
-
-# python3 -m ${PIPELINE_SCRIPT_DIR}.segFusion.segFusion \
-# 	--input_folder="${DENSE_SEGMENTED_INPUT_FOLDER}" \
-# 	--output_folder="${DENSE_SEGMENTED_OUTPUT_FOLDER}" \
-# 	--farm_type="${FARM_TYPE}" 
+python3 -m ${PIPELINE_SCRIPT_DIR}.segFusion.segFusion \
+	--input_folder="${DENSE_SEGMENTED_INPUT_FOLDER}" \
+	--output_folder="${DENSE_SEGMENTED_OUTPUT_FOLDER}" \
+	--farm_type="${FARM_TYPE}" 
 
 
 
-# if [ $? -eq 0 ]; then
+if [ $? -eq 0 ]; then
 
-# 	END_TIME=$(date +%s)
-# 	DURATION=$((END_TIME - START_TIME)) 
+	END_TIME=$(date +%s)
+	DURATION=$((END_TIME - START_TIME)) 
 	
-# 	echo -e "\n"
-# 	echo "==============================="
-# 	echo "Time taken for dense-segmented-reconstruction: ${DURATION} seconds"
-# 	echo "==============================="
-# 	echo -e "\n"
+	echo -e "\n"
+	echo "==============================="
+	echo "Time taken for dense-segmented-reconstruction: ${DURATION} seconds"
+	echo "==============================="
+	echo -e "\n"
 
-# else
-# 	echo -e "\n"
-# 	echo "[ERROR] DENSE-SEGMENTED-RECONSTRUCTION FAILED ==> EXITING PIPELINE!"
-# 	echo -e "\n"
-# 	# rm -rf ${DENSE_RECON_OUTPUT_DIR}
-# 	exit $EXIT_FAILURE
-# fi
+else
+	echo -e "\n"
+	echo "[ERROR] DENSE-SEGMENTED-RECONSTRUCTION FAILED ==> EXITING PIPELINE!"
+	echo -e "\n"
+	exit $EXIT_FAILURE
+fi
 
-# [STEP #7 --> FRAME-TO-FRAME SEGMENTED-POINTCLOUD GENERATION]
+# =====================================
+# [STEP 7 --> FRAME-TO-FRAME SEGMENTED-POINTCLOUD GENERATION]
+# =====================================
+
 P360_MODULE="p360"
 BOUNDING_BOX="-5 5 -1 1 -1 1"
 FRAME_TO_FRAME_SEGMENTED_FOLDER="${PIPELINE_OUTPUT_DIR}/frame-to-frame-segmented/${SVO_FILENAME}/${SUB_FOLDER_NAME}"
 FRAME_TO_FRAME_SEGMENTED_CROPPED_FOLDER="${PIPELINE_OUTPUT_DIR}/frame-to-frame-segmented-cropped/${SVO_FILENAME}/${SUB_FOLDER_NAME}"
 
-# # if [ -d "$CAMERA_FRAME_PCL" ] && [ -d "$CAMERA_FRAME_PCL_CROPPED" ]; then
-# # 	echo -e "\n"
-# # 	echo "[WARNING] SKIPPING frame-wise pointcloud generation as ${CAMERA_FRAME_PCL} and ${CAMERA_FRAME_PCL_CROPPED} already exist."
-# # 	echo "[WARNING] Delete [${CAMERA_FRAME_PCL}] or [${CAMERA_FRAME_PCL_CROPPED}] and try again!"
-# # 	echo -e "\n"
-# # else 
-# 	START_TIME=$(date +%s) 
+START_TIME=$(date +%s) 
 
-# 	python3 -m ${PIPELINE_SCRIPT_DIR}.${P360_MODULE}.main \
-# 	--mode="RGB" \
-# 	--bounding_box $BOUNDING_BOX \
-# 	--dense_reconstruction_folder="${DENSE_SEGMENTED_OUTPUT_FOLDER}" \
-# 	--frame_to_frame_folder="${FRAME_TO_FRAME_SEGMENTED_FOLDER}" \
-# 	--frame_to_frame_folder_CROPPED="${FRAME_TO_FRAME_SEGMENTED_CROPPED_FOLDER}"
+python3 -m ${PIPELINE_SCRIPT_DIR}.${P360_MODULE}.main \
+--bounding_box $BOUNDING_BOX \
+--dense_reconstruction_folder="${DENSE_SEGMENTED_OUTPUT_FOLDER}" \
+--frame_to_frame_folder="${FRAME_TO_FRAME_SEGMENTED_FOLDER}" \
+--frame_to_frame_folder_CROPPED="${FRAME_TO_FRAME_SEGMENTED_CROPPED_FOLDER}"
+
+if [ $? -eq 0 ]; then
+	END_TIME=$(date +%s)
+	DURATION=$((END_TIME - START_TIME)) 
 	
-# 	if [ $? -eq 0 ]; then
-# 		END_TIME=$(date +%s)
-# 		DURATION=$((END_TIME - START_TIME)) 
-		
-# 		echo -e "\n"
-# 		echo "==============================="
-# 		echo "Time taken for generating frame-wise pointclouds: ${DURATION} seconds"
-# 		echo "==============================="
-# 		echo -e "\n"
-# 	else
-# 		echo -e "\n"
-# 		echo "[ERROR] FRAME-BY-FRAME POINTCLOUD GENERATION FAILED ==> EXITING PIPELINE!"
-# 		echo -e "\n"
-# 		rm -rf ${CAMERA_FRAME_PCL}
-# 		rm -rf ${CAMERA_FRAME_PCL_CROPPED}
-# 		exit $EXIT_FAILURE
-# 	fi
-# # fi
+	echo -e "\n"
+	echo "==============================="
+	echo "Time taken for generating frame-wise pointclouds: ${DURATION} seconds"
+	echo "==============================="
+	echo -e "\n"
+else
+	echo -e "\n"
+	echo "[ERROR] FRAME-BY-FRAME POINTCLOUD GENERATION FAILED ==> EXITING PIPELINE!"
+	echo -e "\n"
+	rm -rf ${CAMERA_FRAME_PCL}
+	rm -rf ${CAMERA_FRAME_PCL_CROPPED}
+	exit $EXIT_FAILURE
+fi
 
-# exit 0
+# =====================================
+# [STEP 8 --> LABEL THE DENSE-SEGMENTED-POINTCLOUD]
+# =====================================
 
-# [STEP #8 --> LABEL THE DENSE-SEGMENTED-POINTCLOUD]
 SEG_FUSION_DIR="${PIPELINE_SCRIPT_DIR}/segFusion"
 PLY_FOLDER="${FRAME_TO_FRAME_SEGMENTED_FOLDER}"
 LABELLED_PLY_FOLDER="${PIPELINE_OUTPUT_DIR}/labelled-pointclouds/${SVO_FILENAME}/${SUB_FOLDER_NAME}"
@@ -446,19 +434,7 @@ else
 	echo -e "\n"
 	echo "[ERROR] LABELLING DENSE-SEGMENTATION-POINTCLOUD FAILED ==> EXITING PIPELINE!"
 	echo -e "\n"
-	# rm -rf ${DENSE_RECON_OUTPUT_DIR}
 	exit $EXIT_FAILURE
 fi
-
-
-
-
-
-
-
-# [STEP #7 --> ADDDING CLASS LABELS TO SEGMENTED POINTCLOUDS]
-
-
-# [STEP #8 --> GENERATE FRAME WISE POINTCLOUDS]
 
 exit $EXIT_SUCCESS
