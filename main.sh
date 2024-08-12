@@ -83,13 +83,30 @@ then
     exit 1
 fi
 
-# USER_INPUT="vineyards"
-USER_INPUT="vineyards/gallo/2024_06_07_utc/svo_files/front_2024-06-04-11-34-23.svo"
+# crash
+# USER_INPUT="vineyards/gallo/2024_06_07_utc/svo_files/front_2024-06-04-11-29-22.svo"
 
+
+USER_INPUT="vineyards/RJM"
 INPUT_PATH="input-backend/svo-files/${USER_INPUT}"
+
+echo -e "\n"
+echo "==============================="	
+echo "Memory usage before loading SVO_FILES"
+free -m | grep Mem | awk '{print "Total: "$2"MB Used: "$3"MB Free: "$4"MB"}'
+echo "==============================="
+echo -e "\n"
+
 
 SVO_FILES=$(python3 -c "import scripts.utils_module.bash_utils as io;  io.get_file_list('${INPUT_PATH}')")
 
+echo -e "\n"
+echo "==============================="	
+echo "Memory usage after loading SVO_FILES"
+free -m | grep Mem | awk '{print "Total: "$2"MB Used: "$3"MB Free: "$4"MB"}'
+echo "==============================="
+echo -e "\n"
+	
 for SVO_FILE in $SVO_FILES;
 do
     echo -e "\n"

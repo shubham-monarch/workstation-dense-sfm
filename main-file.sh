@@ -21,9 +21,9 @@ FARM_TYPE=$5
 
 
 # # [CASE 3] -> MEMORY ERROR
-# SVO_FILENAME="vineyards/gallo/2024_06_07_utc/svo_files/front_2024-06-04-11-34-23.svo"
-# SVO_START_IDX=$((468 * 2))
-# SVO_END_IDX=$((558 * 2))
+# SVO_FILENAME="vineyards/RJM/front_2024-06-05-09-48-13.svo"
+# SVO_START_IDX=4
+# SVO_END_IDX=146 
 # # SVO_END_IDX=$((569 * 2))
 # SVO_STEP=2
 # FARM_TYPE="vineyards"
@@ -38,7 +38,6 @@ echo "SVO_STEP: $SVO_STEP"
 echo "==============================="
 echo -e "\n"
 
-# exit 0
 
 # [GLOBAL PARAMS]
 EXIT_FAILURE=1
@@ -115,7 +114,7 @@ echo "SPARSE_RECON_OUTPUT_DIR: $SPARSE_RECON_OUTPUT_DIR"
 echo "==============================="
 echo -e "\n"
 
-# if [ ! -d "$SPARSE_RECON_OUTPUT_DIR" ]; then
+if [ ! -d "$SPARSE_RECON_OUTPUT_DIR" ]; then
 	START_TIME=$(date +%s) 
 
 	python3 -m ${PIPELINE_SCRIPT_DIR}.sparse_reconstruction \
@@ -146,12 +145,12 @@ echo -e "\n"
 		exit $EXIT_FAILURE
 	fi
 
-# else 
-# 	echo -e "\n"
-# 	echo "[WARNING] SKIPPING SPARSE-RECONSTTRUCTION as ${SPARSE_RECON_OUTPUT_DIR} already exists."
-# 	echo "[WARNING] Delete [${SPARSE_RECON_OUTPUT_DIR}] folder and try again!"
-# 	echo -e "\n"
-# fi
+else 
+	echo -e "\n"
+	echo "[WARNING] SKIPPING SPARSE-RECONSTTRUCTION as ${SPARSE_RECON_OUTPUT_DIR} already exists."
+	echo "[WARNING] Delete [${SPARSE_RECON_OUTPUT_DIR}] folder and try again!"
+	echo -e "\n"
+fi
 
 
 # =====================================
@@ -162,7 +161,7 @@ RBA_INPUT_DIR="${SPARSE_RECON_OUTPUT_DIR}/ref_locked/"
 RBA_OUTPUT_DIR="${PIPELINE_OUTPUT_DIR}/rig-bundle-adjustment/${SVO_FILENAME}/${SUB_FOLDER_NAME}"
 RBA_CONFIG_PATH="${PIPELINE_CONFIG_DIR}/rig.json"
 
-# if [ ! -d "$RBA_OUTPUT_DIR" ]; then
+if [ ! -d "$RBA_OUTPUT_DIR" ]; then
 
 	python3 -c "import scripts.utils_module.zed_utils as zu;  zu.generate_rig_json('${RBA_CONFIG_PATH}','${SVO_FILENAME}')"
 
@@ -236,12 +235,12 @@ RBA_CONFIG_PATH="${PIPELINE_CONFIG_DIR}/rig.json"
 		rm -rf "${RBA_OUTPUT_DIR}"
 		exit $EXIT_FAILURE
 	fi
-# else
-# 	echo -e "\n"
-# 	echo "[WARNING] SKIPPING RIG-BUNDLE-ADJUSTMENT as ${RBA_OUTPUT_DIR} already exists."
-# 	echo "[WARNING] Delete [${RBA_OUTPUT_DIR}] folder and try again!"
-# 	echo -e "\n"
-# fi
+else
+	echo -e "\n"
+	echo "[WARNING] SKIPPING RIG-BUNDLE-ADJUSTMENT as ${RBA_OUTPUT_DIR} already exists."
+	echo "[WARNING] Delete [${RBA_OUTPUT_DIR}] folder and try again!"
+	echo -e "\n"
+fi
 
 # =====================================
 # [STEP 4 --> DENSE RECONSTRUCTION]

@@ -58,7 +58,7 @@ class VisualOdometry(object):
         self.CUTOFF_THETA_Y = 0.7
         # sequence length cutoff
         # self.CUTOFF_SEQ_LEN = 60
-        self.CUTOFF_SEQ_LEN = 100
+        self.CUTOFF_SEQ_LEN = 70
 
             
         
