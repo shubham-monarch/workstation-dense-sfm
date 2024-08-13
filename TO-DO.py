@@ -19,10 +19,13 @@
 # - input to input-backend/svo-files
 # - dense-reconstruction with multiple GPUs
 # - move main-file.sh to scripts
+# - upload output-backend/dense-reconstruction + output-backend/segmented-frame-by-frame folder to aws
+# - delete output-backend/vo on each main.sh run
 # ============================
 
 # ============================
 # - [logging]
+# - built-in main.log
 # - log every processed segment
 # - log every  finished segment
 # - log every finished svo file 
@@ -41,9 +44,4 @@
 # - input / output for each module
 # ============================
 
-
-# ============================
-# - [aws utils]
-# - upload output-backend/dense-reconstruction + output-backend/segmented-frame-by-frame folder to aws
-# ============================
 
