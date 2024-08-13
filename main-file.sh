@@ -1,11 +1,11 @@
 #!/bin/bash
 
 
-SVO_FILENAME=$1
-SVO_STEP=$4
-SVO_START_IDX=$(($2 * $4))
-SVO_END_IDX=$(($3 * $4))
-FARM_TYPE=$5	
+# SVO_FILENAME=$1
+# SVO_STEP=$4
+# SVO_START_IDX=$(($2 * $4))
+# SVO_END_IDX=$(($3 * $4))
+# FARM_TYPE=$5	
 
 # [CASE 1] -> RBA converges to 0.06
 # SVO_FILENAME="vineyards/RJM/front_2024-06-06-09-26-19.svo"
@@ -19,10 +19,17 @@ FARM_TYPE=$5
 # SVO_END_IDX=436
 # SVO_STEP=2
 
+# <<<<<<< HEAD
+# SVO_FILENAME="vineyards/RJM/front_2024-06-05-09-48-13.svo"
+# SVO_START_IDX=918
+# SVO_END_IDX=1060
+# =======
+# # [CASE 3] -> MEMORY ERROR
+# SVO_FILENAME="RJM/2024_06_06_utc/svo_files/front_2024-06-06-10-11-19.svo"
+# SVO_START_IDX=2622
+# SVO_END_IDX=2764
+# >>>>>>> dev-ec2
 
-SVO_FILENAME="vineyards/RJM/front_2024-06-05-09-48-13.svo"
-SVO_START_IDX=918
-SVO_END_IDX=1060
 SVO_STEP=2
 FARM_TYPE="vineyards"
 

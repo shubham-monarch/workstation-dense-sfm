@@ -52,5 +52,5 @@ if __name__ == "__main__":
     kptdescs = detector(img)
 
     img = plot_keypoints(img, kptdescs["keypoints"], kptdescs["scores"])
-    cv2.imshow("SuperPoint", img)
-    cv2.waitKey()
+    # cv2.imshow("SuperPoint", img)
+    # cv2.waitKey()
