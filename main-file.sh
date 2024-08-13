@@ -8,11 +8,11 @@
 # FARM_TYPE=$5	
 
 
-SVO_FILENAME="RJM/2024_06_06_utc/svo_files/front_2024-06-05-09-09-54_220_291.json"
+SVO_FILENAME="RJM/2024_06_06_utc/svo_files/front_2024-06-05-09-09-54.svo"
 SVO_STEP=2
 SVO_START_IDX=440
 SVO_END_IDX=582
-FARM_TYPE="vineyard"	
+FARM_TYPE="vineyards"	
 
 echo -e "\n"
 echo "==============================="
