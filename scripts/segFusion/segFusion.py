@@ -28,17 +28,27 @@ class Config:
 			self.imgnet_pretrained = False
 		elif farm_type == 'vineyards':
 			self.seg_model = 'pidnet_large'
+<<<<<<< HEAD
 			self.num_classes = 9
 			module_dir = os.path.dirname(__file__)
 			self.seg_pretrained = os.path.join(module_dir, 'segmentation/pretrained/2024.06.14.V.PID.V1.0_4cls.pt')
+=======
+			self.num_classes = 5
+			self.seg_pretrained = './segmentation/pretrained/2023.10.24.V.PID.V1.1.pt'
+>>>>>>> 49c58fc9ce4219da4eae24299494e3293b896cc5
 			self.imgnet_pretrained = False
 			self.image_size = [3, 1024, 1024]
 			self.ori_image_size = [3, 1920, 1080]
 		elif farm_type == 'dairy':
 			self.seg_model = 'pidnet_large'
+<<<<<<< HEAD
 			self.num_classes = 9
 			module_dir = os.path.dirname(__file__)
 			self.seg_pretrained = os.path.join(module_dir, 'segmentation/pretrained/2023.10.24.V.PID.V1.1.pt')
+=======
+			self.num_classes = 5
+			self.seg_pretrained = './segmentation/pretrained/2023.10.24.V.PID.V1.1.pt'
+>>>>>>> 49c58fc9ce4219da4eae24299494e3293b896cc5
 			self.imgnet_pretrained = False
 		
 class SegInfer:
