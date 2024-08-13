@@ -5,7 +5,7 @@ import open3d as o3d
 import torch.nn.functional as F
 from scripts.utils_module import io_utils
 import logging, coloredlogs
-from scripts.segFusion.segmentation.pidnet import PIDNet, get_seg_model
+from scripts.segFusion.segmentation.pidnet import PIDNet, get_seg_model, get_seg_model_new
 from scripts.segFusion.segmentation.utils import input_transform
 import os
 import argparse
@@ -15,6 +15,7 @@ import yaml
 class Config:
 	def __init__(self, farm_type = 'vineyards'):
 		
+		self.farm_type = farm_type
 		if farm_type == 'vineyard_mapping':
 			self.seg_model = 'pidnet_large'
 			self.num_classes = 5
@@ -23,12 +24,14 @@ class Config:
 		elif farm_type == 'vineyards':
 			self.seg_model = 'pidnet_large'
 			self.num_classes = 5
-			self.seg_pretrained = './segmentation/pretrained/2024.06.14.V.PID.V1.0_4cls.pt'
+			self.seg_pretrained = './segmentation/pretrained/2023.10.24.V.PID.V1.1.pt'
 			self.imgnet_pretrained = False
+			self.image_size = [3, 1024, 1024]
+			self.ori_image_size = [3, 1920, 1080]
 		elif farm_type == 'dairy':
 			self.seg_model = 'pidnet_large'
 			self.num_classes = 5
-			self.seg_pretrained = './segmentation/pretrained/2024.06.14.D.PID.V1.0_4cls.pt'
+			self.seg_pretrained = './segmentation/pretrained/2023.10.24.V.PID.V1.1.pt'
 			self.imgnet_pretrained = False
 		
 class SegInfer:
@@ -36,19 +39,32 @@ class SegInfer:
 		
 		self.config = config
 		self.farm_type = config.farm_type
-		self.device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-		self.seg_model = get_seg_model(config, config.imgnet_pretrained)
-		model_state_file = config.seg_pretrained
-		pretrained_dict = torch.load(model_state_file)
-		if 'state_dict' in pretrained_dict:
-			pretrained_dict = pretrained_dict['state_dict']
-		model_dict = self.seg_model.state_dict()
-		pretrained_dict = {k[6:]: v for k, v in pretrained_dict.items()
-							if k[6:] in model_dict.keys()}
-		model_dict.update(pretrained_dict)
-		self.seg_model.load_state_dict(model_dict)
-		self.seg_model = self.seg_model.cuda()
-		self.seg_model.eval()
+		if self.farm_type == 'vineyard_mapping':
+			self.device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+			self.seg_model = get_seg_model(config, config.imgnet_pretrained)
+			model_state_file = config.seg_pretrained
+			pretrained_dict = torch.load(model_state_file)
+			if 'state_dict' in pretrained_dict:
+				pretrained_dict = pretrained_dict['state_dict']
+			model_dict = self.seg_model.state_dict()
+			pretrained_dict = {k[6:]: v for k, v in pretrained_dict.items()
+								if k[6:] in model_dict.keys()}
+			model_dict.update(pretrained_dict)
+			self.seg_model.load_state_dict(model_dict)
+			self.seg_model = self.seg_model.cuda()
+			self.seg_model.eval()
+		elif self.farm_type == 'vineyards':
+			self.device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+			self.seg_model = get_seg_model_new(config, config.imgnet_pretrained)
+			self.seg_model = self.seg_model.cuda()
+			self.seg_model.eval()
+		elif self.farm_type == 'dairy':
+			self.device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+			self.seg_model = get_seg_model_new(config, config.imgnet_pretrained)
+			self.seg_model = self.seg_model.cuda()
+			self.seg_model.eval()
+		else:
+			raise ValueError("Invalid farm type")
 	
 	def mask_bottom_center(self, image):
 		

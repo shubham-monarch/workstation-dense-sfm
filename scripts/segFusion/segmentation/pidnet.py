@@ -181,6 +181,55 @@ class PIDNet(nn.Module):
 			return [x_extra_p, x_, x_extra_d]
 		else:
 			return x_
+		
+class PIDNetOptimized(PIDNet):
+
+	def __init__(self, ori_input_shape, input_shape, m, n, num_classes, planes, ppm_planes, head_planes, augment):
+		super(PIDNetOptimized, self).__init__(m, n, num_classes, planes, ppm_planes, head_planes, augment)
+		self.mean = torch.tensor([0.406, 0.456, 0.485]).to(torch.float16).cuda()
+		self.std =  torch.tensor([0.225, 0.224, 0.229]).to(torch.float16).cuda()
+		self.size = input_shape
+		self.ori_height = ori_input_shape[1]
+		self.ori_width = ori_input_shape[2]
+		self.num_classes = num_classes
+		self.softmax = torch.nn.Softmax(dim=1)
+		#print("self.ori shape: ", self.ori_height, self.ori_width)
+
+
+	def preprocess(self, image_tensor):
+		
+		image_tensor = torch.div(image_tensor, 255.0)
+		image_tensor = torch.sub(image_tensor, self.mean)
+		image_tensor = torch.div(image_tensor, self.std)
+		image_tensor = torch.flip(image_tensor, [3])
+		image_tensor = image_tensor.permute(0,3,1,2)
+		image_tensor = image_tensor.contiguous()
+
+		return image_tensor
+		
+
+	def forward(self, x):
+		x = self.preprocess(x)
+		x_ = super(PIDNetOptimized, self).forward(x)
+		x = x_[1]
+		x_ = self.softmax(x_[1])
+		x_sm = self.resize_to_original(x_).squeeze(0)
+		x_ = torch.max(x_sm, dim=0).values
+		x_ = torch.mul(x_, 100)
+		
+		x = torch.reshape(x, (1, self.num_classes, 128, 128))
+		x = self.resize_to_original(x)
+		x = torch.argmax(x, dim=1).squeeze(0)
+		return [x_, x, x_sm] #Probability Scores. Segmentation Classes. Softmax output(used for image filtering only).
+
+	def resize_to_original(self, x):
+		if x.size()[-2] != self.ori_height or x.size()[-1] != self.ori_width:
+			x = F.interpolate(input=x, size=self.size[-2:],
+				mode='bilinear', align_corners=True
+			)
+
+		return x
+
 
 def get_seg_model(cfg, imgnet_pretrained):
 	
@@ -191,36 +240,37 @@ def get_seg_model(cfg, imgnet_pretrained):
 	else:
 		model = PIDNet(m=3, n=4, num_classes=cfg.num_classes, planes=64, ppm_planes=112, head_planes=256, augment=True)
 	
-	# if imgnet_pretrained:
-	# 	pretrained_state = torch.load(cfg.seg_pretrained, map_location='cpu')['state_dict']
-	# 	model_dict = model.state_dict()
-	# 	pretrained_state = {k: v for k, v in pretrained_state.items() if (k in model_dict and v.shape == model_dict[k].shape)}
-	# 	model_dict.update(pretrained_state)
-	# 	msg = 'Loaded {} parameters!'.format(len(pretrained_state))
-	# 	logging.info('Attention!!!')
-	# 	logging.info(msg)
-	# 	logging.info('Over!!!')
-	# 	model.load_state_dict(model_dict, strict = False)
-	# else:
-	# 	print("using diff pretrained")
-	# 	pretrained_dict = torch.load(cfg.seg_pretrained, map_location='cpu')
-	# 	if 'state_dict' in pretrained_dict:
-	# 		pretrained_dict = pretrained_dict['state_dict']
-	# 	model_dict = model.state_dict()
-	# 	#for k, v in pretrained_dict.items():
-	# 	#	print("k, v are : ", k, v.size())
-	# 	#  and k!= "model.final_layer.conv2.weight" and k!= "model.final_layer.conv1.weight"
-	# 	pretrained_dict = {k[6:]: v for k, v in pretrained_dict.items() if (k[6:] in model_dict and v.shape == model_dict[k[6:]].shape)}
-	# 	msg = 'Loaded {} parameters!'.format(len(pretrained_dict))	
-	# 	logging.info('Attention!!!')
-	# 	logging.info(msg)
-	# 	logging.info('Over!!!')
-	# 	#for k, v in pretrained_dict.items():
-	# 	#	print("k, v are : ", k, v.size())
-	# 	model_dict.update(pretrained_dict)
-	# 	model.load_state_dict(model_dict, strict = False)
+	return model
+
+
+def get_seg_model_new(cfg, imgnet_pretrained):
+	ori_input_shape= cfg.ori_image_size
+	input_shape= cfg.image_size
+	if 'small' in cfg.seg_model:
+		model = PIDNetOptimized(ori_input_shape = ori_input_shape, input_shape= input_shape, m=2, n=3, num_classes=cfg.num_classes, planes=32, ppm_planes=96, head_planes=128, augment=True)
+	elif 'medium' in cfg.seg_model:
+		model = PIDNetOptimized(ori_input_shape = ori_input_shape, input_shape= input_shape, m=2, n=3, num_classes=cfg.num_classes, planes=64, ppm_planes=96, head_planes=128, augment=True)
+	else:
+		model = PIDNetOptimized(ori_input_shape = ori_input_shape, input_shape= input_shape, m=3, n=4, num_classes=cfg.num_classes, planes=64, ppm_planes=112, head_planes=256, augment=True)
+	
+	if imgnet_pretrained:
+		pretrained_state = torch.load(cfg.seg_pretrained, map_location='cpu')['state_dict']
+		model_dict = model.state_dict()
+		pretrained_state = {k: v for k, v in pretrained_state.items() if (k in model_dict and v.shape == model_dict[k].shape)}
+		model_dict.update(pretrained_state)
+		model.load_state_dict(model_dict, strict = False)
+	else:
+		print("using diff pretrained")
+		pretrained_dict = torch.load(cfg.seg_pretrained, map_location='cpu')
+		if 'state_dict' in pretrained_dict:
+			pretrained_dict = pretrained_dict['state_dict']
+		model_dict = model.state_dict()
+		pretrained_dict = {k[6:]: v for k, v in pretrained_dict.items() if (k[6:] in model_dict and v.shape == model_dict[k[6:]].shape)}
+		model_dict.update(pretrained_dict)
+		model.load_state_dict(model_dict, strict = False)
 	
 	return model
+
 
 def get_pred_model(name, num_classes):
 	
