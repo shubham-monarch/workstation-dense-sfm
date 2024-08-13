@@ -47,7 +47,6 @@
 # - modularize python script calls in main-file.sh 
 # - change output-dir name for p360 module
 # - tracking weight files
-# - check with p360 module works with updated PLY fsiles
 # - fix number of points in different in ply-rgb and ply-seg
 # - python script existing folder detection
 # - automate uploading to aws
@@ -57,4 +56,26 @@
 # - add clean-up.sh
 # - delete dense_reconstruction folder on failure 
 # - delete input-backend/vo
+# - fix dense-reconstruction crashing
+# - run steps after dense-reconstruction
+# - failed dense-folder deletion not working
+# - log the main.sh output to date-based logging
+# - final folder output logging
+# - script based based folder detection
 
+# ============================
+# [ec2 setup]
+# - dense reconstruction failing after rig-bundle-adjustement
+# ============================
+
+
+
+# - [logging]
+# - log every processed segment
+# - log every  finished segment
+# - log every finished svo file 
+# - figure out a way to resume after script termination
+# - [git issues]
+# - tracking weight files
+# - [aws utils]
+# - upload output-backend/dense-reconstruction + output-backend/segmented-frame-by-frame folder to aws

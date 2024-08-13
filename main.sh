@@ -23,15 +23,7 @@ then
     exit 1
 fi
 
-# crash
-# USER_INPUT="vineyards/gallo/2024_06_07_utc/svo_files/front_2024-06-04-11-29-22.svo"
-
-
-<<<<<<< HEAD
-USER_INPUT="vineyards/RJM/"
-=======
 USER_INPUT="RJM"
->>>>>>> dev-ec2
 INPUT_PATH="input-backend/svo-files/${USER_INPUT}"
 
 echo -e "\n"
