@@ -1,5 +1,3 @@
-
-
 # ============================
 # [testing]
 # - test folder deletion on step crash working
@@ -21,6 +19,8 @@
 # - move main-file.sh to scripts
 # - upload output-backend/dense-reconstruction + output-backend/segmented-frame-by-frame folder to aws
 # - delete output-backend/vo on each main.sh run
+# - fix final output -> [left-img, right-img, left-rgb.ply, left-segmented-labelled.ply]
+# - remove right pointcloud from labelling
 # ============================
 
 # ============================
@@ -30,6 +30,7 @@
 # - log every  finished segment
 # - log every finished svo file 
 # - figure out a way to resume after script termination
+# - track already processed video files
 # ============================
 
 # ============================
