@@ -5,14 +5,6 @@
 # [CASE 1 -MEMORY CRASH]
 # - /vineyards/gallo/2024_06_07_utc/svo_files/front_2024-06-04-11-34-23.svo
 
-# [TO-DO]:
-# - fix dense-reconstruction crashing
-# - change cuda version to 11.0 
-# - run steps after dense-reconstruction
-# - failed dense-folder deletion not working
-# - log the main.sh output to date-based logging
-# - final folder output logging
-# - update folder deletion / checking logic
 
 # ---------------------------------------------
 # [VIRTUAL ENVIRONMENT CHECK]
