@@ -66,6 +66,11 @@
 # ============================
 # [ec2 setup]
 # - dense reconstruction failing after rig-bundle-adjustement
+
+# [fail cases]
+# output-backend/config/RJM/2024_06_06_utc/svo_files/front_2024-06-05-09-09-54_220_291.json
+# output-backend/config/RJM/2024_06_06_utc/svo_files/front_2024-06-05-09-09-54_418_489.json
+
 # ============================
 
 
