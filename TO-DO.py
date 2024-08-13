@@ -1,7 +1,7 @@
 # ============================
 # [testing]
 # - test folder deletion on step crash working
-# - ec2 dense-reconstruction crashing
+# - check dense-reconstruction duplicate upload 
 # ============================
 
 # ============================
@@ -18,9 +18,10 @@
 # - dense-reconstruction with multiple GPUs
 # - move main-file.sh to scripts
 # - upload output-backend/dense-reconstruction + output-backend/segmented-frame-by-frame folder to aws
-# - delete output-backend/vo on each main.sh run
+# - delete output-backend/vo on each main.sh 
 # - fix final output -> [left-img, right-img, left-rgb.ply, left-segmented-labelled.ply]
 # - remove right pointcloud from labelling
+# - add final results to output folder
 # ============================
 
 # ============================
