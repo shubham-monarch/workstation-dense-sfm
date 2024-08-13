@@ -49,9 +49,12 @@
 # - tracking weight files
 # - check with p360 module works with updated PLY fsiles
 # - fix number of points in different in ply-rgb and ply-seg
-# - add labels to colmap points3d 
 # - python script existing folder detection
 # - automate uploading to aws
-
-
+# - better input parsing 
+# - output folder generation script
+# - finalize main.sh input reading
+# - add clean-up.sh
+# - delete dense_reconstruction folder on failure 
+# - delete input-backend/vo
 

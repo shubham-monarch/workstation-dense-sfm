@@ -20,13 +20,11 @@ FARM_TYPE=$5
 # SVO_STEP=2
 
 
-# # [CASE 3] -> MEMORY ERROR
-# SVO_FILENAME="vineyards/RJM/front_2024-06-05-09-48-13.svo"
-# SVO_START_IDX=4
-# SVO_END_IDX=146 
-# # SVO_END_IDX=$((569 * 2))
-# SVO_STEP=2
-# FARM_TYPE="vineyards"
+SVO_FILENAME="vineyards/RJM/front_2024-06-05-09-48-13.svo"
+SVO_START_IDX=918
+SVO_END_IDX=1060
+SVO_STEP=2
+FARM_TYPE="vineyards"
 
 echo -e "\n"
 echo "==============================="
@@ -292,36 +290,36 @@ fi
 # [STEP 5 --> FRAME-TO-FRAME [RGB] POINTCLOUD GENERATION]
 # =====================================
 
-P360_MODULE="p360"
-BOUNDING_BOX="-5 5 -1 1 -1 1"
-FRAME_TO_FRAME_RGB_FOLDER="${PIPELINE_OUTPUT_DIR}/frame-to-frame-rgb/${SVO_FILENAME}/${SUB_FOLDER_NAME}"
-FRAME_TO_FRAME_RGB_CROPPED_FOLDER="${PIPELINE_OUTPUT_DIR}/frame-to-frame-rgb-cropped/${SVO_FILENAME}/${SUB_FOLDER_NAME}"
+# P360_MODULE="p360"
+# BOUNDING_BOX="-5 5 -1 1 -1 1"
+# FRAME_TO_FRAME_RGB_FOLDER="${PIPELINE_OUTPUT_DIR}/frame-to-frame-rgb/${SVO_FILENAME}/${SUB_FOLDER_NAME}"
+# FRAME_TO_FRAME_RGB_CROPPED_FOLDER="${PIPELINE_OUTPUT_DIR}/frame-to-frame-rgb-cropped/${SVO_FILENAME}/${SUB_FOLDER_NAME}"
 
-START_TIME=$(date +%s) 
+# START_TIME=$(date +%s) 
 
-python3 -m ${PIPELINE_SCRIPT_DIR}.${P360_MODULE}.main \
---bounding_box $BOUNDING_BOX \
---dense_reconstruction_folder="${DENSE_RECON_OUTPUT_DIR}" \
---frame_to_frame_folder="${FRAME_TO_FRAME_RGB_FOLDER}" \
---frame_to_frame_folder_CROPPED="${FRAME_TO_FRAME_RGB_CROPPED_FOLDER}"
+# python3 -m ${PIPELINE_SCRIPT_DIR}.${P360_MODULE}.main \
+# --bounding_box $BOUNDING_BOX \
+# --dense_reconstruction_folder="${DENSE_RECON_OUTPUT_DIR}" \
+# --frame_to_frame_folder="${FRAME_TO_FRAME_RGB_FOLDER}" \
+# --frame_to_frame_folder_CROPPED="${FRAME_TO_FRAME_RGB_CROPPED_FOLDER}"
 
-if [ $? -eq 0 ]; then
-	END_TIME=$(date +%s)
-	DURATION=$((END_TIME - START_TIME)) 
+# if [ $? -eq 0 ]; then
+# 	END_TIME=$(date +%s)
+# 	DURATION=$((END_TIME - START_TIME)) 
 	
-	echo -e "\n"
-	echo "==============================="
-	echo "Time taken for generating frame-wise pointclouds: ${DURATION} seconds"
-	echo "==============================="
-	echo -e "\n"
-else
-	echo -e "\n"
-	echo "[ERROR] FRAME-BY-FRAME [RGB] POINTCLOUD GENERATION FAILED ==> EXITING PIPELINE!"
-	echo -e "\n"
-	rm -rf ${CAMERA_FRAME_PCL}
-	rm -rf ${CAMERA_FRAME_PCL_CROPPED}
-	exit $EXIT_FAILURE
-fi
+# 	echo -e "\n"
+# 	echo "==============================="
+# 	echo "Time taken for generating frame-wise pointclouds: ${DURATION} seconds"
+# 	echo "==============================="
+# 	echo -e "\n"
+# else
+# 	echo -e "\n"
+# 	echo "[ERROR] FRAME-BY-FRAME [RGB] POINTCLOUD GENERATION FAILED ==> EXITING PIPELINE!"
+# 	echo -e "\n"
+# 	rm -rf ${CAMERA_FRAME_PCL}
+# 	rm -rf ${CAMERA_FRAME_PCL_CROPPED}
+# 	exit $EXIT_FAILURE
+# fi
 
 # =====================================
 # [STEP 6 --> GENERATE DENSE-SEGMENTED-RECONSTRUCTION]

@@ -6,6 +6,7 @@ import torch.nn as nn
 import torch.nn.functional as F
 import time
 from .utils import BasicBlock, Bottleneck, segmenthead, DAPPM, PAPPM, PagFM, Bag, Light_Bag
+import logging
 
 BatchNorm2d = nn.BatchNorm2d
 bn_mom = 0.1
@@ -209,7 +210,13 @@ class PIDNetOptimized(PIDNet):
 		
 
 	def forward(self, x):
+
 		x = self.preprocess(x)
+		
+		# logging.warning("=======================")
+		# logging.warning(f"x.shape: {x.shape}")
+		# logging.warning("=======================")
+	
 		x_ = super(PIDNetOptimized, self).forward(x)
 		x = x_[1]
 		x_ = self.softmax(x_[1])
@@ -260,7 +267,7 @@ def get_seg_model_new(cfg, imgnet_pretrained):
 		model_dict.update(pretrained_state)
 		model.load_state_dict(model_dict, strict = False)
 	else:
-		print("using diff pretrained")
+		# print("using diff pretrained")
 		pretrained_dict = torch.load(cfg.seg_pretrained, map_location='cpu')
 		if 'state_dict' in pretrained_dict:
 			pretrained_dict = pretrained_dict['state_dict']

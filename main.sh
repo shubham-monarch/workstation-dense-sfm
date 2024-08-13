@@ -23,7 +23,7 @@ fi
 # USER_INPUT="vineyards/gallo/2024_06_07_utc/svo_files/front_2024-06-04-11-29-22.svo"
 
 
-USER_INPUT="vineyards/RJM"
+USER_INPUT="vineyards/RJM/"
 INPUT_PATH="input-backend/svo-files/${USER_INPUT}"
 
 echo -e "\n"

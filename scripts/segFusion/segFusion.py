@@ -30,7 +30,7 @@ class Config:
 			self.seg_model = 'pidnet_large'
 			self.num_classes = 9
 			module_dir = os.path.dirname(__file__)
-			self.seg_pretrained = os.path.join(module_dir, 'segmentation/pretrained/2024.06.14.V.PID.V1.0_4cls.pt')
+			self.seg_pretrained = os.path.join(module_dir, 'segmentation/pretrained/2023.10.24.V.PID.V1.1.pt')
 			self.imgnet_pretrained = False
 			self.image_size = [3, 1024, 1024]
 			self.ori_image_size = [3, 1920, 1080]
@@ -135,8 +135,18 @@ class SegInfer:
 				for label, color in cmap.items():
 					colored_seg_mask[seg_mask == label] = color
 		elif self.farm_type == 'vineyards':
+			img = cv2.resize(img, (self.config.image_size[1], self.config.image_size[2]))	
+			
+			img = torch.from_numpy(img).unsqueeze(0).cuda()
+	
 			_, seg_mask, _ = self.seg_model(img)
-			cmap = self.load_cmap('Mavis.yaml')
+
+			seg_mask = seg_mask.squeeze(0).cpu().numpy()
+			seg_mask = cv2.resize(seg_mask, (self.config.ori_image_size[1], self.config.ori_image_size[2]), interpolation=cv2.INTER_NEAREST)
+
+			module_path = os.path.dirname(__file__)
+			cmap = self.load_cmap(os.path.join(module_path, 'Mavis.yaml'))
+			
 			colored_seg_mask = np.zeros((seg_mask.shape[0], seg_mask.shape[1], 3), dtype=np.uint8)
 			for label, color in cmap.items():
 				colored_seg_mask[seg_mask == label] = color
@@ -153,7 +163,7 @@ class SegInfer:
 	
 	def run(self, img):
 		
-		img, mask = self.mask_bottom_center(img)
+		# img, mask = self.mask_bottom_center(img)
 		cmap = self.mavis_cmap()
 		seg_mask = self.img2seg(img)
 
