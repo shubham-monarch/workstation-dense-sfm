@@ -84,5 +84,5 @@ if __name__ == "__main__":
     kptdesc = handcraft_detector(img0)
 
     img = plot_keypoints(img0, kptdesc["keypoints"], kptdesc["scores"] / kptdesc["scores"].max())
-    cv2.imshow("SIFT", img)
-    cv2.waitKey()
+    # cv2.imshow("SIFT", img)
+    # cv2.waitKey()

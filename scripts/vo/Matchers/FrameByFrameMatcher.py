@@ -133,7 +133,7 @@ if __name__ == "__main__":
             img = plot_matches(imgs['ref'], imgs['cur'],
                                matches['ref_keypoints'][0:200], matches['cur_keypoints'][0:200],
                                matches['match_score'][0:200], layout='lr')
-            cv2.imshow("track", img)
+            # cv2.imshow("track", img)
             if cv2.waitKey() == 27:
                 break
 

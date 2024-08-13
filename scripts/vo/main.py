@@ -121,7 +121,7 @@ def run(args, svo_folder_path : str, camera_params : dict):
         
         img1 = keypoints_plot(img, vo)
     
-        cv2.imshow("keypoints", img1)
+        # cv2.imshow("keypoints", img1)
         if cv2.waitKey(10) == 27:
             break
 

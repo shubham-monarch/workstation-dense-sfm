@@ -81,7 +81,7 @@ if __name__ == "__main__":
     for img in tqdm(loader):
         cv2.putText(img, "Press any key but Esc to continue, press Esc to exit", (10, 30),
                     cv2.FONT_HERSHEY_PLAIN, 1, (0, 0, 255), 1, 8)
-        cv2.imshow("img", img)
+        # cv2.imshow("img", img)
         # press Esc to exit
         if cv2.waitKey() == 27:
             break
