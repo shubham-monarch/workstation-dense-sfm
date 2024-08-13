@@ -109,24 +109,38 @@ class SegInfer:
 
 	def img2seg(self, img):
 		
-		img = input_transform(img)
-		img = img.transpose((2, 0, 1)).copy()
-		img = torch.from_numpy(img).unsqueeze(0).cuda()
-		size = img.size()
-		pred_val = self.seg_model(img)
-		pred = F.interpolate(input=pred_val[0], size=size[-2:], mode='bilinear', align_corners=True)
-		seg_mask = torch.argmax(pred, dim=1).squeeze(0).cpu().numpy()
 		if self.farm_type == 'vineyard_mapping':
+			img = input_transform(img)
+			img = img.transpose((2, 0, 1)).copy()
+			img = torch.from_numpy(img).unsqueeze(0).cuda()
+			size = img.size()
+			pred_val = self.seg_model(img)
+			pred = F.interpolate(input=pred_val[0], size=size[-2:], mode='bilinear', align_corners=True)
+			seg_mask = torch.argmax(pred, dim=1).squeeze(0).cpu().numpy()
+			if self.farm_type == 'vineyard_mapping':
+				cmap = self.load_cmap('Mavis.yaml')
+				colored_seg_mask = np.zeros((seg_mask.shape[0], seg_mask.shape[1], 3), dtype=np.uint8)
+				for label, color in cmap.items():
+					colored_seg_mask[seg_mask == label] = color
+			else:
+				cmap = self.mavis_cmap()
+				colored_seg_mask = np.zeros((seg_mask.shape[0], seg_mask.shape[1], 3), dtype=np.uint8)
+				for label, color in cmap.items():
+					colored_seg_mask[seg_mask == label] = color
+		elif self.farm_type == 'vineyards':
+			_, seg_mask, _ = self.seg_model(img)
 			cmap = self.load_cmap('Mavis.yaml')
 			colored_seg_mask = np.zeros((seg_mask.shape[0], seg_mask.shape[1], 3), dtype=np.uint8)
 			for label, color in cmap.items():
 				colored_seg_mask[seg_mask == label] = color
-		
-		else:
-			cmap = self.mavis_cmap()
+		elif self.farm_type == 'dairy':
+			_, seg_mask, _ = self.seg_model(img)
+			cmap = self.load_cmap('Mavis.yaml')
 			colored_seg_mask = np.zeros((seg_mask.shape[0], seg_mask.shape[1], 3), dtype=np.uint8)
 			for label, color in cmap.items():
 				colored_seg_mask[seg_mask == label] = color
+		else:
+			raise ValueError("Invalid farm type")
 		
 		return colored_seg_mask
 	
