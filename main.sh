@@ -1,11 +1,9 @@
 #!/bin/bash
 
-# IMPORTANT SVO-FILES
 
-# [CASE 1 -MEMORY CRASH]
-# - /vineyards/gallo/2024_06_07_utc/svo_files/front_2024-06-04-11-34-23.svo
-
+# redirecting all output to a log.main 
 exec > logs/main.log 2>&1
+
 
 # ---------------------------------------------
 # [VIRTUAL ENVIRONMENT CHECK]
