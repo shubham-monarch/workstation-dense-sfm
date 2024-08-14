@@ -266,6 +266,13 @@ if [ ! -d "$DENSE_RECON_OUTPUT_DIR" ]; then
 	fi
 
 else 
+
+	# upload to s3
+	python3 -m scripts.utils_module.aws_utils.upload_to_s3 \
+	--folder_LOCAL="${DENSE_RECON_OUTPUT_DIR}" \
+	--folder_S3="${DENSE_RECON_OUTPUT_DIR}" \
+	--bucket_S3="occupancy-dataset" 
+	
 	echo -e "\n"
 	echo "[WARNING] SKIPPING DENSE-RECONSTRUCTION as ${DENSE_RECON_OUTPUT_DIR} already exists."
 	echo "[WARNING] Delete [${DENSE_RECON_OUTPUT_DIR}] folder and try again!"

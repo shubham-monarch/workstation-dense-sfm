@@ -20,33 +20,32 @@ def upload_folder_to_s3(local_folder, bucket_name, s3_folder, overwrite=False):
 		
 		total_files = sum(len(files) for _, _, files in os.walk(local_folder))
 
-		with tqdm(total=total_files, desc="Uploading to S3") as pbar:
-			for root, dirs, files in os.walk(local_folder):
-				for file in files:
-					# logging.info(f"file: {file}")
-					total_files += 1
-					local_path = os.path.join(root, file)
-					relative_path = os.path.relpath(local_path, local_folder)
-					s3_path = os.path.join(s3_folder, relative_path).replace("\\", "/")
-					
+		for root, dirs, files in os.walk(local_folder):
+			for file in tqdm(files, desc="Uploading to S3.."):
+				# logging.info(f"file: {file}")
+				total_files += 1
+				local_path = os.path.join(root, file)
+				relative_path = os.path.relpath(local_path, local_folder)
+				s3_path = os.path.join(s3_folder, relative_path).replace("\\", "/")
+				
+				try:
+					# Check if file already exists in S3
 					try:
-						# Check if file already exists in S3
-						try:
-							s3.head_object(Bucket=bucket_name, Key=s3_path)
-							file_exists = True
-						except ClientError:
-							file_exists = False
+						s3.head_object(Bucket=bucket_name, Key=s3_path)
+						file_exists = True
+					except ClientError:
+						file_exists = False
 
-						if file_exists and not overwrite:
-							# logging.warning(f"Skipping {local_path} as it already exists in S3")
-							skipped_count += 1
-						else:
-							# logging.info(f"Uploading {local_path} to {s3_path}")
-							s3.upload_file(local_path, bucket_name, s3_path)
-							success_count += 1
-					except ClientError as e:
-						logging.error(f"Error uploading {local_path}: {e}")
-						failure_count += 1
+					if file_exists and not overwrite:
+						# logging.warning(f"Skipping {local_path} as it already exists in S3")
+						skipped_count += 1
+					else:
+						# logging.info(f"Uploading {local_path} to {s3_path}")
+						s3.upload_file(local_path, bucket_name, s3_path)
+						success_count += 1
+				except ClientError as e:
+					logging.error(f"Error uploading {local_path}: {e}")
+					failure_count += 1
 
 	except Exception as e:
 		logging.error(f"An error occurred: {e}")
