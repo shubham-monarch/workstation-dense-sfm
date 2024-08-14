@@ -15,7 +15,7 @@ SVO_END_IDX=438
 FARM_TYPE="vineyards"	
 
 # redirecting all output to a log.main 
-exec > logs/main.log 2>&1
+# exec > logs/main.log 2>&1
 
 echo -e "\n"
 echo "==============================="

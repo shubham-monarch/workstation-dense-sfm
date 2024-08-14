@@ -13,8 +13,6 @@
 # [pipeline]
 # - move input files to input-backend/svo-files
 # - dense-reconstruction with multiple GPUs
-# - upload output-backend/dense-reconstruction to s3 
-# - upload output folder to s3
 # - track folder size 
 # - folder deletion if folder size exceeds a certain limit
 # - python script based existing folder detection
