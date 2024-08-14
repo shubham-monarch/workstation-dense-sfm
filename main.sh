@@ -117,7 +117,7 @@ do
 		echo -e "\n"
 
 		if [ $exit_status -eq 0 ]; then
-        	echo "$CONFIG_FILE" >> "logs/success.log
+        	echo "$CONFIG_FILE" >> "logs/success.log"
     	fi
 
 
