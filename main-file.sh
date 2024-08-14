@@ -416,7 +416,7 @@ python3 -m scripts.segFusion.generate_occ_dataset \
 	--f2f_RGB="${FRAME_TO_FRAME_RGB_FOLDER}" \
 	--f2f_SEG="${FRAME_TO_FRAME_SEGMENTED_FOLDER}" \
 	--f2f_LABELLED="${PLY_FOLDER_LABELLED}" \
-	--o="output/occ-dataset/${SVO_FILENAME}/${SUB_FOLDER_NAME}"
+	--o="output/${SVO_FILENAME}/${SUB_FOLDER_NAME}"
 
 if [ $? -eq 0 ]; then
 		
