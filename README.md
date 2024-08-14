@@ -1,62 +1,42 @@
-# Project Title
+# Occupancy Dataset Generator
 
-Simple overview of use/purpose.
+This is a pipeline to generate occupancy datasets.  
 
-## Description
-
-An in-depth paragraph about your project and overview of use.
-
-## Getting Started
 
 ### Dependencies
 
-* Describe any prerequisites, libraries, OS version, etc., needed before installing program.
-* ex. Windows 10
+Please find dependencies in [requirements.txt]()
 
 ### Installing
 
-* How/where to download your program
-* Any modifications needed to be made to files/folders
+See [setup.md](https://github.com/shubham-monarch/pixel-perfect-sfm/blob/rig_ba/setup.md) for installtion steps
 
 ### Executing program
 
-* How to run the program
-* Step-by-step bullets
-```
-code blocks for commands
-```
+Put the files / folders to be processed inside the `input` folder. The ouput would be generated in the `output` folder with
+the same relative structure as that of `input`. 
 
-## Help
+e.g. input folder 
 
-Any advise for common problems or issues.
-```
-command to run if program contains helper info
-```
+└── RJM                                                                                                           
+    └── 2024_06_06_utc                                                                           
+        └── front              
+            ├── front_2024-06-05-08-54-33svo                                                                     
+            ├── front_2024-06-05-09-09-54.svo                                                                       
+            ├── front_2024-06-05-09-14-54.svo                                                                      
+            ├── front_2024-06-05-09-19-54.svo     
 
-## Authors
+The corresponding `output` folder would also have the same structure => 
 
-Contributors names and contact info
+└── RJM                                                                                                           
+    └── 2024_06_06_utc                                                                           
+        └── front              
+            ├── front_2024-06-05-08-54-33svo                                                                     
+            ├── front_2024-06-05-09-09-54.svo                                                                       
+            ├── front_2024-06-05-09-14-54.svo                                                                      
+            ├── front_2024-06-05-09-19-54.svo     
 
-ex. Dominique Pizzie  
-ex. [@DomPizzie](https://twitter.com/dompizzie)
 
-## Version History
+### Logging
+check out the `logs` folder
 
-* 0.2
-    * Various bug fixes and optimizations
-    * See [commit change]() or See [release history]()
-* 0.1
-    * Initial Release
-
-## License
-
-This project is licensed under the [NAME HERE] License - see the LICENSE.md file for details
-
-## Acknowledgments
-
-Inspiration, code snippets, etc.
-* [awesome-readme](https://github.com/matiassingers/awesome-readme)
-* [PurpleBooth](https://gist.github.com/PurpleBooth/109311bb0361f32d87a2)
-* [dbader](https://github.com/dbader/readme-template)
-* [zenorocha](https://gist.github.com/zenorocha/4526327)
-* [fvcproductions](https://gist.github.com/fvcproductions/1bfc2d4aecb01a834b46)
