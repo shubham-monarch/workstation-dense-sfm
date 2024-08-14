@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # redirecting all output to a log.main 
-exec > logs/main.log 2>&1
+exec >> logs/main.log 2>&1
 
 
 # ---------------------------------------------
