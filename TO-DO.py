@@ -1,6 +1,5 @@
 # ============================
 # [code-testing]
-# - check dense-reconstruction duplicate upload 
 # ============================
 
 # ============================
@@ -25,14 +24,10 @@
 # ============================
 
 # ============================
-# - [git issues]
+# - [git repo]
 # - tracking weight files
 # - update README - usage
 # - update README - installation
-# ============================
-
-# ============================
-# [readme]
 # - input / output for each module
 # ============================
 

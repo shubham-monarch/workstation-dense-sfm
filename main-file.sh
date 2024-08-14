@@ -39,6 +39,14 @@ PIPELINE_CONFIG_DIR="config"
 PIPELINE_INPUT_DIR="input-backend" 
 PIPELINE_OUTPUT_DIR="output-backend"
 
+# [OCC_DATASET PARAMS]
+OCC_INPUT_DIR="input"
+OCC_OUTPUT_DIR="output"
+
+# [sequcence folder name]
+SUB_FOLDER_NAME="${SVO_START_IDX}_to_${SVO_END_IDX}"
+
+
 # ==== PIPELINE EXECUTION STARTS HERE ====
 
 # [VIRTUAL ENV CHECK]
@@ -48,8 +56,6 @@ then
     exit 1
 fi
 
-# folder to store results
-SUB_FOLDER_NAME="${SVO_START_IDX}_to_${SVO_END_IDX}"
 
 # =====================================
 # [STEP 1 --> EXTRACT STEREO-IMAGES FROM SVO FILE]
@@ -419,7 +425,7 @@ PLY_FOLDER_LABELLED="${PIPELINE_OUTPUT_DIR}/labelled-pointclouds/${SVO_FILENAME}
 
 START_TIME=$(date +%s) 
 
-OCC_OUTPUT="output/${SVO_FILENAME}/${SUB_FOLDER_NAME}"
+OCC_OUTPUT="${OCC_OUTPUT_DIR}/${SVO_FILENAME}/${SUB_FOLDER_NAME}"
 
 python3 -m scripts.segFusion.generate_occ_dataset \
 	--f2f_RGB="${FRAME_TO_FRAME_RGB_FOLDER}" \
@@ -450,7 +456,7 @@ fi
 # =====================================
 
 LOCAL_FOLDER=${OCC_OUTPUT}
-S3_FOLDER=${SVO_FILENAME}/${SUB_FOLDER_NAME}
+S3_FOLDER="occ-dataset/${SVO_FILENAME}/${SUB_FOLDER_NAME}"
 
 START_TIME=$(date +%s)
 
