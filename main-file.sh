@@ -281,31 +281,31 @@ BOUNDING_BOX="-5 5 -1 1 -1 1"
 FRAME_TO_FRAME_RGB_FOLDER="${PIPELINE_OUTPUT_DIR}/frame-to-frame-rgb/${SVO_FILENAME}/${SUB_FOLDER_NAME}"
 FRAME_TO_FRAME_RGB_CROPPED_FOLDER="${PIPELINE_OUTPUT_DIR}/frame-to-frame-rgb-cropped/${SVO_FILENAME}/${SUB_FOLDER_NAME}"
 
-START_TIME=$(date +%s) 
+# START_TIME=$(date +%s) 
 
-python3 -m ${PIPELINE_SCRIPT_DIR}.${P360_MODULE}.main \
---bounding_box $BOUNDING_BOX \
---dense_reconstruction_folder="${DENSE_RECON_OUTPUT_DIR}" \
---frame_to_frame_folder="${FRAME_TO_FRAME_RGB_FOLDER}" \
---frame_to_frame_folder_CROPPED="${FRAME_TO_FRAME_RGB_CROPPED_FOLDER}"
+# python3 -m ${PIPELINE_SCRIPT_DIR}.${P360_MODULE}.main \
+# --bounding_box $BOUNDING_BOX \
+# --dense_reconstruction_folder="${DENSE_RECON_OUTPUT_DIR}" \
+# --frame_to_frame_folder="${FRAME_TO_FRAME_RGB_FOLDER}" \
+# --frame_to_frame_folder_CROPPED="${FRAME_TO_FRAME_RGB_CROPPED_FOLDER}"
 
-if [ $? -eq 0 ]; then
-	END_TIME=$(date +%s)
-	DURATION=$((END_TIME - START_TIME)) 
+# if [ $? -eq 0 ]; then
+# 	END_TIME=$(date +%s)
+# 	DURATION=$((END_TIME - START_TIME)) 
 	
-	echo -e "\n"
-	echo "==============================="
-	echo "Time taken for generating frame-wise pointclouds: ${DURATION} seconds"
-	echo "==============================="
-	echo -e "\n"
-else
-	echo -e "\n"
-	echo "[ERROR] FRAME-BY-FRAME [RGB] POINTCLOUD GENERATION FAILED ==> EXITING PIPELINE!"
-	echo -e "\n"
-	rm -rf ${CAMERA_FRAME_PCL}
-	rm -rf ${CAMERA_FRAME_PCL_CROPPED}
-	exit $EXIT_FAILURE
-fi
+# 	echo -e "\n"
+# 	echo "==============================="
+# 	echo "Time taken for generating frame-wise pointclouds: ${DURATION} seconds"
+# 	echo "==============================="
+# 	echo -e "\n"
+# else
+# 	echo -e "\n"
+# 	echo "[ERROR] FRAME-BY-FRAME [RGB] POINTCLOUD GENERATION FAILED ==> EXITING PIPELINE!"
+# 	echo -e "\n"
+# 	rm -rf ${CAMERA_FRAME_PCL}
+# 	rm -rf ${CAMERA_FRAME_PCL_CROPPED}
+# 	exit $EXIT_FAILURE
+# fi
 
 # =====================================
 # [STEP 6 --> GENERATE DENSE-SEGMENTED-RECONSTRUCTION]
@@ -314,28 +314,28 @@ fi
 DENSE_SEGMENTED_INPUT_FOLDER=${DENSE_RECON_OUTPUT_DIR}
 DENSE_SEGMENTED_OUTPUT_FOLDER=${PIPELINE_OUTPUT_DIR}/dense-segmented-reconstruction/${SVO_FILENAME}/${SUB_FOLDER_NAME}
 
-python3 -m ${PIPELINE_SCRIPT_DIR}.segFusion.segFusion \
-	--input_folder="${DENSE_SEGMENTED_INPUT_FOLDER}" \
-	--output_folder="${DENSE_SEGMENTED_OUTPUT_FOLDER}" \
-	--farm_type="${FARM_TYPE}" 
+# python3 -m ${PIPELINE_SCRIPT_DIR}.segFusion.segFusion \
+# 	--input_folder="${DENSE_SEGMENTED_INPUT_FOLDER}" \
+# 	--output_folder="${DENSE_SEGMENTED_OUTPUT_FOLDER}" \
+# 	--farm_type="${FARM_TYPE}" 
 
-if [ $? -eq 0 ]; then
+# if [ $? -eq 0 ]; then
 
-	END_TIME=$(date +%s)
-	DURATION=$((END_TIME - START_TIME)) 
+# 	END_TIME=$(date +%s)
+# 	DURATION=$((END_TIME - START_TIME)) 
 	
-	echo -e "\n"
-	echo "==============================="
-	echo "Time taken for dense-segmented-reconstruction: ${DURATION} seconds"
-	echo "==============================="
-	echo -e "\n"
+# 	echo -e "\n"
+# 	echo "==============================="
+# 	echo "Time taken for dense-segmented-reconstruction: ${DURATION} seconds"
+# 	echo "==============================="
+# 	echo -e "\n"
 
-else
-	echo -e "\n"
-	echo "[ERROR] DENSE-SEGMENTED-RECONSTRUCTION FAILED ==> EXITING PIPELINE!"
-	echo -e "\n"
-	exit $EXIT_FAILURE
-fi
+# else
+# 	echo -e "\n"
+# 	echo "[ERROR] DENSE-SEGMENTED-RECONSTRUCTION FAILED ==> EXITING PIPELINE!"
+# 	echo -e "\n"
+# 	exit $EXIT_FAILURE
+# fi
 
 # =====================================
 # [STEP 7 --> FRAME-TO-FRAME SEGMENTED-POINTCLOUD GENERATION]
@@ -346,31 +346,31 @@ BOUNDING_BOX="-5 5 -1 1 -1 1"
 FRAME_TO_FRAME_SEGMENTED_FOLDER="${PIPELINE_OUTPUT_DIR}/frame-to-frame-segmented/${SVO_FILENAME}/${SUB_FOLDER_NAME}"
 FRAME_TO_FRAME_SEGMENTED_CROPPED_FOLDER="${PIPELINE_OUTPUT_DIR}/frame-to-frame-segmented-cropped/${SVO_FILENAME}/${SUB_FOLDER_NAME}"
 
-START_TIME=$(date +%s) 
+# START_TIME=$(date +%s) 
 
-python3 -m ${PIPELINE_SCRIPT_DIR}.${P360_MODULE}.main \
---bounding_box $BOUNDING_BOX \
---dense_reconstruction_folder="${DENSE_SEGMENTED_OUTPUT_FOLDER}" \
---frame_to_frame_folder="${FRAME_TO_FRAME_SEGMENTED_FOLDER}" \
---frame_to_frame_folder_CROPPED="${FRAME_TO_FRAME_SEGMENTED_CROPPED_FOLDER}"
+# python3 -m ${PIPELINE_SCRIPT_DIR}.${P360_MODULE}.main \
+# --bounding_box $BOUNDING_BOX \
+# --dense_reconstruction_folder="${DENSE_SEGMENTED_OUTPUT_FOLDER}" \
+# --frame_to_frame_folder="${FRAME_TO_FRAME_SEGMENTED_FOLDER}" \
+# --frame_to_frame_folder_CROPPED="${FRAME_TO_FRAME_SEGMENTED_CROPPED_FOLDER}"
 
-if [ $? -eq 0 ]; then
-	END_TIME=$(date +%s)
-	DURATION=$((END_TIME - START_TIME)) 
+# if [ $? -eq 0 ]; then
+# 	END_TIME=$(date +%s)
+# 	DURATION=$((END_TIME - START_TIME)) 
 	
-	echo -e "\n"
-	echo "==============================="
-	echo "Time taken for generating frame-wise pointclouds: ${DURATION} seconds"
-	echo "==============================="
-	echo -e "\n"
-else
-	echo -e "\n"
-	echo "[ERROR] FRAME-BY-FRAME POINTCLOUD GENERATION FAILED ==> EXITING PIPELINE!"
-	echo -e "\n"
-	rm -rf ${CAMERA_FRAME_PCL}
-	rm -rf ${CAMERA_FRAME_PCL_CROPPED}
-	exit $EXIT_FAILURE
-fi
+# 	echo -e "\n"
+# 	echo "==============================="
+# 	echo "Time taken for generating frame-wise pointclouds: ${DURATION} seconds"
+# 	echo "==============================="
+# 	echo -e "\n"
+# else
+# 	echo -e "\n"
+# 	echo "[ERROR] FRAME-BY-FRAME POINTCLOUD GENERATION FAILED ==> EXITING PIPELINE!"
+# 	echo -e "\n"
+# 	rm -rf ${CAMERA_FRAME_PCL}
+# 	rm -rf ${CAMERA_FRAME_PCL_CROPPED}
+# 	exit $EXIT_FAILURE
+# fi
 
 # =====================================
 # [STEP 8 --> LABEL THE DENSE-SEGMENTED-POINTCLOUD]
@@ -380,30 +380,30 @@ SEG_FUSION_DIR="${PIPELINE_SCRIPT_DIR}/segFusion"
 PLY_FOLDER="${FRAME_TO_FRAME_SEGMENTED_FOLDER}"
 PLY_FOLDER_LABELLED="${PIPELINE_OUTPUT_DIR}/labelled-pointclouds/${SVO_FILENAME}/${SUB_FOLDER_NAME}"
 
-START_TIME=$(date +%s) 
+# START_TIME=$(date +%s) 
 
-python3 -m scripts.segFusion.label_PLY \
-	--PLY_folder="${PLY_FOLDER}" \
-	--output_folder="${PLY_FOLDER_LABELLED}" \
-	--mavis="${SEG_FUSION_DIR}/Mavis.yaml"
+# python3 -m scripts.segFusion.label_PLY \
+# 	--PLY_folder="${PLY_FOLDER}" \
+# 	--output_folder="${PLY_FOLDER_LABELLED}" \
+# 	--mavis="${SEG_FUSION_DIR}/Mavis.yaml"
 
-if [ $? -eq 0 ]; then
+# if [ $? -eq 0 ]; then
 		
-	END_TIME=$(date +%s)
-	DURATION=$((END_TIME - START_TIME)) 
+# 	END_TIME=$(date +%s)
+# 	DURATION=$((END_TIME - START_TIME)) 
 	
-	echo -e "\n"
-	echo "==============================="
-	echo "Time taken for labelling dense-segmented-pointcloud: ${DURATION} seconds"
-	echo "==============================="
-	echo -e "\n"
+# 	echo -e "\n"
+# 	echo "==============================="
+# 	echo "Time taken for labelling dense-segmented-pointcloud: ${DURATION} seconds"
+# 	echo "==============================="
+# 	echo -e "\n"
 
-else
-	echo -e "\n"
-	echo "[ERROR] LABELLING DENSE-SEGMENTATION-POINTCLOUD FAILED ==> EXITING PIPELINE!"
-	echo -e "\n"
-	exit $EXIT_FAILURE
-fi
+# else
+# 	echo -e "\n"
+# 	echo "[ERROR] LABELLING DENSE-SEGMENTATION-POINTCLOUD FAILED ==> EXITING PIPELINE!"
+# 	echo -e "\n"
+# 	exit $EXIT_FAILURE
+# fi
 
 
 # =====================================
@@ -412,11 +412,13 @@ fi
 
 START_TIME=$(date +%s) 
 
+OCC_OUTPUT="output/${SVO_FILENAME}/${SUB_FOLDER_NAME}"
+
 python3 -m scripts.segFusion.generate_occ_dataset \
 	--f2f_RGB="${FRAME_TO_FRAME_RGB_FOLDER}" \
 	--f2f_SEG="${FRAME_TO_FRAME_SEGMENTED_FOLDER}" \
 	--f2f_LABELLED="${PLY_FOLDER_LABELLED}" \
-	--o="output/${SVO_FILENAME}/${SUB_FOLDER_NAME}"
+	--o="${OCC_OUTPUT}"
 
 if [ $? -eq 0 ]; then
 		
@@ -435,3 +437,37 @@ else
 	echo -e "\n"
 	exit $EXIT_FAILURE
 fi
+
+# =====================================
+# [STEP 9 --> UPLOAD OUTPUT FOLDER TO S3 BUCKET]
+# =====================================
+
+LOCAL_FOLDER=${OCC_OUTPUT}
+S3_FOLDER=${SVO_FILENAME}/${SUB_FOLDER_NAME}
+
+START_TIME=$(date +%s)
+
+python3 -m scripts.utils_module.aws_utils.upload_to_s3 \
+	--folder_LOCAL="${LOCAL_FOLDER}" \
+	--folder_S3="${S3_FOLDER}" \
+	--bucket_S3="occupancy-dataset" 
+	
+if [ $? -eq 0 ]; then
+		
+	END_TIME=$(date +%s)
+	DURATION=$((END_TIME - START_TIME)) 
+	
+	echo -e "\n"
+	echo "==============================="
+	echo "Time taken for uploading OCC_OUTPUT to S3: ${DURATION} seconds"
+	echo "==============================="
+	echo -e "\n"
+
+else
+	echo -e "\n"
+	echo "[ERROR] OCC_OUTPUT UPLOADING TO S3 BUCKET failed ==> EXITING PIPELINE!"
+	echo -e "\n"
+	exit $EXIT_FAILURE
+fi
+
+
