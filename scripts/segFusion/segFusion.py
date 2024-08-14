@@ -211,7 +211,7 @@ if __name__ == '__main__':
 	
 	logging.info("=======================")
 	logging.info("GENERATING DENSE-SEGMENTED.PLY")
-	logging.info("=======================")
+	logging.info("=======================\n")
 	
 	parser = argparse.ArgumentParser()
 	# parser.add_argument("--rgb_images", type=str, required= True)

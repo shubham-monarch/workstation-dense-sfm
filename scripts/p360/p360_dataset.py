@@ -191,7 +191,7 @@ class P360DatasetGenerator:
         # for image_id in tqdm(sfm_image_ids):
         for index, image_id in enumerate(tqdm(sfm_image_ids)):
             
-            # cropping [1 / 10] frames
+            # cropping [1 out of every 5] frames
             if index % frame_skip_rate != 0:
                 continue
             
@@ -205,11 +205,11 @@ class P360DatasetGenerator:
             
             # camera extrinsics for the current image id
             cam_Rt_LEFT = self.camera_helper.cam_extrinsics(image_LEFT)   
-            cam_Rt_RIGHT = self.camera_helper.cam_extrinsics(image_RIGHT)   
+            # cam_Rt_RIGHT = self.camera_helper.cam_extrinsics(image_RIGHT)   
             
             # sfm model transformed from WORLD to CAMERA frame
             sfm_camera_frame_LEFT = self.transform_model_to_camera_frame(cam_Rt_LEFT)
-            sfm_camera_frame_RIGHT = self.transform_model_to_camera_frame(cam_Rt_RIGHT)
+            # sfm_camera_frame_RIGHT = self.transform_model_to_camera_frame(cam_Rt_RIGHT)
 
             # save (ply_LEFT, ply_RIGHT) and (img_LEFT, img_RIGHT) to [frame_folder]
             frame_folder = os.path.join(self.pcl_output, f"frame-{frame_id}")
@@ -220,7 +220,7 @@ class P360DatasetGenerator:
 
             # saving left / right PLY
             self.write_PLY(sfm_camera_frame_LEFT, frame_folder, is_left = True)
-            self.write_PLY(sfm_camera_frame_RIGHT, frame_folder, is_left = False)
+            # self.write_PLY(sfm_camera_frame_RIGHT, frame_folder, is_left = False)
             
             # saving left / right images
             images_folder = os.path.join(self.dense_recon_folder, "images")

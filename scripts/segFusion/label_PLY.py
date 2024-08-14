@@ -66,11 +66,10 @@ if __name__ == "__main__":
 	
 	logging.info("=======================")
 	logging.info("ADDING LABELS TO POINTCLOUD")
-	logging.info("=======================")
+	logging.info("=======================\n")
 	
 
 	parser = argparse.ArgumentParser()
-	# parser.add_argument("--rgb_images", type=str, required= True)
 	parser.add_argument("--PLY_folder", type=str, required= True, help="Folder with frame-to-frame PLY files")
 	parser.add_argument("--output_folder", type=str, required= True, help="Output folder for the labelled PLY files")
 	parser.add_argument("--mavis", type=str, required=True, help="Path to the Mavis.yaml file")
@@ -78,19 +77,31 @@ if __name__ == "__main__":
 	args = parser.parse_args()
 
 	PLY_folder = args.PLY_folder
-	input_folder = args.PLY_folder
 	output_folder = args.output_folder
+
+	logging.info(f"PLY_folder: {PLY_folder}")
+	logging.info(f"output_folder: {output_folder}")
 
 	# clear the output folder
 	io_utils.delete_folders([output_folder])
 	io_utils.create_folders([output_folder])
 
-	# copy the PLY files to the output folder
-	shutil.copytree(PLY_folder, output_folder,  dirs_exist_ok=True)
+	# # copy the PLY files to the output folder
+	# shutil.copytree(PLY_folder, output_folder,  dirs_exist_ok=True)
+
+	for root, dirs, files in os.walk(PLY_folder):
+		for file in files:
+			if file.endswith(".ply"):
+				src_file_path = os.path.join(root, file)
+				dest_file_path = os.path.join(output_folder, os.path.relpath(root, PLY_folder), file)
+				# os.makedirs(os.path.dirname(dest_file_path), exist_ok=True)
+				io_utils.create_folders([os.path.dirname(dest_file_path)])
+				shutil.copy(src_file_path, dest_file_path)
+
 	
 	for root, dirs, files in os.walk(output_folder):
-		for file in tqdm(files):
-			if file.lower().endswith('.ply'):	
+		for file in files:
+			if file.lower().endswith('.ply') and file.lower().startswith('left'):	
 				ply_segmented = os.path.join(root, file)
 				label_PLY(ply_segmented, args.mavis)
 			

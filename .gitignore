@@ -18,7 +18,7 @@ config/*
 svo-test/*
 output-backend/*
 input-backend/*
-
+logs/*
 
 
 # file types

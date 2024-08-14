@@ -163,29 +163,29 @@ def copy_file(src_file : str, dest_folder : str, name : str = None):
 		
 		logging.error(f"Error {e} while copying {src_file} to {dest_folder}")	
 
-def copy_files(src_folder : str, dest_folder : str):
-	'''
-	Copy all files from src_folder to dest_folder
-	:param src_folder: str: path to the source folder
-	:param dest_folder: str: path to the destination folder
-	'''
+# def copy_files(src_folder : str, dest_folder : str):
+# 	'''
+# 	Copy all files from src_folder to dest_folder
+# 	:param src_folder: str: path to the source folder
+# 	:param dest_folder: str: path to the destination folder
+# 	'''
 	
-	delete_folders([dest_folder])
-	create_folders([dest_folder])
+# 	delete_folders([dest_folder])
+# 	create_folders([dest_folder])
 	
-	for dirpath, dirnames, filenames in os.walk(src_folder):
-		# Construct the destination directory path
-		dest_dir = dirpath.replace(src_folder, dest_folder, 1)
+# 	for dirpath, dirnames, filenames in os.walk(src_folder):
+# 		# Construct the destination directory path
+# 		dest_dir = dirpath.replace(src_folder, dest_folder, 1)
 		
-		# Ensure the destination directory existss
-		if not os.path.exists(dest_dir):
-			os.makedirs(dest_dir)
+# 		# Ensure the destination directory existss
+# 		if not os.path.exists(dest_dir):
+# 			os.makedirs(dest_dir)
 		
-		# Copy each file
-		for filename in filenames:
-			src_file = os.path.join(dirpath, filename)
-			dest_file = os.path.join(dest_dir, filename)
-			shutil.copy(src_file, dest_file)
+# 		# Copy each file
+# 		for filename in filenames:
+# 			src_file = os.path.join(dirpath, filename)
+# 			dest_file = os.path.join(dest_dir, filename)
+# 			shutil.copy(src_file, dest_file)
 
 def get_file_list(input_path : str) -> List[str]:
 	'''

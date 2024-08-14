@@ -22,7 +22,7 @@ if __name__ == '__main__':
 	
 	logging.info("=======================")
 	logging.info(f"GENERATING FRAME-BY-FRAME POINTCLOUDS")
-	logging.info("=======================")
+	logging.info("=======================\n")
 
 	for arg, value in vars(args).items():
 		logging.info(f"{arg}: {value}")
