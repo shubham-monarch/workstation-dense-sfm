@@ -270,6 +270,13 @@ if [ ! -d "$DENSE_RECON_OUTPUT_DIR" ]; then
 		exit $EXIT_FAILURE
 	fi
 
+	# upload to s3
+	python3 -m scripts.utils_module.aws_utils.upload_to_s3 \
+	--folder_LOCAL="${DENSE_RECON_OUTPUT_DIR}" \
+	--folder_S3="${DENSE_RECON_OUTPUT_DIR}" \
+	--bucket_S3="occupancy-dataset" 
+	
+
 else 
 
 	# upload to s3
