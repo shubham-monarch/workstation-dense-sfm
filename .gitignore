@@ -11,6 +11,7 @@
 stereo-fusion/*
 .vscode/*
 archive-svo-files/*
+svo-archives/* 
 
 # pipeline-folders
 output/*

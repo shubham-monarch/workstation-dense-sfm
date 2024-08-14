@@ -91,4 +91,8 @@ if __name__ == "__main__":
 	if flag:
 		sys.exit(0)
 	else:
+		if not flag:
+			aws_log_file = "/home/ubuntu/workstation-sfm-setup/logs/aws_error.log"
+			with open(aws_log_file, 'a') as log_file:
+				log_file.write(f"Failed to upload folder: {folder_LOCAL}\n")
 		sys.exit(1)

@@ -14,7 +14,6 @@ then
 fi
 
 
-
 # =====================================
 # [COPY SVO FILES FROM INPUT TO INPUT-BACKEND/SVO-FILES]
 # =====================================
@@ -29,7 +28,7 @@ echo -e "\n"
 # clear input-backend/svo-files
 rm -rf input-backend/svo-files/*
 
-# move files from occ_input_dir to input-backend/svo-files
+# copy files from occ_input_dir to input-backend/svo-files
 cp -r input/* input-backend/svo-files
 
 INPUT_PATH=input-backend/svo-files
@@ -118,7 +117,7 @@ do
 		echo -e "\n"
 
 		if [ $exit_status -eq 0 ]; then
-        	echo "$CONFIG_FILE" >> end_to_end.log
+        	echo "$CONFIG_FILE" >> "logs/success.log
     	fi
 
 
