@@ -36,7 +36,7 @@ class VisualOdometry(object):
         self.cur_t = None
 
         # custom logger
-        self.logger = self.setup_logger()
+        # self.logger = self.setup_logger()
 
         # vo filtering
         self.inliers_ = []
