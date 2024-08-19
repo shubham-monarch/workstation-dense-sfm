@@ -2,26 +2,21 @@
 # [code-testing]
 # ============================
 
-# ============================
-# [svo testing]
-# - case 1 - memory crash
-# - /vineyards/gallo/2024_06_07_utc/svo_files/front_2024-06-04-11-34-23.svo
-# ============================
 
 # ============================
 # [pipeline]
-# - move input files to input-backend/svo-files
 # - dense-reconstruction with multiple GPUs
 # - track folder size 
-# - folder deletion if folder size exceeds a certain limit
+# - add readme
+# - add readme deletion if folder size exceeds a certain limit
 # - python script based existing folder detection
+# - logging for finished files [farm agnostic]
+# - better logging for processed files
+# - index for already processed files 
+# - move RJM to vineyards/RJM
+# - filtering index before processing svo files
 # ============================
 
-# ============================
-# - [logging]
-# - log every finished svo file 
-# - figure out a way to resume after script termination
-# ============================
 
 # ============================
 # - [git repo]
