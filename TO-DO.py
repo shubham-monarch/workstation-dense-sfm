@@ -14,6 +14,7 @@
 # - better logging for processed files
 # - index for already processed files 
 # - move RJM to vineyards/RJM
+# - move main-file.sh to scripts folder
 # - filtering index before processing svo files
 # ============================
 
