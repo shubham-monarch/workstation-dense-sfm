@@ -22,7 +22,6 @@ output-backend/*
 input-backend/*
 logs/*
 
-
 # file types
 *.bin
 *.ply

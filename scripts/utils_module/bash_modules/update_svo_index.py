@@ -3,6 +3,8 @@
 import json
 import logging,coloredlogs
 import argparse
+from scripts.utils_module import io_utils
+import os
 
 def update_svo_index(svo_file: str, index_file: str) -> bool:
 	"""
@@ -12,6 +14,7 @@ def update_svo_index(svo_file: str, index_file: str) -> bool:
 
 	try:
 		# Attempt to open and read the index file; if it doesn't exist, use an empty list
+		io_utils.create_folders([os.path.dirname(index_file)])
 		try:
 			with open(index_file, 'r') as file:
 				processed_files = json.load(file)
