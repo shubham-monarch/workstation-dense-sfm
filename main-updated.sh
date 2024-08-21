@@ -60,10 +60,10 @@ do
 
 	exit_status=$?
 
-	if [ $exit_status -eq 0 ]; then
+	if [ $exit_status -ne 0 ]; then
 		echo -e "\n"
 		echo "==============================="
-		echo "[$SVO_FILE] ALREADY PRESENT IN $INDEX_FILE ---> SKIPPING"
+		echo "[$SVO_FILE] ALREADY PRESENT IN INDEX ---> SKIPPING"
 		echo "==============================="
 		echo -e "\n"
 		continue
@@ -147,6 +147,9 @@ do
 	python3 -m scripts.utils_module.bash_modules.update_svo_index \
 		--svo_file $SVO_FILE \
 		--index_file $INDEX_FILE
+
+	# delete output-backend / input-backend / output folder if storage exceeds 100 GB
+	python3 -m scripts.utils_module.bash_modules.check_storage
 
 	# break
 done
