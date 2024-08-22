@@ -33,26 +33,28 @@ if __name__ == "__main__":
 	# output_folder="output/RJM/2024_06_06_utc/svo_files/front_2024-06-05-09-09-54.svo/296_to_438"
 
 	frame_to_frame_RGB = args.f2f_RGB
-	frame_to_frame_SEGMENTED = args.f2f_SEG
-	labelled_pointclouds_SEGMENTED = args.f2f_LABELLED
+	# frame_to_frame_SEGMENTED = args.f2f_SEG
+	frame_to_frame_LABELLED = args.f2f_LABELLED
+	
 	output_folder= args.o
 
 	rgb_count = count_directories(frame_to_frame_RGB)
-	segmented_count = count_directories(frame_to_frame_SEGMENTED)
-	pointclouds_count = count_directories(labelled_pointclouds_SEGMENTED)
+	# segmented_count = count_directories(frame_to_frame_SEGMENTED)
+	pointclouds_count = count_directories(frame_to_frame_LABELLED)
 
 	# clear the output folder
 	io_utils.delete_folders([output_folder])
 
-	if(rgb_count == segmented_count == pointclouds_count):
+	# if(rgb_count == segmented_count == pointclouds_count):
+	if(rgb_count == pointclouds_count):
 		
 		# List directories in each path
 		rgb_dirs = sorted([d for d in os.listdir(frame_to_frame_RGB) if os.path.isdir(os.path.join(frame_to_frame_RGB, d))])
-		segmented_dirs = sorted([d for d in os.listdir(frame_to_frame_SEGMENTED) if os.path.isdir(os.path.join(frame_to_frame_SEGMENTED, d))])
-		pointclouds_dirs = sorted([d for d in os.listdir(labelled_pointclouds_SEGMENTED) if os.path.isdir(os.path.join(labelled_pointclouds_SEGMENTED, d))])
+		# segmented_dirs = sorted([d for d in os.listdir(frame_to_frame_SEGMENTED) if os.path.isdir(os.path.join(frame_to_frame_SEGMENTED, d))])
+		pointclouds_dirs = sorted([d for d in os.listdir(frame_to_frame_LABELLED) if os.path.isdir(os.path.join(frame_to_frame_LABELLED, d))])
 
 		
-		for rgb_dir, segmented_dir, pointclouds_dir in tqdm(zip(rgb_dirs, segmented_dirs, pointclouds_dirs), total=len(rgb_dirs)):
+		for rgb_dir, labelled_dir in tqdm(zip(rgb_dirs,pointclouds_dirs), total=len(rgb_dirs)):
 			# logging.info(f"rgb_dir: {rgb_dir}") 
 			# logging.info(f"segmented_dir: {segmented_dir}")
 			# logging.info(f"pointclouds_dir: {pointclouds_dir}")
@@ -65,9 +67,14 @@ if __name__ == "__main__":
 			ply_left_RGB = os.path.join(frame_to_frame_RGB, rgb_dir, "left.ply")
 			io_utils.copy_file(ply_left_RGB, frame_folder, "left-rgb.ply")
 
-			# copying left segmented pointcloud to [frame_folder]
-			ply_left_SEGMENTED = os.path.join(frame_to_frame_SEGMENTED, segmented_dir, "left.ply")
-			io_utils.copy_file(ply_left_SEGMENTED, frame_folder, "left-segmented-labelled.ply")  
+			# # copying left segmented pointcloud to [frame_folder]
+			# ply_left_SEGMENTED = os.path.join(frame_to_frame_SEGMENTED, segmented_dir, "left.ply")
+			# io_utils.copy_file(ply_left_SEGMENTED, frame_folder, "left-segmented-labelled.ply")  
+			
+			# copying left labelled segmented pointcloud to [frame_folder]
+			ply_left_LABELLED = os.path.join(frame_to_frame_LABELLED, labelled_dir, "left.ply")
+			io_utils.copy_file(ply_left_LABELLED, frame_folder, "left-segmented-labelled.ply")  
+			
 			
 			# copying left /right RGB images to [frame_folder]
 			img_left_RGB = os.path.join(frame_to_frame_RGB, rgb_dir, "left.jpg")
