@@ -138,8 +138,8 @@ do
 
 		if [ $exit_status -eq 0 ]; then
         	echo "$CONFIG_FILE" >> "logs/success.log"
+			
     	fi
-
 
 		((idx++))
 	done
