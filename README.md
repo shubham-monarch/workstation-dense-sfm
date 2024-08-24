@@ -8,14 +8,6 @@ Generates frame-wise occupancy-dataset
 
 ## Getting Started
 
-### Dependencies
-
-* COLMAP 
-* pycolmap 
-* pixSFM
-* HLoc
-
-
 ### Installation 
 
 * Setup a `venv` based virtual python environment
@@ -50,16 +42,17 @@ git clone git@github.com:Monarch-Tractor/workstation-sfm-setup.git
 ### Executing the pipeline
 
 * Copy the svo file(s) / folder(s) inside the `input` folder
-* Exectute the main.sh file
+* Exectute the `main.sh` file
 
 ```
+chmod +x main.sh
 ./main.sh
 ```
 ### Output
 * The output in the desired format is generated at the `output` folder.
 
 ### Logging
-* Realtime logs are stored at logs/main.log
+* Realtime logs are stored at `logs/main.log`
 ```
 tail -f logs/main.log
 ```
