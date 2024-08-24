@@ -13,6 +13,9 @@
 # - move main-file.sh to scripts folder
 # - filtering index before processing svo files
 # - update repo in main occ-repo
+# stop tracking logs / index files 
+# test index FileExists
+# refactor file-storage monitoring
 # ============================
 
 
