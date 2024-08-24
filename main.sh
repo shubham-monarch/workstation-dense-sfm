@@ -29,7 +29,8 @@ echo -e "\n"
 rm -rf input-backend/svo-files/*
 
 # copy files from occ_input_dir to input-backend/svo-files
-cp -r input/* input-backend/svo-files
+mkdir -p input-backend/svo-files
+cp -r input/* input-backend/svo-files/
 
 INPUT_PATH=input-backend/svo-files
 
