@@ -30,7 +30,7 @@ def update_svo_index(svo_file: str, index_file: str) -> bool:
 		
 		# Write the updated list back to the index file
 		with open(index_file, 'w') as file:
-			json.dump(processed_files, file)
+			json.dump(processed_files, file, indent=4, separators=(',', ': '))
 		
 		return True  # svo_file was added to the index
 	except Exception as e:
