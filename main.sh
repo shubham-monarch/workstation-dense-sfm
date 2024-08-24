@@ -149,10 +149,11 @@ do
 		--svo_file $SVO_FILE \
 		--index_file $INDEX_FILE
 
-	
+	# clean-up
 	rm -rf output-backend/*
-	rm -rf input-backend/*
 	rm -rf output/*
+	rm -rf input-backend/sparse-reconstruction/*
+	rm -rf input-backend/vo/*	
 
 	((counter++))
 	# break
