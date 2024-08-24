@@ -33,6 +33,9 @@ cp -r input/* input-backend/svo-files
 
 INPUT_PATH=input-backend/svo-files
 
+# index for processed svo files
+INDEX_FILE=index/svo_index.json
+
 echo -e "\n"
 echo "==============================="	
 echo "INPUT_PATH: $INPUT_PATH"
@@ -49,7 +52,23 @@ do
 	echo "SVO_FILE: $SVO_FILE"
 	echo "==============================="
 	echo -e "\n"
-	
+
+	# check if the SVO_FILE has been processed before
+	python3 -m scripts.utils_module.bash_modules.check_svo_index \
+		--svo_file $SVO_FILE \
+		--index_file $INDEX_FILE
+
+	exit_status=$?
+
+	if [ $exit_status -ne 0 ]; then
+		echo -e "\n"
+		echo "==============================="
+		echo "[$SVO_FILE] ALREADY PRESENT IN INDEX ---> SKIPPING"
+		echo "==============================="
+		echo -e "\n"
+		continue
+	fi
+
 	SVO_STEP=2
 	python3 -m scripts.vo.main \
 	--i=$SVO_FILE \
@@ -124,6 +143,17 @@ do
 		((idx++))
 	done
 
+	# update the index file with the processed svo file
+	python3 -m scripts.utils_module.bash_modules.update_svo_index \
+		--svo_file $SVO_FILE \
+		--index_file $INDEX_FILE
+
+	
+	rm -rf output-backend/*
+	rm -rf input-backend/*
+	rm -rf output/*
+
+	((counter++))
 	# break
 done
 
