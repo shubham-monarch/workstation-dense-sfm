@@ -1,17 +1,17 @@
 #!/bin/bash
 
-SVO_FILENAME=$1
-SVO_STEP=$4
-SVO_START_IDX=$(($2 * $4))
-SVO_END_IDX=$(($3 * $4))
-FARM_TYPE=$5	
+# SVO_FILENAME=$1
+# SVO_STEP=$4
+# SVO_START_IDX=$(($2 * $4))
+# SVO_END_IDX=$(($3 * $4))
+# FARM_TYPE=$5	
 
 # testing
-# SVO_FILENAME="RJM/2024_06_06_utc/svo_files/front_2024-06-05-09-09-54.svo"
-# SVO_STEP=2
-# SVO_START_IDX=296
-# SVO_END_IDX=438
-# FARM_TYPE="vineyards"	
+SVO_FILENAME="front_2024-06-05-09-24-54.svo"
+SVO_STEP=2
+SVO_START_IDX=1140
+SVO_END_IDX=1282
+FARM_TYPE="vineyards"	
 
 # redirecting all output to a log.main 
 # exec > logs/main.log 2>&1
@@ -112,7 +112,7 @@ if [ ! -d "$SPARSE_RECON_OUTPUT_DIR" ]; then
 	START_TIME=$(date +%s) 
 
 	python3 -m ${PIPELINE_SCRIPT_DIR}.sparse_reconstruction \
-	    --svo_images=$SVO_IMAGES_DIR \
+		--svo_images=$SVO_IMAGES_DIR \
 		--input_dir=$SPARSE_RECON_INPUT_DIR \
 		--output_dir=$SPARSE_RECON_OUTPUT_DIR \
 		--svo_file=$SVO_FILE_PATH  
@@ -271,19 +271,19 @@ if [ ! -d "$DENSE_RECON_OUTPUT_DIR" ]; then
 	fi
 
 	# upload to s3
-	python3 -m scripts.utils_module.aws_utils.upload_to_s3 \
-	--folder_LOCAL="${DENSE_RECON_OUTPUT_DIR}" \
-	--folder_S3="${DENSE_RECON_OUTPUT_DIR}" \
-	--bucket_S3="occupancy-dataset" 
+	# python3 -m scripts.utils_module.aws_utils.upload_to_s3 \
+	# --folder_LOCAL="${DENSE_RECON_OUTPUT_DIR}" \
+	# --folder_S3="${DENSE_RECON_OUTPUT_DIR}" \
+	# --bucket_S3="occupancy-dataset" 
 	
 
 else 
 
 	# upload to s3
-	python3 -m scripts.utils_module.aws_utils.upload_to_s3 \
-	--folder_LOCAL="${DENSE_RECON_OUTPUT_DIR}" \
-	--folder_S3="${DENSE_RECON_OUTPUT_DIR}" \
-	--bucket_S3="occupancy-dataset" 
+	# python3 -m scripts.utils_module.aws_utils.upload_to_s3 \
+	# --folder_LOCAL="${DENSE_RECON_OUTPUT_DIR}" \
+	# --folder_S3="${DENSE_RECON_OUTPUT_DIR}" \
+	# --bucket_S3="occupancy-dataset" 
 	
 	echo -e "\n"
 	echo "[WARNING] SKIPPING DENSE-RECONSTRUCTION as ${DENSE_RECON_OUTPUT_DIR} already exists."
@@ -461,32 +461,32 @@ fi
 # [STEP 9 --> UPLOAD OUTPUT FOLDER TO S3 BUCKET]
 # =====================================
 
-LOCAL_FOLDER=${OCC_OUTPUT}
-S3_FOLDER="occ-dataset/${SVO_FILENAME}/${SUB_FOLDER_NAME}"
+# LOCAL_FOLDER=${OCC_OUTPUT}
+# S3_FOLDER="occ-dataset/${SVO_FILENAME}/${SUB_FOLDER_NAME}"
 
-START_TIME=$(date +%s)
+# START_TIME=$(date +%s)
 
-python3 -m scripts.utils_module.aws_utils.upload_to_s3 \
-	--folder_LOCAL="${LOCAL_FOLDER}" \
-	--folder_S3="${S3_FOLDER}" \
-	--bucket_S3="occupancy-dataset" 
+# python3 -m scripts.utils_module.aws_utils.upload_to_s3 \
+# 	--folder_LOCAL="${LOCAL_FOLDER}" \
+# 	--folder_S3="${S3_FOLDER}" \
+# 	--bucket_S3="occupancy-dataset" 
 	
-if [ $? -eq 0 ]; then
+# if [ $? -eq 0 ]; then
 		
-	END_TIME=$(date +%s)
-	DURATION=$((END_TIME - START_TIME)) 
+# 	END_TIME=$(date +%s)
+# 	DURATION=$((END_TIME - START_TIME)) 
 	
-	echo -e "\n"
-	echo "==============================="
-	echo "Time taken for uploading OCC_OUTPUT to S3: ${DURATION} seconds"
-	echo "==============================="
-	echo -e "\n"
+# 	echo -e "\n"
+# 	echo "==============================="
+# 	echo "Time taken for uploading OCC_OUTPUT to S3: ${DURATION} seconds"
+# 	echo "==============================="
+# 	echo -e "\n"
 
-else
-	echo -e "\n"
-	echo "[ERROR] OCC_OUTPUT UPLOADING TO S3 BUCKET failed ==> EXITING PIPELINE!"
-	echo -e "\n"
-	exit $EXIT_FAILURE
-fi
+# else
+# 	echo -e "\n"
+# 	echo "[ERROR] OCC_OUTPUT UPLOADING TO S3 BUCKET failed ==> EXITING PIPELINE!"
+# 	echo -e "\n"
+# 	exit $EXIT_FAILURE
+# fi
 
 

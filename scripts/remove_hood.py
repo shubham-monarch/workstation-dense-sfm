@@ -35,6 +35,12 @@ def remove_hood(input_path, output_dir):
         
     output_path = os.path.join(output_dir, img_name)
     cv2.imwrite(str(output_path), img)
+    
+    logger.warning("=======================")
+    logger.warning(f"input_path: {input_path}")
+    logger.warning(f"output_path: {output_path}")
+    logger.warning("=======================")
+	
 
 if __name__ == "__main__":
 
@@ -43,11 +49,25 @@ if __name__ == "__main__":
                         help='Input directory containing images')
     parser.add_argument('--o', type=str, required=True, 
                         help='Output directory for processed images')
+
+    
     
     args = parser.parse_args()
     
     input_dir = Path(args.i)
     output_dir = Path(args.o)
     
+    logger.warning("=======================")
+    logger.warning("INSIDE REMOVE HOOD SCRIPT!")
+    logger.warning(f"input_dir: {input_dir}")
+    logger.warning(f"Number of files: {len(list(input_dir.glob('*.jpg')))}")
+    logger.warning(f"output_dir: {output_dir}")
+    logger.warning("=======================")
+
+
+	
+
+
     for img_file in tqdm(list(input_dir.glob('*.jpg')), desc="Processing images"):
+        
         remove_hood(img_file, output_dir)

@@ -24,6 +24,7 @@ import argparse
 import pyzed.sl as sl
 import logging, coloredlogs
 import gc
+import cv2
 # from memory_profiler import profile
 
 # from scriutils_module import io_utils
@@ -34,6 +35,14 @@ from scripts.utils_module import io_utils
 cpp_out = ostream_redirect(stderr=True, stdout=True)
 cpp_out.__enter__()
 
+
+# LOGGING SETUP
+logger = logging.getLogger(__name__)
+formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s - %(lineno)d')
+handler = logging.StreamHandler()
+handler.setFormatter(formatter)
+logger.addHandler(handler)
+coloredlogs.install(level='INFO', logger=logger, force=True)
 
 
 def get_zed_camera_params(svo_loc):
@@ -96,6 +105,30 @@ def generate_input_folder(src_dir, dst_dir):
 
 
 
+def remove_hood(input_path, output_dir):
+
+    img_name = os.path.basename(input_path)
+    os.makedirs(output_dir, exist_ok=True)
+    img = cv2.imread(str(input_path))
+
+    h, w, _ = img.shape
+    
+    if img is None:
+        return
+    x1, y1, x2, y2 = [int(0.68* h), int(0.21 * w), int(h), int(0.85 * w)]  
+    
+    # Black out the bbox region
+    img[x1:x2, y1:y2] = 0
+        
+    output_path = os.path.join(output_dir, img_name)
+    cv2.imwrite(str(output_path), img)
+    
+    # logger.warning("=======================")
+    # logger.warning(f"input_path: {input_path}")
+    # logger.warning(f"output_path: {output_path}")
+    # logger.warning("=======================")
+	
+
 '''
 :param svo_output: path to the svo files
 :param images: Path to the directory containing the images
@@ -130,6 +163,15 @@ def sparse_reconstruction_pipeline(opencv_camera_params, images, outputs):
         references = references_left + references_right
         references = sorted(references, key=lambda x: int(x.split('/')[-1].split('_')[1]))
 
+        for ref in references:
+            input_path = images / ref
+            output_dir = os.path.dirname(images / ref)
+            remove_hood(images / ref, output_dir)
+            # logger.warning("=======================")
+            # logger.warning(f"input_path: {input_path}")
+            # logger.warning(f"output_dir: {output_dir}")
+            # logger.warning("=======================")
+        
         features_path_ = extract_features.main(feature_conf, images, image_list=references, feature_path=features)
 
         pairs_from_exhaustive.stereo_main(sfm_pairs, image_list=references)

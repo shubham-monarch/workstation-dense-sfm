@@ -150,10 +150,11 @@ do
 		--index_file $INDEX_FILE
 
 	# clean-up
-	rm -rf output-backend/*
-	rm -rf output/*
-	rm -rf input-backend/sparse-reconstruction/*
-	rm -rf input-backend/vo/*	
+	# [TODO: remove this after testing]
+	# rm -rf output-backend/*
+	# rm -rf output/*
+	# rm -rf input-backend/sparse-reconstruction/*
+	# rm -rf input-backend/vo/*	
 
 	((counter++))
 	# break
