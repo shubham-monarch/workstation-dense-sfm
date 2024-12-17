@@ -1,13 +1,20 @@
+#! /usr/bin/env python3
+
 import torch
 import cv2
 import numpy as np
 import open3d as o3d
 import torch.nn.functional as F
-from scripts.utils_module import io_utils
+# from scripts.utils_module import io_utils
 import logging, coloredlogs
-from scripts.segFusion.segmentation.pidnet import PIDNet, get_seg_model, get_seg_model_new
-from scripts.segFusion.segmentation.utils import input_transform
-from scripts.utils_module import io_utils
+# from scripts.segFusion.segmentation.pidnet import PIDNet, get_seg_model, get_seg_model_new
+# from scripts.segFusion.segmentation.utils import input_transform
+# from scripts.utils_module import io_utils
+
+from segmentation.pidnet import PIDNet, get_seg_model, get_seg_model_new
+from segmentation.utils import input_transform
+
+
 import argparse
 import yaml
 from tqdm import tqdm
@@ -34,13 +41,19 @@ class Config:
 			self.imgnet_pretrained = False
 			self.image_size = [3, 1024, 1024]
 			self.ori_image_size = [3, 1920, 1080]
+
+
 		elif farm_type == 'dairy':
 			self.seg_model = 'pidnet_large'
-			self.num_classes = 9
+			self.num_classes = 14
 			module_dir = os.path.dirname(__file__)
-			self.seg_pretrained = os.path.join(module_dir, 'segmentation/pretrained/2023.10.24.V.PID.V1.1.pt')
+			self.seg_pretrained = os.path.join(module_dir, 'segmentation/pretrained/2024.08.10.D.PID.V1.5.pt')
 			self.imgnet_pretrained = False
-		
+			
+			self.image_size = [3, 1024, 1024]
+			self.ori_image_size = [3, 1920, 1080]
+
+
 class SegInfer:
 	def __init__(self, config):
 		
@@ -86,23 +99,23 @@ class SegInfer:
 	
 		return masked_image, mask
 	
-	def mavis_cmap(self):
+	# def mavis_cmap(self):
 			
-		cmap = {}
+	# 	cmap = {}
 	
-		cmap[-1] = [0, 0, 0]
-		cmap[0] = [0, 0, 0]
-		cmap[1] = [246, 4, 228] 
-		cmap[2] = [173, 94, 48] 
-		cmap[3] = [68, 171, 117] 
-		cmap[4] = [162, 122, 174] 
-		cmap[5] = [121, 119, 148] 
-		cmap[6] = [253, 75, 40] 
-		cmap[7] = [170, 60, 100] 
-		cmap[8] = [60, 100, 179]
-		cmap[9] = [170, 100, 60]
+	# 	cmap[-1] = [0, 0, 0]
+	# 	cmap[0] = [0, 0, 0]
+	# 	cmap[1] = [246, 4, 228] 
+	# 	cmap[2] = [173, 94, 48] 
+	# 	cmap[3] = [68, 171, 117] 
+	# 	cmap[4] = [162, 122, 174] 
+	# 	cmap[5] = [121, 119, 148] 
+	# 	cmap[6] = [253, 75, 40] 
+	# 	cmap[7] = [170, 60, 100] 
+	# 	cmap[8] = [60, 100, 179]
+	# 	cmap[9] = [170, 100, 60]
 	
-		return cmap
+	# 	return cmap
 	
 	def load_cmap(self, cmap_file):
 		
@@ -152,7 +165,7 @@ class SegInfer:
 				colored_seg_mask[seg_mask == label] = color
 		elif self.farm_type == 'dairy':
 			_, seg_mask, _ = self.seg_model(img)
-			cmap = self.load_cmap('Mavis.yaml')
+			cmap = self.load_cmap('Mavis_Dairy.yaml')
 			colored_seg_mask = np.zeros((seg_mask.shape[0], seg_mask.shape[1], 3), dtype=np.uint8)
 			for label, color in cmap.items():
 				colored_seg_mask[seg_mask == label] = color
@@ -164,7 +177,7 @@ class SegInfer:
 	def run(self, img):
 		
 		# img, mask = self.mask_bottom_center(img)
-		cmap = self.mavis_cmap()
+		# cmap = self.mavis_cmap()
 		seg_mask = self.img2seg(img)
 
 		return seg_mask
@@ -176,7 +189,8 @@ def segment(path_RGB : str, path_SEGMENTED : str) -> None:
 	:param path_RGB: path to the rgb image
 	:param path_SEGMENTED: path to the segmented image
 	'''
-	config = Config()
+	# config = Config()
+	config = Config(farm_type='dairy')
 	inferencer = SegInfer(config=config)
 	img_RGB= cv2.imread(path_RGB)
 	img_SEGMENTED = inferencer.run(img_RGB)
@@ -194,8 +208,8 @@ def generate_segmented_images(input_dir : str, output_dir : str) -> None:
 	for root, dirs, files in os.walk(input_dir):
 		output_root = root.replace(input_dir, output_dir, 1)
 		
-		io_utils.create_folders([output_root])
-
+		# io_utils.create_folders([output_root])
+		os.makedirs(output_root, exist_ok=True)
 		for file in tqdm(files):
 			if file.lower().endswith(('.png', '.jpg', '.jpeg', '.bmp', '.tiff')):		
 				input_path = os.path.join(root, file)
@@ -213,45 +227,52 @@ if __name__ == '__main__':
 	logging.info("GENERATING DENSE-SEGMENTED.PLY")
 	logging.info("=======================\n")
 	
-	parser = argparse.ArgumentParser()
-	# parser.add_argument("--rgb_images", type=str, required= True)
-	parser.add_argument("--input_folder", type=str, required= True)
-	parser.add_argument("--output_folder", type=str, required= True)
-	parser.add_argument("--farm_type", type=str, default="vineyards")
+	# parser = argparse.ArgumentParser()
+	# # parser.add_argument("--rgb_images", type=str, required= True)
+	# parser.add_argument("--input_folder", type=str, required= True)
+	# parser.add_argument("--output_folder", type=str, required= True)
+	# parser.add_argument("--farm_type", type=str, default="vineyards")
 
-	args = parser.parse_args()
+	# args = parser.parse_args()
 
 	# dense_recon_folder = args.dense_recon_folder
-	input_folder = args.input_folder
-	output_folder = args.output_folder
-	farm_type = args.farm_type
+	# input_folder = args.input_folder
+	# output_folder = args.output_folder
+	# farm_type = args.farm_type
 
-	images_RGB = os.path.join(input_folder, "images")
-	images_SEG = os.path.join(output_folder, "images")
+	input_folder = "front_2024-02-13-09-40-30_frames"
+	output_folder = "front_2024-02-13-09-40-30_frames_segmented"
+	farm_type = "dairy"
 
-	# clear the images_SEG folder
-	io_utils.delete_folders([output_folder])
-	io_utils.create_folders([output_folder])
+	# os.makedirs(output_folder, exist_ok=True)
 
-	logging.info(f"images_RGB: {images_RGB}")
-	logging.info(f"images_SEG: {images_SEG}")
+	# images_RGB = os.path.join(input_folder, "images")
+	# images_SEG = os.path.join(output_folder, "images")
+
+	# # clear the images_SEG folder
+	# io_utils.delete_folders([output_folder])
+	# io_utils.create_folders([output_folder])
+
+	# logging.info(f"images_RGB: {images_RGB}")
+	# logging.info(f"images_SEG: {images_SEG}")
 
 	# populate images_SEG folder with segmented images
-	generate_segmented_images(images_RGB, images_SEG)
+	# generate_segmented_images(images_RGB, images_SEG)
+	generate_segmented_images(input_folder, output_folder)
 
 	# copy [sparse / stereo] folder to [dense-segmented-recon] folder
-	sparse_folder_INPUT = os.path.join(input_folder, "sparse")	
-	stereo_folder_INPUT = os.path.join(input_folder, "stereo")
+	# sparse_folder_INPUT = os.path.join(input_folder, "sparse")	
+	# stereo_folder_INPUT = os.path.join(input_folder, "stereo")
 
-	sparse_folder_OUTPUT = os.path.join(output_folder, "sparse")
-	stereo_folder_OUTPUT = os.path.join(output_folder, "stereo")
+	# sparse_folder_OUTPUT = os.path.join(output_folder, "sparse")
+	# stereo_folder_OUTPUT = os.path.join(output_folder, "stereo")
 
-	shutil.copytree(sparse_folder_INPUT, sparse_folder_OUTPUT,  dirs_exist_ok=True)
-	shutil.copytree(stereo_folder_INPUT, stereo_folder_OUTPUT,  dirs_exist_ok=True)
+	# shutil.copytree(sparse_folder_INPUT, sparse_folder_OUTPUT,  dirs_exist_ok=True)
+	# shutil.copytree(stereo_folder_INPUT, stereo_folder_OUTPUT,  dirs_exist_ok=True)
 
-	# generate [dense-segmented.ply]	
-	pycolmap.stereo_fusion(Path(output_folder) / "dense.ply", Path(output_folder))
-	pycolmap.stereo_fusion(Path(output_folder) , Path(output_folder))
+	# # generate [dense-segmented.ply]	
+	# pycolmap.stereo_fusion(Path(output_folder) / "dense.ply", Path(output_folder))
+	# pycolmap.stereo_fusion(Path(output_folder) , Path(output_folder))
 
-	# delete [sterero / sparse] folders	
-	io_utils.delete_folders([sparse_folder_OUTPUT, stereo_folder_OUTPUT])
+	# # delete [sterero / sparse] folders	
+	# io_utils.delete_folders([sparse_folder_OUTPUT, stereo_folder_OUTPUT])
