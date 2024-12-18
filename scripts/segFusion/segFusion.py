@@ -241,7 +241,6 @@ if __name__ == '__main__':
 
 	args = parser.parse_args()
 
-	dense_recon_folder = args.dense_recon_folder
 	input_folder = args.input_folder
 	output_folder = args.output_folder
 	farm_type = args.farm_type
