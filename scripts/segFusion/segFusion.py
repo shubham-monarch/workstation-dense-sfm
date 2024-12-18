@@ -3,22 +3,21 @@
 import torch
 import cv2
 import numpy as np
-# import open3d as o3d
+import open3d as o3d
 import torch.nn.functional as F
-# from scripts.utils_module import io_utils
+from scripts.utils_module import io_utils
 import logging, coloredlogs
-# from scripts.segFusion.segmentation.pidnet import PIDNet, get_seg_model, get_seg_model_new
-# from scripts.segFusion.segmentation.utils import input_transform
-# from scripts.utils_module import io_utils
+from scripts.segFusion.segmentation.pidnet import PIDNet, get_seg_model, get_seg_model_new
+from scripts.segFusion.segmentation.utils import input_transform
 
-from segmentation.pidnet import PIDNet, get_seg_model, get_seg_model_new
-from segmentation.utils import input_transform
+# from segmentation.pidnet import PIDNet, get_seg_model, get_seg_model_new
+# from segmentation.utils import input_transform
 
 
 import argparse
 import yaml
 from tqdm import tqdm
-# import pycolmap
+import pycolmap
 import shutil
 from pathlib import Path
 import os
@@ -33,6 +32,7 @@ class Config:
 			module_dir = os.path.dirname(__file__)
 			self.seg_pretrained = os.path.join(module_dir, 'segmentation/pretrained/2024.06.14.V.PID.V1.0_4cls.pt')
 			self.imgnet_pretrained = False
+		
 		elif farm_type == 'vineyards':
 			self.seg_model = 'pidnet_large'
 			self.num_classes = 9
@@ -47,7 +47,7 @@ class Config:
 			self.seg_model = 'pidnet_large'
 			self.num_classes = 14
 			module_dir = os.path.dirname(__file__)
-			self.seg_pretrained = os.path.join(module_dir, '/mnt/2C5D80A2224FE961/Segmentation/PIDnet_releases/dairy_pt/2024.08.10.D.PID.V1.5.pt')
+			self.seg_pretrained = os.path.join(module_dir, 'segmentation/pretrained/dairy_pt/2024.08.10.D.PID.V1.5.pt')
 			self.imgnet_pretrained = False
 			
 			self.image_size = [3, 1024, 1024]
@@ -187,7 +187,7 @@ class SegInfer:
 
 		return seg_mask
 
-def segment(path_RGB : str, path_SEGMENTED : str) -> None:
+def segment(path_RGB : str, path_SEGMENTED : str, farm_type : str) -> None:
 	'''
 	writes the segmented image to the img_seg path
 	
@@ -195,32 +195,33 @@ def segment(path_RGB : str, path_SEGMENTED : str) -> None:
 	:param path_SEGMENTED: path to the segmented image
 	'''
 	# config = Config()
-	config = Config(farm_type='dairy')
+	config = Config(farm_type=farm_type)
 	inferencer = SegInfer(config=config)
 	img_RGB= cv2.imread(path_RGB)
 	img_SEGMENTED = inferencer.run(img_RGB)
 
 	cv2.imwrite(path_SEGMENTED, img_SEGMENTED)
 	
-def generate_segmented_images(input_dir : str, output_dir : str) -> None:
+def generate_segmented_images(input_dir : str, output_dir : str, farm_type : str) -> None:
 	'''
 	write segmented images to the output_dir
 	
 	:param input_dir: path to the [images-rgb] folder
 	:param output_dir: path to the [images-segmented] folder
+	:param farm_type: type of farm
 	'''
 
 	for root, dirs, files in os.walk(input_dir):
 		output_root = root.replace(input_dir, output_dir, 1)
 		
-		# io_utils.create_folders([output_root])
-		os.makedirs(output_root, exist_ok=True)
+		io_utils.create_folders([output_root])
+		# os.makedirs(output_root, exist_ok=True)
 		for file in tqdm(files):
 			if file.lower().endswith(('.png', '.jpg', '.jpeg', '.bmp', '.tiff')):		
 				input_path = os.path.join(root, file)
 				output_path = os.path.join(output_root, file)
 				# logging.info(f"{input_path} ==> {output_path}")
-				segment(input_path, output_path)		
+				segment(input_path, output_path, farm_type)		
 				# break	
 
 
@@ -245,10 +246,7 @@ if __name__ == '__main__':
 	output_folder = args.output_folder
 	farm_type = args.farm_type
 
-	# input_folder = "front_2024-02-13-10-28-53_frames"
-	# output_folder = "front_2024-02-13-10-28-53_frames_segmented"
-	# farm_type = "dairy"
-
+	
 	# os.makedirs(output_folder, exist_ok=True)
 
 	images_RGB = os.path.join(input_folder, "images")
@@ -261,10 +259,9 @@ if __name__ == '__main__':
 	logging.info(f"images_RGB: {images_RGB}")
 	logging.info(f"images_SEG: {images_SEG}")
 
-	populate images_SEG folder with segmented images
-	generate_segmented_images(images_RGB, images_SEG)
-	# generate_segmented_images(input_folder, output_folder)
-
+	# populate images_SEG folder with segmented images
+	generate_segmented_images(images_RGB, images_SEG, farm_type)
+	
 	# copy [sparse / stereo] folder to [dense-segmented-recon] folder
 	sparse_folder_INPUT = os.path.join(input_folder, "sparse")	
 	stereo_folder_INPUT = os.path.join(input_folder, "stereo")
@@ -279,5 +276,5 @@ if __name__ == '__main__':
 	pycolmap.stereo_fusion(Path(output_folder) / "dense.ply", Path(output_folder))
 	pycolmap.stereo_fusion(Path(output_folder) , Path(output_folder))
 
-	# # delete [sterero / sparse] folders	
-	# io_utils.delete_folders([sparse_folder_OUTPUT, stereo_folder_OUTPUT])
+	# delete [sterero / sparse] folders	
+	io_utils.delete_folders([sparse_folder_OUTPUT, stereo_folder_OUTPUT])

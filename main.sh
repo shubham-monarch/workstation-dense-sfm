@@ -116,7 +116,8 @@ do
 		SVO_FILENAME=$(jq -r '.SVO_FILENAME' "$CONFIG_FILE")
 		SVO_START_IDX=$(jq -r '.SVO_START_IDX' "$CONFIG_FILE")
 		SVO_END_IDX=$(jq -r '.SVO_END_IDX' "$CONFIG_FILE")
-		FARM_TYPE="vineyards"
+		# FARM_TYPE="vineyards"
+		FARM_TYPE="dairy"
 
 		echo -e "\n"
 		echo "==============================="
