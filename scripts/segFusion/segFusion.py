@@ -47,7 +47,7 @@ class Config:
 			self.seg_model = 'pidnet_large'
 			self.num_classes = 14
 			module_dir = os.path.dirname(__file__)
-			self.seg_pretrained = os.path.join(module_dir, 'segmentation/pretrained/dairy_pt/2024.08.10.D.PID.V1.5.pt')
+			self.seg_pretrained = os.path.join(module_dir, 'segmentation/pretrained/2024.08.10.D.PID.V1.5.pt')
 			self.imgnet_pretrained = False
 			
 			self.image_size = [3, 1024, 1024]

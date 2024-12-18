@@ -1,17 +1,17 @@
 #!/bin/bash
 
-SVO_FILENAME=$1
-SVO_STEP=$4
-SVO_START_IDX=$(($2 * $4))
-SVO_END_IDX=$(($3 * $4))
-FARM_TYPE=$5	
+#SVO_FILENAME=$1
+#SVO_STEP=$4
+#SVO_START_IDX=$(($2 * $4))
+#SVO_END_IDX=$(($3 * $4))
+#FARM_TYPE=$5	
 
 # testing
-# SVO_FILENAME="RJM/2024_06_06_utc/svo_files/front_2024-06-05-09-09-54.svo"
-# SVO_STEP=2
-# SVO_START_IDX=296
-# SVO_END_IDX=438
-# FARM_TYPE="vineyards"	
+SVO_FILENAME="dairy/chino_valley/2024_02_22/front/front_2024-02-22-14-47-37.svo"
+SVO_STEP=2
+SVO_START_IDX=580
+SVO_END_IDX=722
+FARM_TYPE="dairy"	
 
 # redirecting all output to a log.main 
 # exec > logs/main.log 2>&1
