@@ -300,30 +300,40 @@ BOUNDING_BOX="-5 5 -1 1 -1 1"
 FRAME_TO_FRAME_RGB_FOLDER="${PIPELINE_OUTPUT_DIR}/frame-to-frame-rgb/${SVO_FILENAME}/${SUB_FOLDER_NAME}"
 FRAME_TO_FRAME_RGB_CROPPED_FOLDER="${PIPELINE_OUTPUT_DIR}/frame-to-frame-rgb-cropped/${SVO_FILENAME}/${SUB_FOLDER_NAME}"
 
-START_TIME=$(date +%s) 
+if [ ! -d "$DENSE_RECON_OUTPUT_DIR" ]; then
 
-python3 -m ${PIPELINE_SCRIPT_DIR}.${P360_MODULE}.main \
---bounding_box $BOUNDING_BOX \
---dense_reconstruction_folder="${DENSE_RECON_OUTPUT_DIR}" \
---frame_to_frame_folder="${FRAME_TO_FRAME_RGB_FOLDER}" \
---frame_to_frame_folder_CROPPED="${FRAME_TO_FRAME_RGB_CROPPED_FOLDER}"
+	START_TIME=$(date +%s) 
 
-if [ $? -eq 0 ]; then
-	END_TIME=$(date +%s)
-	DURATION=$((END_TIME - START_TIME)) 
-	
-	echo -e "\n"
-	echo "==============================="
-	echo "Time taken for generating frame-wise pointclouds: ${DURATION} seconds"
-	echo "==============================="
-	echo -e "\n"
+	python3 -m ${PIPELINE_SCRIPT_DIR}.${P360_MODULE}.main \
+		--bounding_box $BOUNDING_BOX \
+		--dense_reconstruction_folder="${DENSE_RECON_OUTPUT_DIR}" \
+		--frame_to_frame_folder="${FRAME_TO_FRAME_RGB_FOLDER}" \
+		--frame_to_frame_folder_CROPPED="${FRAME_TO_FRAME_RGB_CROPPED_FOLDER}"
+
+	if [ $? -eq 0 ]; then
+		
+		END_TIME=$(date +%s)
+		DURATION=$((END_TIME - START_TIME)) 
+		
+		echo -e "\n"
+		echo "==============================="
+		echo "Time taken for generating frame-wise pointclouds: ${DURATION} seconds"
+		echo "==============================="
+		echo -e "\n"
+	else
+		echo -e "\n"
+		echo "[ERROR] FRAME-BY-FRAME [RGB] POINTCLOUD GENERATION FAILED ==> EXITING PIPELINE!"
+		echo -e "\n"
+		rm -rf ${FRAME_TO_FRAME_RGB_FOLDER}
+		rm -rf ${FRAME_TO_FRAME_RGB_CROPPED_FOLDER}
+		exit $EXIT_FAILURE
+	fi
+
 else
 	echo -e "\n"
-	echo "[ERROR] FRAME-BY-FRAME [RGB] POINTCLOUD GENERATION FAILED ==> EXITING PIPELINE!"
+	echo "[WARNING] SKIPPING FRAME-BY-FRAME [RGB] POINTCLOUD GENERATION as ${FRAME_TO_FRAME_RGB_FOLDER} already exists."
+	echo "[WARNING] Delete [${FRAME_TO_FRAME_RGB_FOLDER}] folder and try again!"
 	echo -e "\n"
-	rm -rf ${CAMERA_FRAME_PCL}
-	rm -rf ${CAMERA_FRAME_PCL_CROPPED}
-	exit $EXIT_FAILURE
 fi
 
 # =====================================

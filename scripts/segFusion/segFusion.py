@@ -169,8 +169,10 @@ class SegInfer:
 			_, seg_mask, _ = self.seg_model(img)
 			seg_mask = seg_mask.squeeze(0).cpu().numpy()
 			seg_mask = cv2.resize(seg_mask, (self.config.ori_image_size[1], self.config.ori_image_size[2]), interpolation=cv2.INTER_NEAREST)
+			
+			module_path = os.path.dirname(__file__)
+			cmap = self.load_cmap(os.path.join(module_path, 'Mavis_Dairy.yaml'))
 
-			cmap = self.load_cmap('Mavis_Dairy.yaml')
 			colored_seg_mask = np.zeros((seg_mask.shape[0], seg_mask.shape[1], 3), dtype=np.uint8)
 			for label, color in cmap.items():
 				colored_seg_mask[seg_mask == label] = color
