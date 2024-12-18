@@ -1,17 +1,17 @@
 #!/bin/bash
 
-SVO_FILENAME=$1
-SVO_STEP=$4
-SVO_START_IDX=$(($2 * $4))
-SVO_END_IDX=$(($3 * $4))
-FARM_TYPE=$5	
+# SVO_FILENAME=$1
+# SVO_STEP=$4
+# SVO_START_IDX=$(($2 * $4))
+# SVO_END_IDX=$(($3 * $4))
+# FARM_TYPE=$5	
 
 # # testing
-# SVO_FILENAME="dairy/chino_valley/2024_02_22/front/front_2024-02-22-14-47-37.svo"
-# SVO_STEP=2
-# SVO_START_IDX=580
-# SVO_END_IDX=722
-# FARM_TYPE="dairy"	
+SVO_FILENAME="dairy/chino_valley/2024_02_13/front/front_2024-02-28-16-08-19.svo"
+SVO_STEP=2
+SVO_START_IDX=1838
+SVO_END_IDX=1980
+FARM_TYPE="dairy"	
 
 # redirecting all output to a log.main 
 # exec > logs/main.log 2>&1
@@ -300,41 +300,35 @@ BOUNDING_BOX="-5 5 -1 1 -1 1"
 FRAME_TO_FRAME_RGB_FOLDER="${PIPELINE_OUTPUT_DIR}/frame-to-frame-rgb/${SVO_FILENAME}/${SUB_FOLDER_NAME}"
 FRAME_TO_FRAME_RGB_CROPPED_FOLDER="${PIPELINE_OUTPUT_DIR}/frame-to-frame-rgb-cropped/${SVO_FILENAME}/${SUB_FOLDER_NAME}"
 
-if [ ! -d "$DENSE_RECON_OUTPUT_DIR" ]; then
+# if [ ! -d "$DENSE_RECON_OUTPUT_DIR" ]; then
 
-	START_TIME=$(date +%s) 
+START_TIME=$(date +%s) 
 
-	python3 -m ${PIPELINE_SCRIPT_DIR}.${P360_MODULE}.main \
-		--bounding_box $BOUNDING_BOX \
-		--dense_reconstruction_folder="${DENSE_RECON_OUTPUT_DIR}" \
-		--frame_to_frame_folder="${FRAME_TO_FRAME_RGB_FOLDER}" \
-		--frame_to_frame_folder_CROPPED="${FRAME_TO_FRAME_RGB_CROPPED_FOLDER}"
+python3 -m ${PIPELINE_SCRIPT_DIR}.${P360_MODULE}.main \
+	--bounding_box $BOUNDING_BOX \
+	--dense_reconstruction_folder="${DENSE_RECON_OUTPUT_DIR}" \
+	--frame_to_frame_folder="${FRAME_TO_FRAME_RGB_FOLDER}" \
+	--frame_to_frame_folder_CROPPED="${FRAME_TO_FRAME_RGB_CROPPED_FOLDER}"
 
-	if [ $? -eq 0 ]; then
-		
-		END_TIME=$(date +%s)
-		DURATION=$((END_TIME - START_TIME)) 
-		
-		echo -e "\n"
-		echo "==============================="
-		echo "Time taken for generating frame-wise pointclouds: ${DURATION} seconds"
-		echo "==============================="
-		echo -e "\n"
-	else
-		echo -e "\n"
-		echo "[ERROR] FRAME-BY-FRAME [RGB] POINTCLOUD GENERATION FAILED ==> EXITING PIPELINE!"
-		echo -e "\n"
-		rm -rf ${FRAME_TO_FRAME_RGB_FOLDER}
-		rm -rf ${FRAME_TO_FRAME_RGB_CROPPED_FOLDER}
-		exit $EXIT_FAILURE
-	fi
-
+if [ $? -eq 0 ]; then
+	
+	END_TIME=$(date +%s)
+	DURATION=$((END_TIME - START_TIME)) 
+	
+	echo -e "\n"
+	echo "==============================="
+	echo "Time taken for generating frame-wise pointclouds: ${DURATION} seconds"
+	echo "==============================="
+	echo -e "\n"
 else
 	echo -e "\n"
-	echo "[WARNING] SKIPPING FRAME-BY-FRAME [RGB] POINTCLOUD GENERATION as ${FRAME_TO_FRAME_RGB_FOLDER} already exists."
-	echo "[WARNING] Delete [${FRAME_TO_FRAME_RGB_FOLDER}] folder and try again!"
+	echo "[ERROR] FRAME-BY-FRAME [RGB] POINTCLOUD GENERATION FAILED ==> EXITING PIPELINE!"
 	echo -e "\n"
+	rm -rf ${FRAME_TO_FRAME_RGB_FOLDER}
+	rm -rf ${FRAME_TO_FRAME_RGB_CROPPED_FOLDER}
+	exit $EXIT_FAILURE
 fi
+
 
 # =====================================
 # [STEP 6 --> GENERATE DENSE-SEGMENTED-RECONSTRUCTION]
