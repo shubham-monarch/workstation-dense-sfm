@@ -7,11 +7,11 @@ SVO_END_IDX=$(($3 * $4))
 FARM_TYPE=$5	
 
 # # testing
-SVO_FILENAME="dairy/chino_valley/2024_02_13/front/front_2024-02-28-16-08-19.svo"
-SVO_STEP=2
-SVO_START_IDX=1838
-SVO_END_IDX=1980
-FARM_TYPE="dairy"	
+# SVO_FILENAME="dairy/chino_valley/2024_02_13/front/front_2024-02-28-16-08-19.svo"
+# SVO_STEP=2
+# SVO_START_IDX=1838
+# SVO_END_IDX=1980
+# FARM_TYPE="dairy"	
 
 # redirecting all output to a log.main 
 # exec > logs/main.log 2>&1
