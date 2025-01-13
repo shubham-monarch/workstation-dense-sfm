@@ -106,7 +106,7 @@ def check_results(rba_folder: str, baseline : float) -> bool:
     logging.warning(f"Relative Camera Poses after RBA")
     logging.warning(f"[dx, dy, dz]")
     for pose in rig_ba_rel_poses[:10]:
-        logging.info(f"{pose[:3]}")
+        logging.info(f"{pose}")
 
     flag = check_ba_convergence(rig_ba_rel_poses, baseline)
     # logging.info(f"flag: {flag}")
