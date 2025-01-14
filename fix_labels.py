@@ -5,6 +5,11 @@ import re
 from typing import List
 from urllib.parse import urlparse
 import os
+from tqdm import tqdm
+import json
+from pathlib import Path
+import shutil
+import time
 
 from logger import get_logger
 
@@ -69,11 +74,10 @@ def download_s3_folder(s3_uri: str, local_dir: str) -> None:
         s3_uri (str): S3 URI in the format 's3://bucket-name/path/to/folder'
         local_dir (str): Local directory path where files should be downloaded
     """
-
     logger = get_logger("download_s3_folder")
 
     logger.info(f"====================")
-    logger.info(f"Downloading {s3_uri} to {local_dir}")
+    logger.info(f"Downloading {s3_uri}...")
     logger.info(f"====================\n")
     
     # Parse S3 URI
@@ -101,36 +105,89 @@ def download_s3_folder(s3_uri: str, local_dir: str) -> None:
 
 # Example usage:
 if __name__ == "__main__":
-    
     logger = get_logger("fix_labels")
-    
-    
     
     s3_uri = "s3://occupancy-dataset/output-backend/dense-reconstruction/dairy/"
     matching_folders = get_leaf_folders(s3_uri)
     
-    for folder in matching_folders:
+    # Initialize or load existing results dictionary
+    results_file = 'index/label.json'
+    if os.path.exists(results_file):
+        with open(results_file, 'r') as f:
+            results = json.load(f)
+    else:
+        results = {
+            "successful_labels": [],
+            "failed_labels": []
+        }
+    
+    # Add progress bar for folder processing
+    for folder in tqdm(matching_folders, desc="Processing folders", unit="folder"):
+        start_time = time.time()
+
+        sub_folder = folder.split('/')[-2]  # e.g., "86_to_228"
+        svo_filename = os.path.relpath(folder, "s3://occupancy-dataset/output-backend/dense-reconstruction/")
+
+        logger.info(f"====================")
+        logger.info(f"Processing {folder}")
+        logger.info(f"====================\n")
+
+        logger.info(f"SVO Filename: {svo_filename}")
+        logger.info(f"Sub Folder: {sub_folder}")
+
         
-        sub_folder = folder.split('/')[-2]
-        svo_folder = folder.split('/')[-3]
-
-        logger.info(f"folder: {folder}")
-        logger.info(f"sub_folder: {sub_folder}")
-        logger.info(f"svo_folder: {svo_folder}")
-
-        DENSE_RECON_OUTPUT_DIR=f"output-backend/dense-reconstruction/{svo_folder}/{sub_folder}"
-
-        logger.info(f"DENSE_RECON_OUTPUT_DIR: {DENSE_RECON_OUTPUT_DIR}")
-
-        # os.makedirs(DENSE_RECON_OUTPUT_DIR, exist_ok=True)
+        # Extract start and end indices from sub_folder
+        start_idx, end_idx = map(int, sub_folder.split('_to_'))
         
-        # Example usage of the new function
+        DENSE_RECON_OUTPUT_DIR = f"output-backend/dense-reconstruction/{svo_filename}/{sub_folder}"
+        
+        # Create label_info for checking
+        label_info = {
+            "svo_filename": svo_filename,
+            "start_idx": start_idx,
+            "end_idx": end_idx
+        }
+        
+        # Skip if already processed
+        if any(label_info == existing for existing in results["successful_labels"]) or \
+           any(label_info == existing for existing in results["failed_labels"]):
+            logger.warning(f"Skipping {svo_filename} ({sub_folder}) - already processed")
+            continue
+        
+        # Download the dense reconstruction folder from S3
         download_s3_folder(folder, DENSE_RECON_OUTPUT_DIR)
+
+        logger.info("─" * 50)
+        logger.info(f"Processing...")
+        logger.info(f"SVO_FILENAME:           {svo_filename}")
+        logger.info(f"SVO_START_IDX:          {start_idx}")
+        logger.info(f"SVO_END_IDX:            {end_idx}")
+        logger.info(f"DENSE_RECON_OUTPUT_DIR: {DENSE_RECON_OUTPUT_DIR}")
+        logger.info("─" * 50 + "\n")
         
-
-
-        break
-
+        # Call main-file.sh with the extracted parameters
+        cmd = f"./main-file.sh '{svo_filename}' {start_idx} {end_idx}"
+        result = os.system(cmd)
+        
+        # Calculate processing time
+        processing_time = time.time() - start_time
+        
+        if result == 0:
+            logger.info(f"Successfully processed {svo_filename} in {processing_time:.2f} seconds")
+            results["successful_labels"].append(label_info)
+            # Write results after each successful processing
+            with open(results_file, 'w') as f:
+                json.dump(results, f, indent=4)
+        else:
+            logger.error(f"main-file.sh failed with exit code {result} after {processing_time:.2f} seconds")
+            results["failed_labels"].append(label_info)
+            continue
+        
+        try:
+            shutil.rmtree(DENSE_RECON_OUTPUT_DIR)
+        except Exception as e:
+            logger.error(f"Error removing {DENSE_RECON_OUTPUT_DIR}: {e}")
+        
 
        
 
