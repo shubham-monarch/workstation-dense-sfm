@@ -1,0 +1,240 @@
+{
+    "successful_labels": [
+        {
+            "svo_filename": "dairy/chino_valley/2024_02_13/front/front_2024-02-13-09-42-14.svo",
+            "start_idx": 1198,
+            "end_idx": 1340
+        },
+        {
+            "svo_filename": "dairy/chino_valley/2024_02_13/front/front_2024-02-13-09-47-14.svo",
+            "start_idx": 1012,
+            "end_idx": 1154
+        },
+        {
+            "svo_filename": "dairy/chino_valley/2024_02_13/front/front_2024-02-13-09-47-14.svo",
+            "start_idx": 2176,
+            "end_idx": 2318
+        },
+        {
+            "svo_filename": "dairy/chino_valley/2024_02_13/front/front_2024-02-13-09-47-14.svo",
+            "start_idx": 580,
+            "end_idx": 722
+        },
+        {
+            "svo_filename": "dairy/chino_valley/2024_02_13/front/front_2024-02-13-09-47-14.svo",
+            "start_idx": 868,
+            "end_idx": 1010
+        },
+        {
+            "svo_filename": "dairy/chino_valley/2024_02_13/front/front_2024-02-13-09-52-14.svo",
+            "start_idx": 1070,
+            "end_idx": 1212
+        },
+        {
+            "svo_filename": "dairy/chino_valley/2024_02_13/front/front_2024-02-13-09-52-14.svo",
+            "start_idx": 1502,
+            "end_idx": 1644
+        },
+        {
+            "svo_filename": "dairy/chino_valley/2024_02_13/front/front_2024-02-13-09-52-14.svo",
+            "start_idx": 1790,
+            "end_idx": 1932
+        },
+        {
+            "svo_filename": "dairy/chino_valley/2024_02_13/front/front_2024-02-13-09-52-14.svo",
+            "start_idx": 2654,
+            "end_idx": 2796
+        },
+        {
+            "svo_filename": "dairy/chino_valley/2024_02_13/front/front_2024-02-13-10-02-14.svo",
+            "start_idx": 1156,
+            "end_idx": 1298
+        },
+        {
+            "svo_filename": "dairy/chino_valley/2024_02_13/front/front_2024-02-13-10-02-14.svo",
+            "start_idx": 1300,
+            "end_idx": 1442
+        },
+        {
+            "svo_filename": "dairy/chino_valley/2024_02_13/front/front_2024-02-13-10-02-14.svo",
+            "start_idx": 1732,
+            "end_idx": 1874
+        },
+        {
+            "svo_filename": "dairy/chino_valley/2024_02_13/front/front_2024-02-13-10-02-14.svo",
+            "start_idx": 1876,
+            "end_idx": 2018
+        },
+        {
+            "svo_filename": "dairy/chino_valley/2024_02_13/front/front_2024-02-13-10-02-14.svo",
+            "start_idx": 2164,
+            "end_idx": 2306
+        },
+        {
+            "svo_filename": "dairy/chino_valley/2024_02_13/front/front_2024-02-13-10-02-14.svo",
+            "start_idx": 2452,
+            "end_idx": 2594
+        },
+        {
+            "svo_filename": "dairy/chino_valley/2024_02_13/front/front_2024-02-13-10-02-14.svo",
+            "start_idx": 436,
+            "end_idx": 578
+        },
+        {
+            "svo_filename": "dairy/chino_valley/2024_02_13/front/front_2024-02-13-10-02-14.svo",
+            "start_idx": 4,
+            "end_idx": 146
+        },
+        {
+            "svo_filename": "dairy/chino_valley/2024_02_13/front/front_2024-02-13-10-07-14.svo",
+            "start_idx": 148,
+            "end_idx": 290
+        },
+        {
+            "svo_filename": "dairy/chino_valley/2024_02_13/front/front_2024-02-13-10-07-14.svo",
+            "start_idx": 436,
+            "end_idx": 578
+        },
+        {
+            "svo_filename": "dairy/chino_valley/2024_02_13/front/front_2024-02-13-10-07-14.svo",
+            "start_idx": 4,
+            "end_idx": 146
+        },
+        {
+            "svo_filename": "dairy/chino_valley/2024_02_13/front/front_2024-02-13-10-23-53.svo",
+            "start_idx": 1094,
+            "end_idx": 1236
+        },
+        {
+            "svo_filename": "dairy/chino_valley/2024_02_13/front/front_2024-02-13-10-23-53.svo",
+            "start_idx": 164,
+            "end_idx": 306
+        },
+        {
+            "svo_filename": "dairy/chino_valley/2024_02_13/front/front_2024-02-13-10-23-53.svo",
+            "start_idx": 1810,
+            "end_idx": 1952
+        },
+        {
+            "svo_filename": "dairy/chino_valley/2024_02_13/front/front_2024-02-13-10-23-53.svo",
+            "start_idx": 2006,
+            "end_idx": 2148
+        },
+        {
+            "svo_filename": "dairy/chino_valley/2024_02_13/front/front_2024-02-27-12-14-52.svo",
+            "start_idx": 148,
+            "end_idx": 290
+        },
+        {
+            "svo_filename": "dairy/chino_valley/2024_02_13/front/front_2024-02-28-16-08-19.svo",
+            "start_idx": 1262,
+            "end_idx": 1404
+        },
+        {
+            "svo_filename": "dairy/chino_valley/2024_02_13/front/front_2024-02-28-16-08-19.svo",
+            "start_idx": 1838,
+            "end_idx": 1980
+        },
+        {
+            "svo_filename": "dairy/chino_valley/2024_02_13/front/front_2024-02-28-16-08-19.svo",
+            "start_idx": 2270,
+            "end_idx": 2412
+        },
+        {
+            "svo_filename": "dairy/chino_valley/2024_02_13/front/front_2024-02-28-16-08-19.svo",
+            "start_idx": 548,
+            "end_idx": 690
+        },
+        {
+            "svo_filename": "dairy/chino_valley/2024_02_13/front/front_2024-02-28-16-13-19.svo",
+            "start_idx": 1170,
+            "end_idx": 1312
+        },
+        {
+            "svo_filename": "dairy/chino_valley/2024_02_13/front/front_2024-02-28-16-13-19.svo",
+            "start_idx": 1314,
+            "end_idx": 1456
+        },
+        {
+            "svo_filename": "dairy/chino_valley/2024_02_13/front/front_2024-02-28-16-13-19.svo",
+            "start_idx": 1458,
+            "end_idx": 1600
+        },
+        {
+            "svo_filename": "dairy/chino_valley/2024_02_13/front/front_2024-02-28-16-13-19.svo",
+            "start_idx": 152,
+            "end_idx": 294
+        },
+        {
+            "svo_filename": "dairy/chino_valley/2024_02_13/front/front_2024-02-28-16-13-19.svo",
+            "start_idx": 594,
+            "end_idx": 736
+        },
+        {
+            "svo_filename": "dairy/chino_valley/2024_02_13/front/front_2024-02-28-16-13-19.svo",
+            "start_idx": 882,
+            "end_idx": 1024
+        },
+        {
+            "svo_filename": "dairy/chino_valley/2024_02_22/front/front_2024-02-22-13-22-18.svo",
+            "start_idx": 2076,
+            "end_idx": 2218
+        },
+        {
+            "svo_filename": "dairy/chino_valley/2024_02_22/front/front_2024-02-22-13-27-18.svo",
+            "start_idx": 1410,
+            "end_idx": 1552
+        },
+        {
+            "svo_filename": "dairy/chino_valley/2024_02_22/front/front_2024-02-22-13-27-18.svo",
+            "start_idx": 240,
+            "end_idx": 382
+        },
+        {
+            "svo_filename": "dairy/chino_valley/2024_02_22/front/front_2024-02-22-13-27-18.svo",
+            "start_idx": 96,
+            "end_idx": 238
+        },
+        {
+            "svo_filename": "dairy/chino_valley/2024_02_22/front/front_2024-02-22-13-32-18.svo",
+            "start_idx": 2240,
+            "end_idx": 2382
+        },
+        {
+            "svo_filename": "dairy/chino_valley/2024_02_22/front/front_2024-02-22-13-32-18.svo",
+            "start_idx": 86,
+            "end_idx": 228
+        },
+        {
+            "svo_filename": "dairy/chino_valley/2024_02_22/front/front_2024-02-22-13-37-18.svo",
+            "start_idx": 344,
+            "end_idx": 486
+        },
+        {
+            "svo_filename": "dairy/chino_valley/2024_02_22/front/front_2024-02-22-13-37-18.svo",
+            "start_idx": 632,
+            "end_idx": 774
+        },
+        {
+            "svo_filename": "dairy/chino_valley/2024_02_22/front/front_2024-02-22-13-47-18.svo",
+            "start_idx": 1662,
+            "end_idx": 1804
+        },
+        {
+            "svo_filename": "dairy/chino_valley/2024_02_22/front/front_2024-02-22-13-47-18.svo",
+            "start_idx": 1806,
+            "end_idx": 1948
+        },
+        {
+            "svo_filename": "dairy/chino_valley/2024_02_22/front/front_2024-02-22-13-47-18.svo",
+            "start_idx": 2094,
+            "end_idx": 2236
+        },
+        {
+            "svo_filename": "dairy/chino_valley/2024_02_22/front/front_2024-02-22-13-47-18.svo",
+            "start_idx": 2238,
+            "end_idx": 2380
+        }
+    ],
+    "failed_labels": []
+}

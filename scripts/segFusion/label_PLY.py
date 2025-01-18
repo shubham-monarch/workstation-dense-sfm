@@ -1,6 +1,7 @@
 #! /usr/bin/env python3
 
-import logging,coloredlogs
+import logging
+import coloredlogs
 import open3d as o3d
 import os
 import numpy as np
@@ -9,99 +10,165 @@ from tqdm import tqdm
 import argparse
 from scripts.utils_module import io_utils
 import shutil
+from typing import Tuple, Dict, Optional
 
-def is_close_color(color1: np.ndarray, color2: np.ndarray, tolerance=10) -> bool:
-	'''
-	Check if two bgr colors are close to each other
-	'''
-	return all(abs(c1 - c2) <= tolerance for c1, c2 in zip(color1, color2))
-
-def get_label(bgr: np.ndarray, color_map: dict) -> int:
-	'''
-	Get label for a bgr pixel using the color_map
-
-	:param bgr: color in [b, g, r] format
-	:param color_map: dict: color_map to use for mapping colors to labels
-	'''
-
-	for label, color in color_map.items():
-		if is_close_color(bgr, np.array(color)):
-			return label
+def compute_color_distance(color1: np.ndarray, color2: np.ndarray) -> float:
+	"""
+	Compute the Euclidean distance between two colors in BGR space
 	
-	# default to 0 if not found
-	return 0
+	Args:
+		color1: First color in BGR format (numpy array)
+		color2: Second color in BGR format (numpy array)
+	Returns:
+		float: Euclidean distance between colors
+	"""
+	return np.sqrt(np.sum((color1 - color2) ** 2))
+
+def is_close_color(color1: np.ndarray, color2: np.ndarray, tolerance: float = 15.0) -> bool:
+	"""
+	Check if two BGR colors are close to each other using Euclidean distance
+	
+	Args:
+		color1: First color in BGR format
+		color2: Second color in BGR format
+		tolerance: Maximum allowed distance between colors
+	Returns:
+		bool: True if colors are within tolerance
+	"""
+	return compute_color_distance(color1, color2) <= tolerance
+
+def validate_color_map(color_map: Dict[int, Tuple[int, int, int]]) -> None:
+	"""
+	Validate the color map format and values
+	
+	Args:
+		color_map: Dictionary mapping labels to BGR colors
+	Raises:
+		ValueError: If color map is invalid
+	"""
+	if not color_map:
+		raise ValueError("Empty color map provided")
+	
+	for label, color in color_map.items():
+		if not isinstance(label, int):
+			raise ValueError(f"Invalid label type: {label} (must be integer)")
+		if not isinstance(color, (tuple, list)) or len(color) != 3:
+			raise ValueError(f"Invalid color format for label {label}: {color}")
+		if not all(isinstance(c, int) and 0 <= c <= 255 for c in color):
+			raise ValueError(f"Invalid color values for label {label}: {color}")
+
+def get_label(bgr: np.ndarray, color_map: Dict[int, Tuple[int, int, int]]) -> int:
+	"""
+	Get label for a BGR pixel using the color map with nearest neighbor matching
+	
+	Args:
+		bgr: Color in [B, G, R] format
+		color_map: Dictionary mapping labels to BGR colors
+	Returns:
+		int: Matched label or 0 if no match found
+	"""
+	min_distance = float('inf')
+	best_label = 0
+	
+	for label, color in color_map.items():
+		distance = compute_color_distance(bgr, np.array(color))
+		if distance < min_distance:
+			min_distance = distance
+			best_label = label
+	
+	# Only return the label if the distance is within a reasonable threshold
+	return best_label if min_distance <= 25.0 else 0
 
 def label_PLY(ply_segmented: str, mavis_file: str) -> None:
-	# ply_segmented = args.PLY_segmented
-	# mavis_file = args.mavis
-
-	with open(mavis_file, 'r') as f:
-		data = yaml.safe_load(f)
+	"""
+	Add semantic labels to a PLY file based on color mapping
 	
-	color_map = data.get("color_map", {})
-	
-	# {label : (r, g, b)} to {(r, g, b) : label}
-	color_map = {key: tuple(value) for key, value in color_map.items()}
+	Args:
+		ply_segmented: Path to input PLY file
+		mavis_file: Path to MAVIS YAML file containing color mapping
+	"""
+	try:
+		# Load and validate color map
+		with open(mavis_file, 'r') as f:
+			data = yaml.safe_load(f)
+		
+		color_map = data.get("color_map", {})
+		validate_color_map(color_map)
+		
+		# Read point cloud
+		pcd = o3d.io.read_point_cloud(ply_segmented)
+		if not pcd.has_colors():
+			raise ValueError(f"PLY file {ply_segmented} has no color information")
+		
+		points = np.asarray(pcd.points)
+		colors_rgb = np.asarray(pcd.colors)
+		colors_bgr = colors_rgb[:, [2, 1, 0]] * 255  # Convert to BGR and scale to 0-255
+		
+		# Process labels with progress bar
+		labels = np.zeros(len(points), dtype=np.uint8)
+		for idx, color_bgr in enumerate(tqdm(colors_bgr, desc="Processing labels")):
+			labels[idx] = get_label(color_bgr, color_map)
+		
+		# Write labeled PLY file
+		with open(ply_segmented, 'w') as f:
+			f.write(f"ply\nformat ascii 1.0\nelement vertex {len(points)}\n")
+			f.write("property float x\nproperty float y\nproperty float z\n")
+			f.write("property uchar red\nproperty uchar green\nproperty uchar blue\n")
+			f.write("property uchar label\n")
+			f.write("end_header\n")
+			
+			rgb_colors = (colors_rgb * 255).astype(np.uint8)
+			for point, rgb, label in zip(points, rgb_colors, labels):
+				f.write(f"{point[0]:.6f} {point[1]:.6f} {point[2]:.6f} "
+						f"{rgb[0]} {rgb[1]} {rgb[2]} {label}\n")
+		
+		logging.info(f"Successfully labeled PLY file: {ply_segmented}")
+		
+	except Exception as e:
+		logging.error(f"Error processing {ply_segmented}: {str(e)}")
+		raise
 
-	pcd = o3d.io.read_point_cloud(ply_segmented)
-	points, colors_rgb = np.asarray(pcd.points), np.asarray(pcd.colors)
-	colors_bgr = colors_rgb[:, [2, 1, 0]]  # Reorder RGB to BGR
-	
-	labels = np.array([get_label(color_bgr * 255, color_map) for color_bgr in tqdm(colors_bgr, desc="Processing labels for PLY file")])
-
-	# update the segmented PLY file with labels 
-	with open(ply_segmented, 'w') as f:
-		f.write(f"ply\nformat ascii 1.0\nelement vertex {len(points)}\n")
-		f.write("property float x\nproperty float y\nproperty float z\n")
-		f.write("property uchar red\nproperty uchar green\nproperty uchar blue\n")
-		f.write("property uchar label\n")
-		f.write("end_header\n")
-		for point, rgb, label in zip(points, (colors_rgb*255).astype(np.uint8), labels):
-			f.write(f"{point[0]} {point[1]} {point[2]} {rgb[0]} {rgb[1]} {rgb[2]} {label}\n")
-
-	# logging.info("Finished adding labels to the segmented PLY file!")
-	
-if __name__ == "__main__":
+def main():
 	coloredlogs.install(level="INFO", force=True)
 	
 	logging.info("=======================")
 	logging.info("ADDING LABELS TO POINTCLOUD")
 	logging.info("=======================\n")
 	
-
 	parser = argparse.ArgumentParser()
-	parser.add_argument("--PLY_folder", type=str, required= True, help="Folder with frame-to-frame PLY files")
-	parser.add_argument("--output_folder", type=str, required= True, help="Output folder for the labelled PLY files")
-	parser.add_argument("--mavis", type=str, required=True, help="Path to the Mavis.yaml file")
-
+	parser.add_argument("--PLY_folder", type=str, required=True, 
+					   help="Folder with frame-to-frame PLY files")
+	parser.add_argument("--output_folder", type=str, required=True, 
+					   help="Output folder for the labelled PLY files")
+	parser.add_argument("--mavis", type=str, required=True, 
+					   help="Path to the Mavis.yaml file")
+	
 	args = parser.parse_args()
-
-	PLY_folder = args.PLY_folder
-	output_folder = args.output_folder
-
-	logging.info(f"PLY_folder: {PLY_folder}")
-	logging.info(f"output_folder: {output_folder}")
-
-	# clear the output folder
-	io_utils.delete_folders([output_folder])
-	io_utils.create_folders([output_folder])
-
-	# # copy the PLY files to the output folder
-	# shutil.copytree(PLY_folder, output_folder,  dirs_exist_ok=True)
-
-	for root, dirs, files in os.walk(PLY_folder):
+	
+	# Prepare output directory
+	io_utils.delete_folders([args.output_folder])
+	io_utils.create_folders([args.output_folder])
+	
+	# Copy PLY files to output directory
+	for root, _, files in os.walk(args.PLY_folder):
 		for file in files:
 			if file.endswith(".ply"):
-				src_file_path = os.path.join(root, file)
-				dest_file_path = os.path.join(output_folder, os.path.relpath(root, PLY_folder), file)
-				# os.makedirs(os.path.dirname(dest_file_path), exist_ok=True)
-				io_utils.create_folders([os.path.dirname(dest_file_path)])
-				shutil.copy(src_file_path, dest_file_path)
-
+				src_path = os.path.join(root, file)
+				rel_path = os.path.relpath(root, args.PLY_folder)
+				dest_path = os.path.join(args.output_folder, rel_path, file)
+				io_utils.create_folders([os.path.dirname(dest_path)])
+				shutil.copy(src_path, dest_path)
 	
-	for root, dirs, files in os.walk(output_folder):
+	# Process PLY files
+	for root, _, files in os.walk(args.output_folder):
 		for file in files:
-			if file.lower().endswith('.ply') and file.lower().startswith('left'):	
-				ply_segmented = os.path.join(root, file)
-				label_PLY(ply_segmented, args.mavis)
-			
+			if file.lower().endswith('.ply') and file.lower().startswith('left'):
+				ply_path = os.path.join(root, file)
+				try:
+					label_PLY(ply_path, args.mavis)
+				except Exception as e:
+					logging.error(f"Failed to process {file}: {str(e)}")
+
+if __name__ == "__main__":
+	main()
+	

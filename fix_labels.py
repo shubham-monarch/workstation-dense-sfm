@@ -76,9 +76,9 @@ def download_s3_folder(s3_uri: str, local_dir: str) -> None:
     """
     logger = get_logger("download_s3_folder")
 
-    logger.info(f"====================")
-    logger.info(f"Downloading {s3_uri}...")
-    logger.info(f"====================\n")
+    logger.warning("-------------------------" * 2)
+    logger.warning(f"Downloading {s3_uri}...")
+    logger.warning("-------------------------" * 2 + "\n")
     
     # Parse S3 URI
     parsed_uri = urlparse(s3_uri)
@@ -127,14 +127,11 @@ if __name__ == "__main__":
 
         sub_folder = folder.split('/')[-2]  # e.g., "86_to_228"
         svo_filename = os.path.relpath(folder, "s3://occupancy-dataset/output-backend/dense-reconstruction/")
+        svo_filename = svo_filename.replace(f"/{sub_folder}", "")
 
-        logger.info(f"====================")
-        logger.info(f"Processing {folder}")
-        logger.info(f"====================\n")
-
-        logger.info(f"SVO Filename: {svo_filename}")
-        logger.info(f"Sub Folder: {sub_folder}")
-
+        # logger.info(f"====================")
+        # logger.info(f"Processing {folder}")
+        # logger.info(f"====================\n")
         
         # Extract start and end indices from sub_folder
         start_idx, end_idx = map(int, sub_folder.split('_to_'))
@@ -160,9 +157,9 @@ if __name__ == "__main__":
         logger.info("─" * 50)
         logger.info(f"Processing...")
         logger.info(f"SVO_FILENAME:           {svo_filename}")
+        logger.info(f"SUB_FOLDER:             {sub_folder}")
         logger.info(f"SVO_START_IDX:          {start_idx}")
         logger.info(f"SVO_END_IDX:            {end_idx}")
-        logger.info(f"DENSE_RECON_OUTPUT_DIR: {DENSE_RECON_OUTPUT_DIR}")
         logger.info("─" * 50 + "\n")
         
         # Call main-file.sh with the extracted parameters
@@ -173,7 +170,10 @@ if __name__ == "__main__":
         processing_time = time.time() - start_time
         
         if result == 0:
-            logger.info(f"Successfully processed {svo_filename} in {processing_time:.2f} seconds")
+            logger.warning("-------------------------" * 2)
+            logger.warning(f"Successfully processed {svo_filename} in {processing_time:.2f} seconds")
+            logger.warning("-------------------------" * 2 + "\n")
+            
             results["successful_labels"].append(label_info)
             # Write results after each successful processing
             with open(results_file, 'w') as f:
@@ -184,9 +184,9 @@ if __name__ == "__main__":
             continue
         
         try:
-            shutil.rmtree(DENSE_RECON_OUTPUT_DIR)
+            shutil.rmtree(f"output-backend/")
         except Exception as e:
-            logger.error(f"Error removing {DENSE_RECON_OUTPUT_DIR}: {e}")
+            logger.error(f"Error removing the output-backend directory: {e}")
         
 
        
