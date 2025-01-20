@@ -33,5 +33,7 @@ if __name__ == '__main__':
 										   args.frame_to_frame_folder_CROPPED)
 	
 	# generating camera-frame PLY for every [1 out of 5] frames
-	frame_skip_rate = 5
+	# frame_skip_rate = 5
+	frame_skip_rate = 1
+	
 	p360_generator_.generate(frame_skip_rate)

@@ -133,6 +133,7 @@ def sparse_reconstruction_pipeline(opencv_camera_params, images, outputs):
         features_path_ = extract_features.main(feature_conf, images, image_list=references, feature_path=features)
 
         pairs_from_exhaustive.stereo_main(sfm_pairs, image_list=references)
+        
 
         match_features.main(matcher_conf, sfm_pairs, features=features, matches=matches)
 

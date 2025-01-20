@@ -1,17 +1,17 @@
 #!/bin/bash
 
-SVO_FILENAME=$1
-SVO_STEP=$4
-SVO_START_IDX=$(($2 * $4))
-SVO_END_IDX=$(($3 * $4))
-FARM_TYPE=$5	
+# SVO_FILENAME=$1
+# SVO_STEP=$4
+# SVO_START_IDX=$(($2 * $4))
+# SVO_END_IDX=$(($3 * $4))
+# FARM_TYPE=$5	
 
 # testing
-# SVO_FILENAME="RJM/2024_06_06_utc/svo_files/front_2024-06-05-09-09-54.svo"
-# SVO_STEP=2
-# SVO_START_IDX=296
-# SVO_END_IDX=438
-# FARM_TYPE="vineyards"	
+SVO_FILENAME="front_2024-06-04-10-29-57.svo"
+SVO_STEP=2
+SVO_START_IDX=1964
+SVO_END_IDX=2106
+FARM_TYPE="vineyards"	
 
 # redirecting all output to a log.main 
 # exec > logs/main.log 2>&1
@@ -56,240 +56,240 @@ then
 fi
 
 
-# =====================================
-# [STEP 1 --> EXTRACT STEREO-IMAGES FROM SVO FILE]
-# =====================================
+# # =====================================
+# # [STEP 1 --> EXTRACT STEREO-IMAGES FROM SVO FILE]
+# # =====================================
 
-SVO_INPUT_DIR="${PIPELINE_INPUT_DIR}/svo-files"
-SVO_OUTPUT_DIR="${PIPELINE_OUTPUT_DIR}/stereo-images"
+# SVO_INPUT_DIR="${PIPELINE_INPUT_DIR}/svo-files"
+# SVO_OUTPUT_DIR="${PIPELINE_OUTPUT_DIR}/stereo-images"
 
-SVO_FILE_PATH="${SVO_INPUT_DIR}/${SVO_FILENAME}"
-SVO_IMAGES_DIR="${SVO_OUTPUT_DIR}/${SVO_FILENAME}/${SUB_FOLDER_NAME}"
+# SVO_FILE_PATH="${SVO_INPUT_DIR}/${SVO_FILENAME}"
+# SVO_IMAGES_DIR="${SVO_OUTPUT_DIR}/${SVO_FILENAME}/${SUB_FOLDER_NAME}"
 
-START_TIME=$(date +%s) 
+# START_TIME=$(date +%s) 
 
-python3 -m scripts.svo-to-stereo-images \
-	--svo_path=$SVO_FILE_PATH \
-	--start_frame=$SVO_START_IDX \
-	--end_frame=$SVO_END_IDX \
-	--output_dir=$SVO_IMAGES_DIR \
-	--svo_step=$SVO_STEP
+# python3 -m scripts.svo-to-stereo-images \
+# 	--svo_path=$SVO_FILE_PATH \
+# 	--start_frame=$SVO_START_IDX \
+# 	--end_frame=$SVO_END_IDX \
+# 	--output_dir=$SVO_IMAGES_DIR \
+# 	--svo_step=$SVO_STEP
 
-END_TIME=$(date +%s)
-DURATION=$((END_TIME - START_TIME)) 
+# END_TIME=$(date +%s)
+# DURATION=$((END_TIME - START_TIME)) 
 
-if [ $? -eq 0 ]; then
-	echo -e "\n"
-	echo "==============================="
-	echo "Time taken for SVO TO STEREO-IMAGES generation: ${DURATION} seconds"
-	echo "==============================="
-	echo -e "\n"
-else
-	echo -e "\n"
-	echo "[ERROR] SVO TO STEREO-IMAGES FAILED ==> EXITING PIPELINE!"
-	echo -e "\n"
-	rm -rf ${SVO_IMAGES_DIR}
-	exit $EXIT_FAILURE
-fi
+# if [ $? -eq 0 ]; then
+# 	echo -e "\n"
+# 	echo "==============================="
+# 	echo "Time taken for SVO TO STEREO-IMAGES generation: ${DURATION} seconds"
+# 	echo "==============================="
+# 	echo -e "\n"
+# else
+# 	echo -e "\n"
+# 	echo "[ERROR] SVO TO STEREO-IMAGES FAILED ==> EXITING PIPELINE!"
+# 	echo -e "\n"
+# 	rm -rf ${SVO_IMAGES_DIR}
+# 	exit $EXIT_FAILURE
+# fi
 
 
-# =====================================
-# [STEP 2 --> SPARSE-RECONSTRUCTION FROM STEREO-IMAGES]
-# =====================================
+# # =====================================
+# # [STEP 2 --> SPARSE-RECONSTRUCTION FROM STEREO-IMAGES]
+# # =====================================
 
-SPARSE_RECON_INPUT_DIR="${PIPELINE_INPUT_DIR}/sparse-reconstruction/${SVO_FILENAME}/${SUB_FOLDER_NAME}"
-SPARSE_RECON_OUTPUT_DIR="${PIPELINE_OUTPUT_DIR}/sparse-reconstruction/${SVO_FILENAME}/${SUB_FOLDER_NAME}"
+# SPARSE_RECON_INPUT_DIR="${PIPELINE_INPUT_DIR}/sparse-reconstruction/${SVO_FILENAME}/${SUB_FOLDER_NAME}"
+# SPARSE_RECON_OUTPUT_DIR="${PIPELINE_OUTPUT_DIR}/sparse-reconstruction/${SVO_FILENAME}/${SUB_FOLDER_NAME}"
 
-echo -e "\n"
-echo "==============================="
-echo "[SVO STEREO IMAGES --> SPARSE RECONSTRUCTION]"
-echo "SPARSE_RECON_INPUT_DIR: $SPARSE_RECON_INPUT_DIR"
-echo "SPARSE_RECON_OUTPUT_DIR: $SPARSE_RECON_OUTPUT_DIR"
-echo "==============================="
-echo -e "\n"
+# echo -e "\n"
+# echo "==============================="
+# echo "[SVO STEREO IMAGES --> SPARSE RECONSTRUCTION]"
+# echo "SPARSE_RECON_INPUT_DIR: $SPARSE_RECON_INPUT_DIR"
+# echo "SPARSE_RECON_OUTPUT_DIR: $SPARSE_RECON_OUTPUT_DIR"
+# echo "==============================="
+# echo -e "\n"
 
-if [ ! -d "$SPARSE_RECON_OUTPUT_DIR" ]; then
-	START_TIME=$(date +%s) 
+# if [ ! -d "$SPARSE_RECON_OUTPUT_DIR" ]; then
+# 	START_TIME=$(date +%s) 
 
-	python3 -m ${PIPELINE_SCRIPT_DIR}.sparse_reconstruction \
-	    --svo_images=$SVO_IMAGES_DIR \
-		--input_dir=$SPARSE_RECON_INPUT_DIR \
-		--output_dir=$SPARSE_RECON_OUTPUT_DIR \
-		--svo_file=$SVO_FILE_PATH  
+# 	python3 -m ${PIPELINE_SCRIPT_DIR}.sparse_reconstruction \
+# 	    --svo_images=$SVO_IMAGES_DIR \
+# 		--input_dir=$SPARSE_RECON_INPUT_DIR \
+# 		--output_dir=$SPARSE_RECON_OUTPUT_DIR \
+# 		--svo_file=$SVO_FILE_PATH  
 	
 	
-	# [SPARSE-RECONSTRUCTION CHECK]
-	if [ $? -eq 0 ]; then
+# 	# [SPARSE-RECONSTRUCTION CHECK]
+# 	if [ $? -eq 0 ]; then
 		
-		END_TIME=$(date +%s)
-		DURATION=$((END_TIME - START_TIME)) 
+# 		END_TIME=$(date +%s)
+# 		DURATION=$((END_TIME - START_TIME)) 
 		
-		echo -e "\n"
-		echo "==============================="
-		echo "Time taken for SPARSE-RECONSTRUCTION: ${DURATION} seconds"
-		echo "==============================="
-		echo -e "\n"
-		# exit $EXIT_SUCCESS
-	else
-		echo -e "\n"
-		echo "[ERROR] STEREO-RECONSTRUCTION FAILED ==> EXITING PIPELINE!"
-		echo "Deleting ${SPARSE_RECON_OUTPUT_DIR}"
-		rm -rf ${SPARSE_RECON_OUTPUT_DIR}
-		echo -e "\n"
-		exit $EXIT_FAILURE
-	fi
+# 		echo -e "\n"
+# 		echo "==============================="
+# 		echo "Time taken for SPARSE-RECONSTRUCTION: ${DURATION} seconds"
+# 		echo "==============================="
+# 		echo -e "\n"
+# 		# exit $EXIT_SUCCESS
+# 	else
+# 		echo -e "\n"
+# 		echo "[ERROR] STEREO-RECONSTRUCTION FAILED ==> EXITING PIPELINE!"
+# 		echo "Deleting ${SPARSE_RECON_OUTPUT_DIR}"
+# 		rm -rf ${SPARSE_RECON_OUTPUT_DIR}
+# 		echo -e "\n"
+# 		exit $EXIT_FAILURE
+# 	fi
 
-else 
-	echo -e "\n"
-	echo "[WARNING] SKIPPING SPARSE-RECONSTTRUCTION as ${SPARSE_RECON_OUTPUT_DIR} already exists."
-	echo "[WARNING] Delete [${SPARSE_RECON_OUTPUT_DIR}] folder and try again!"
-	echo -e "\n"
-fi
-
-
-# =====================================
-# [STEP 3 --> RIG-BUNDLE-ADJUSTMENT]
-# =====================================
-
-RBA_INPUT_DIR="${SPARSE_RECON_OUTPUT_DIR}/ref_locked/"
-RBA_OUTPUT_DIR="${PIPELINE_OUTPUT_DIR}/rig-bundle-adjustment/${SVO_FILENAME}/${SUB_FOLDER_NAME}"
-RBA_CONFIG_PATH="${PIPELINE_CONFIG_DIR}/rig.json"
-
-if [ ! -d "$RBA_OUTPUT_DIR" ]; then
-
-	python3 -c "import scripts.utils_module.zed_utils as zu;  zu.generate_rig_json('${RBA_CONFIG_PATH}','${SVO_FILENAME}')"
-
-	echo -e "\n"
-	echo "==============================="
-	echo "[RIG BUNDLE ADJUSTMENT]"
-	echo "RBA_INPUT_DIR: $RBA_INPUT_DIR"
-	echo "RBA_OUTPUT_DIR: $RBA_OUTPUT_DIR"
-	echo "RBA_CONFIG_PATH: $RBA_CONFIG_PATH"
-	echo "==============================="
-	echo -e "\n"
-
-	# if [ ! -d "$RBA_OUTPUT_DIR" ]; then
-
-	rm -rf "${RBA_OUTPUT_DIR}"
-	mkdir -p "${RBA_OUTPUT_DIR}"
-
-	START_TIME=$(date +%s) 
-
-	$COLMAP_EXE_PATH/colmap rig_bundle_adjuster \
-		--input_path $RBA_INPUT_DIR \
-		--output_path $RBA_OUTPUT_DIR \
-		--rig_config_path $RBA_CONFIG_PATH \
-		--BundleAdjustment.refine_focal_length 0 \
-		--BundleAdjustment.refine_principal_point 0 \
-		--BundleAdjustment.refine_extra_params 0 \
-		--BundleAdjustment.refine_extrinsics 1 \
-		--BundleAdjustment.max_num_iterations 500 \
-		--estimate_rig_relative_poses False
+# else 
+# 	echo -e "\n"
+# 	echo "[WARNING] SKIPPING SPARSE-RECONSTTRUCTION as ${SPARSE_RECON_OUTPUT_DIR} already exists."
+# 	echo "[WARNING] Delete [${SPARSE_RECON_OUTPUT_DIR}] folder and try again!"
+# 	echo -e "\n"
+# fi
 
 
-	# [RBA CONVERGENCE CHECK]
-	if [ $? -ne 0 ]; then
-		END_TIME=$(date +%s)
-		DURATION=$((END_TIME - START_TIME)) 
+# # =====================================
+# # [STEP 3 --> RIG-BUNDLE-ADJUSTMENT]
+# # =====================================
 
-		echo -e "\n"
-		echo "==============================="
-		echo "RBA FAILED ==> EXITING PIPELINE!"
-		echo "==============================="
-		echo -e "\n"
-		rm -rf "${RBA_OUTPUT_DIR}"
-		exit $EXIT_FAILURE
-	fi
+# RBA_INPUT_DIR="${SPARSE_RECON_OUTPUT_DIR}/ref_locked/"
+# RBA_OUTPUT_DIR="${PIPELINE_OUTPUT_DIR}/rig-bundle-adjustment/${SVO_FILENAME}/${SUB_FOLDER_NAME}"
+# RBA_CONFIG_PATH="${PIPELINE_CONFIG_DIR}/rig.json"
 
-	# ZED_BASELINE
-	ZED_BASELINE=$(python3 -c "import scripts.utils_module.bash_utils as bu;  bu.get_baseline('${SVO_FILENAME}')")
+# if [ ! -d "$RBA_OUTPUT_DIR" ]; then
 
-	echo -e "\n"
-	echo "==============================="
-	echo "ZED_BASELINE: ${ZED_BASELINE}"
-	echo "==============================="
-	echo -e "\n"
+# 	python3 -c "import scripts.utils_module.zed_utils as zu;  zu.generate_rig_json('${RBA_CONFIG_PATH}','${SVO_FILENAME}')"
 
-	# [VERIFYING RBA RESULTS]
-	python3 -m scripts.rba_check \
-		--rba_output=$RBA_OUTPUT_DIR \
-		--baseline=$ZED_BASELINE
+# 	echo -e "\n"
+# 	echo "==============================="
+# 	echo "[RIG BUNDLE ADJUSTMENT]"
+# 	echo "RBA_INPUT_DIR: $RBA_INPUT_DIR"
+# 	echo "RBA_OUTPUT_DIR: $RBA_OUTPUT_DIR"
+# 	echo "RBA_CONFIG_PATH: $RBA_CONFIG_PATH"
+# 	echo "==============================="
+# 	echo -e "\n"
 
-	# [RBA RESULTS CHECK]
-	if [ $? -eq 0 ]; then
-		echo -e "\n"
-		echo "==============================="
-		echo "Time taken for RIG-BUNDLE-ADJUSTMENT: ${DURATION} seconds"
-		echo "==============================="
-		echo -e "\n"
-	else
-		echo -e "\n"
-		echo "[ERROR] RIG-BUNDLE-ADJUSTMENT FAILED ==> EXITING PIPELINE!"
-		echo -e "\n"
-		rm -rf "${RBA_OUTPUT_DIR}"
-		exit $EXIT_FAILURE
-	fi
-else
-	echo -e "\n"
-	echo "[WARNING] SKIPPING RIG-BUNDLE-ADJUSTMENT as ${RBA_OUTPUT_DIR} already exists."
-	echo "[WARNING] Delete [${RBA_OUTPUT_DIR}] folder and try again!"
-	echo -e "\n"
-fi
+# 	# if [ ! -d "$RBA_OUTPUT_DIR" ]; then
 
-# =====================================
-# [STEP 4 --> DENSE RECONSTRUCTION]
-# =====================================
+# 	rm -rf "${RBA_OUTPUT_DIR}"
+# 	mkdir -p "${RBA_OUTPUT_DIR}"
+
+# 	START_TIME=$(date +%s) 
+
+# 	$COLMAP_EXE_PATH/colmap rig_bundle_adjuster \
+# 		--input_path $RBA_INPUT_DIR \
+# 		--output_path $RBA_OUTPUT_DIR \
+# 		--rig_config_path $RBA_CONFIG_PATH \
+# 		--BundleAdjustment.refine_focal_length 0 \
+# 		--BundleAdjustment.refine_principal_point 0 \
+# 		--BundleAdjustment.refine_extra_params 0 \
+# 		--BundleAdjustment.refine_extrinsics 1 \
+# 		--BundleAdjustment.max_num_iterations 500 \
+# 		--estimate_rig_relative_poses False
+
+
+# 	# [RBA CONVERGENCE CHECK]
+# 	if [ $? -ne 0 ]; then
+# 		END_TIME=$(date +%s)
+# 		DURATION=$((END_TIME - START_TIME)) 
+
+# 		echo -e "\n"
+# 		echo "==============================="
+# 		echo "RBA FAILED ==> EXITING PIPELINE!"
+# 		echo "==============================="
+# 		echo -e "\n"
+# 		rm -rf "${RBA_OUTPUT_DIR}"
+# 		exit $EXIT_FAILURE
+# 	fi
+
+# 	# ZED_BASELINE
+# 	ZED_BASELINE=$(python3 -c "import scripts.utils_module.bash_utils as bu;  bu.get_baseline('${SVO_FILENAME}')")
+
+# 	echo -e "\n"
+# 	echo "==============================="
+# 	echo "ZED_BASELINE: ${ZED_BASELINE}"
+# 	echo "==============================="
+# 	echo -e "\n"
+
+# 	# [VERIFYING RBA RESULTS]
+# 	python3 -m scripts.rba_check \
+# 		--rba_output=$RBA_OUTPUT_DIR \
+# 		--baseline=$ZED_BASELINE
+
+# 	# [RBA RESULTS CHECK]
+# 	if [ $? -eq 0 ]; then
+# 		echo -e "\n"
+# 		echo "==============================="
+# 		echo "Time taken for RIG-BUNDLE-ADJUSTMENT: ${DURATION} seconds"
+# 		echo "==============================="
+# 		echo -e "\n"
+# 	else
+# 		echo -e "\n"
+# 		echo "[ERROR] RIG-BUNDLE-ADJUSTMENT FAILED ==> EXITING PIPELINE!"
+# 		echo -e "\n"
+# 		rm -rf "${RBA_OUTPUT_DIR}"
+# 		exit $EXIT_FAILURE
+# 	fi
+# else
+# 	echo -e "\n"
+# 	echo "[WARNING] SKIPPING RIG-BUNDLE-ADJUSTMENT as ${RBA_OUTPUT_DIR} already exists."
+# 	echo "[WARNING] Delete [${RBA_OUTPUT_DIR}] folder and try again!"
+# 	echo -e "\n"
+# fi
+
+# # =====================================
+# # [STEP 4 --> DENSE RECONSTRUCTION]
+# # =====================================
 
 DENSE_RECON_OUTPUT_DIR="${PIPELINE_OUTPUT_DIR}/dense-reconstruction/${SVO_FILENAME}/${SUB_FOLDER_NAME}"
 
-if [ ! -d "$DENSE_RECON_OUTPUT_DIR" ]; then
+# if [ ! -d "$DENSE_RECON_OUTPUT_DIR" ]; then
 
-	START_TIME=$(date +%s) 
+# 	START_TIME=$(date +%s) 
 
-	python3 -m ${PIPELINE_SCRIPT_DIR}.dense-reconstruction \
-	--mvs_path="$DENSE_RECON_OUTPUT_DIR" \
-	--output_path="$RBA_OUTPUT_DIR" \
-	--image_dir="$SPARSE_RECON_INPUT_DIR"
+# 	python3 -m ${PIPELINE_SCRIPT_DIR}.dense-reconstruction \
+# 	--mvs_path="$DENSE_RECON_OUTPUT_DIR" \
+# 	--output_path="$RBA_OUTPUT_DIR" \
+# 	--image_dir="$SPARSE_RECON_INPUT_DIR"
 
 	
-	if [ $? -eq 0 ]; then
+# 	if [ $? -eq 0 ]; then
 		
-		END_TIME=$(date +%s)
-		DURATION=$((END_TIME - START_TIME)) 
+# 		END_TIME=$(date +%s)
+# 		DURATION=$((END_TIME - START_TIME)) 
 		
-		echo -e "\n"
-		echo "==============================="
-		echo "Time taken for dense-reconstruction: ${DURATION} seconds"
-		echo "==============================="
-		echo -e "\n"
-	else
-		echo -e "\n"
-		echo "[ERROR] DENSE-RECONSTRUCTION FAILED ==> EXITING PIPELINE!"
-		echo -e "\n"
-		rm -rf ${DENSE_RECON_OUTPUT_DIR}
-		exit $EXIT_FAILURE
-	fi
+# 		echo -e "\n"
+# 		echo "==============================="
+# 		echo "Time taken for dense-reconstruction: ${DURATION} seconds"
+# 		echo "==============================="
+# 		echo -e "\n"
+# 	else
+# 		echo -e "\n"
+# 		echo "[ERROR] DENSE-RECONSTRUCTION FAILED ==> EXITING PIPELINE!"
+# 		echo -e "\n"
+# 		rm -rf ${DENSE_RECON_OUTPUT_DIR}
+# 		exit $EXIT_FAILURE
+# 	fi
 
-	# upload to s3
-	python3 -m scripts.utils_module.aws_utils.upload_to_s3 \
-	--folder_LOCAL="${DENSE_RECON_OUTPUT_DIR}" \
-	--folder_S3="${DENSE_RECON_OUTPUT_DIR}" \
-	--bucket_S3="occupancy-dataset" 
+# 	# upload to s3
+# 	python3 -m scripts.utils_module.aws_utils.upload_to_s3 \
+# 	--folder_LOCAL="${DENSE_RECON_OUTPUT_DIR}" \
+# 	--folder_S3="${DENSE_RECON_OUTPUT_DIR}" \
+# 	--bucket_S3="occupancy-dataset" 
 	
 
-else 
+# else 
 
-	# upload to s3
-	python3 -m scripts.utils_module.aws_utils.upload_to_s3 \
-	--folder_LOCAL="${DENSE_RECON_OUTPUT_DIR}" \
-	--folder_S3="${DENSE_RECON_OUTPUT_DIR}" \
-	--bucket_S3="occupancy-dataset" 
+# 	# upload to s3
+# 	python3 -m scripts.utils_module.aws_utils.upload_to_s3 \
+# 	--folder_LOCAL="${DENSE_RECON_OUTPUT_DIR}" \
+# 	--folder_S3="${DENSE_RECON_OUTPUT_DIR}" \
+# 	--bucket_S3="occupancy-dataset" 
 	
-	echo -e "\n"
-	echo "[WARNING] SKIPPING DENSE-RECONSTRUCTION as ${DENSE_RECON_OUTPUT_DIR} already exists."
-	echo "[WARNING] Delete [${DENSE_RECON_OUTPUT_DIR}] folder and try again!"
-	echo -e "\n"
-fi
+# 	echo -e "\n"
+# 	echo "[WARNING] SKIPPING DENSE-RECONSTRUCTION as ${DENSE_RECON_OUTPUT_DIR} already exists."
+# 	echo "[WARNING] Delete [${DENSE_RECON_OUTPUT_DIR}] folder and try again!"
+# 	echo -e "\n"
+# fi
 
 # =====================================
 # [STEP 5 --> FRAME-TO-FRAME [RGB] POINTCLOUD GENERATION]
@@ -457,36 +457,36 @@ else
 	exit $EXIT_FAILURE
 fi
 
-# =====================================
-# [STEP 9 --> UPLOAD OUTPUT FOLDER TO S3 BUCKET]
-# =====================================
+# # =====================================
+# # [STEP 9 --> UPLOAD OUTPUT FOLDER TO S3 BUCKET]
+# # =====================================
 
-LOCAL_FOLDER=${OCC_OUTPUT}
-S3_FOLDER="occ-dataset/${SVO_FILENAME}/${SUB_FOLDER_NAME}"
+# LOCAL_FOLDER=${OCC_OUTPUT}
+# S3_FOLDER="occ-dataset/${SVO_FILENAME}/${SUB_FOLDER_NAME}"
 
-START_TIME=$(date +%s)
+# START_TIME=$(date +%s)
 
-python3 -m scripts.utils_module.aws_utils.upload_to_s3 \
-	--folder_LOCAL="${LOCAL_FOLDER}" \
-	--folder_S3="${S3_FOLDER}" \
-	--bucket_S3="occupancy-dataset" 
+# python3 -m scripts.utils_module.aws_utils.upload_to_s3 \
+# 	--folder_LOCAL="${LOCAL_FOLDER}" \
+# 	--folder_S3="${S3_FOLDER}" \
+# 	--bucket_S3="occupancy-dataset" 
 	
-if [ $? -eq 0 ]; then
+# if [ $? -eq 0 ]; then
 		
-	END_TIME=$(date +%s)
-	DURATION=$((END_TIME - START_TIME)) 
+# 	END_TIME=$(date +%s)
+# 	DURATION=$((END_TIME - START_TIME)) 
 	
-	echo -e "\n"
-	echo "==============================="
-	echo "Time taken for uploading OCC_OUTPUT to S3: ${DURATION} seconds"
-	echo "==============================="
-	echo -e "\n"
+# 	echo -e "\n"
+# 	echo "==============================="
+# 	echo "Time taken for uploading OCC_OUTPUT to S3: ${DURATION} seconds"
+# 	echo "==============================="
+# 	echo -e "\n"
 
-else
-	echo -e "\n"
-	echo "[ERROR] OCC_OUTPUT UPLOADING TO S3 BUCKET failed ==> EXITING PIPELINE!"
-	echo -e "\n"
-	exit $EXIT_FAILURE
-fi
+# else
+# 	echo -e "\n"
+# 	echo "[ERROR] OCC_OUTPUT UPLOADING TO S3 BUCKET failed ==> EXITING PIPELINE!"
+# 	echo -e "\n"
+# 	exit $EXIT_FAILURE
+# fi
 
 

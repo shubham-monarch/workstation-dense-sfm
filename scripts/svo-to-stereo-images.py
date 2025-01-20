@@ -10,7 +10,7 @@ import warnings
 from pathlib import Path
 import coloredlogs, logging
 from tqdm import tqdm
-
+import cv2
 def main(filepath, start, end, dir_path_, svo_step = 1):
 
     # logging.debug("Inside the main function!")
@@ -60,8 +60,16 @@ def main(filepath, start, end, dir_path_, svo_step = 1):
             # reading and writing the images to the output directory
             zed.retrieve_image(image, sl.VIEW.LEFT)
             zed.retrieve_image(image_r, sl.VIEW.RIGHT)
-            image.write( os.path.join(output_dir, 'left_image.jpg') )
-            image_r.write( os.path.join(output_dir, 'right_image.jpg') )
+            
+            # Convert to numpy array and resize
+            left_img = image.get_data()
+            right_img = image_r.get_data()
+            left_img_resized = cv2.resize(left_img, (640, 480))
+            right_img_resized = cv2.resize(right_img, (640, 480))
+            
+            # Save directly using cv2 instead of converting back to sl.Mat
+            cv2.imwrite(os.path.join(output_dir, 'left_image.jpg'), left_img_resized)
+            cv2.imwrite(os.path.join(output_dir, 'right_image.jpg'), right_img_resized)
             # image.write( os.path.join(output_dir, 'left_image.png') )
             # image_r.write( os.path.join(output_dir, 'right_image.png') )
         
