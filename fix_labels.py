@@ -153,7 +153,7 @@ if __name__ == "__main__":
         
         # Download the dense reconstruction folder from S3
         download_s3_folder(folder, DENSE_RECON_OUTPUT_DIR)
-
+        
         logger.info("─" * 50)
         logger.info(f"Processing...")
         logger.info(f"SVO_FILENAME:           {svo_filename}")
