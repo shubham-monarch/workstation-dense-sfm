@@ -408,7 +408,7 @@ START_TIME=$(date +%s)
 python3 -m scripts.segFusion.label_PLY \
 	--PLY_folder="${PLY_FOLDER}" \
 	--output_folder="${PLY_FOLDER_LABELLED}" \
-	--mavis="${SEG_FUSION_DIR}/Mavis.yaml"
+	--mavis="${SEG_FUSION_DIR}/Mavis_Dairy.yaml"
 
 if [ $? -eq 0 ]; then
 		
