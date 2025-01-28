@@ -235,7 +235,7 @@ def fix_pcds_in_folder(folder_uri: str, dairy_yaml: str):
     # logger.info(f"───────────────────────────────")
     
     
-    for folder in leaf_folders[1:]:
+    for folder in leaf_folders:
         pcd_URI = os.path.join(folder, "left-segmented-labelled.ply")
         
         if not index.has_file(pcd_URI):

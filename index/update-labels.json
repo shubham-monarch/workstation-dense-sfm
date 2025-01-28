@@ -1,20 +1,9 @@
 {
+    "s3://occupancy-dataset/occ-dataset/dairy/chino_valley/2024_02_13/front/front_2024-02-13-09-42-14.svo/1198_to_1340/frame-1200/left-segmented-labelled.ply": {},
     "s3://occupancy-dataset/occ-dataset/dairy/chino_valley/2024_02_13/front/front_2024-02-13-09-42-14.svo/1198_to_1340/frame-1210/left-segmented-labelled.ply": {},
     "s3://occupancy-dataset/occ-dataset/dairy/chino_valley/2024_02_13/front/front_2024-02-13-09-42-14.svo/1198_to_1340/frame-1220/left-segmented-labelled.ply": {},
     "s3://occupancy-dataset/occ-dataset/dairy/chino_valley/2024_02_13/front/front_2024-02-13-09-42-14.svo/1198_to_1340/frame-1230/left-segmented-labelled.ply": {},
     "s3://occupancy-dataset/occ-dataset/dairy/chino_valley/2024_02_13/front/front_2024-02-13-09-42-14.svo/1198_to_1340/frame-1240/left-segmented-labelled.ply": {},
     "s3://occupancy-dataset/occ-dataset/dairy/chino_valley/2024_02_13/front/front_2024-02-13-09-42-14.svo/1198_to_1340/frame-1250/left-segmented-labelled.ply": {},
-    "s3://occupancy-dataset/occ-dataset/dairy/chino_valley/2024_02_13/front/front_2024-02-13-09-42-14.svo/1198_to_1340/frame-1260/left-segmented-labelled.ply": {},
-    "s3://occupancy-dataset/occ-dataset/dairy/chino_valley/2024_02_13/front/front_2024-02-13-09-42-14.svo/1198_to_1340/frame-1270/left-segmented-labelled.ply": {},
-    "s3://occupancy-dataset/occ-dataset/dairy/chino_valley/2024_02_13/front/front_2024-02-13-09-42-14.svo/1198_to_1340/frame-1280/left-segmented-labelled.ply": {},
-    "s3://occupancy-dataset/occ-dataset/dairy/chino_valley/2024_02_13/front/front_2024-02-13-09-42-14.svo/1198_to_1340/frame-1290/left-segmented-labelled.ply": {},
-    "s3://occupancy-dataset/occ-dataset/dairy/chino_valley/2024_02_13/front/front_2024-02-13-09-42-14.svo/1198_to_1340/frame-1300/left-segmented-labelled.ply": {},
-    "s3://occupancy-dataset/occ-dataset/dairy/chino_valley/2024_02_13/front/front_2024-02-13-09-42-14.svo/1198_to_1340/frame-1310/left-segmented-labelled.ply": {},
-    "s3://occupancy-dataset/occ-dataset/dairy/chino_valley/2024_02_13/front/front_2024-02-13-09-42-14.svo/1198_to_1340/frame-1320/left-segmented-labelled.ply": {},
-    "s3://occupancy-dataset/occ-dataset/dairy/chino_valley/2024_02_13/front/front_2024-02-13-09-42-14.svo/1198_to_1340/frame-1330/left-segmented-labelled.ply": {},
-    "s3://occupancy-dataset/occ-dataset/dairy/chino_valley/2024_02_13/front/front_2024-02-13-09-47-14.svo/1012_to_1154/frame-1024/left-segmented-labelled.ply": {},
-    "s3://occupancy-dataset/occ-dataset/dairy/chino_valley/2024_02_13/front/front_2024-02-13-09-47-14.svo/1012_to_1154/frame-1034/left-segmented-labelled.ply": {},
-    "s3://occupancy-dataset/occ-dataset/dairy/chino_valley/2024_02_13/front/front_2024-02-13-09-47-14.svo/1012_to_1154/frame-1044/left-segmented-labelled.ply": {},
-    "s3://occupancy-dataset/occ-dataset/dairy/chino_valley/2024_02_13/front/front_2024-02-13-09-47-14.svo/1012_to_1154/frame-1054/left-segmented-labelled.ply": {},
-    "s3://occupancy-dataset/occ-dataset/dairy/chino_valley/2024_02_13/front/front_2024-02-13-09-47-14.svo/1012_to_1154/frame-1064/left-segmented-labelled.ply": {}
+    "s3://occupancy-dataset/occ-dataset/dairy/chino_valley/2024_02_13/front/front_2024-02-13-09-42-14.svo/1198_to_1340/frame-1260/left-segmented-labelled.ply": {}
 }
