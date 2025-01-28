@@ -9,10 +9,11 @@ from pathlib import Path
 import random
 import os
 from tqdm import tqdm
+import json
 
 
 from logger import get_logger
-from data_generator_s3 import DataGeneratorS3, LeafFolder
+from data_generator_s3 import DataGeneratorS3, LeafFolder, JSONIndex
 
 def is_close(colors: np.ndarray, target_color: tuple, threshold: int = 20) -> np.ndarray:
     """
@@ -197,17 +198,88 @@ def test_pcd_labels(src_uri: str, dairy_yaml: str):
             logger.error(f"Error processing {pcd_URI}: {e}")
             raise e
 
-if __name__ == "__main__":
-    # logger = get_logger("update_labels")
-    # base_uri = "s3://occupancy-dataset/occ-dataset/dairy/chino_valley"
+def fix_pcds_in_folder(folder_uri: str, dairy_yaml: str):
+    """ fix pcds in a folder"""
+    logger = get_logger("fix_pcds_in_folder")
+    
+    index = JSONIndex(json_path=f"index/update-labels.json")
+    
+    leaf_folders = DataGeneratorS3.get_leaf_folders([folder_uri])
+    leaf_folders.sort(key=lambda x: int(x.split('-')[-1]))
+    
+    folder_is_processed = True
+    # check if all pcds in the folder are processed
+    for leaf_folder in leaf_folders:
+        pcd_URI = os.path.join(leaf_folder, "left-segmented-labelled.ply")
+        if not index.has_file(pcd_URI):
+            folder_is_processed = False
+            break
+    
+    if folder_is_processed:
+        logger.info(f"───────────────────────────────")
+        logger.info(f"Skipping {folder_uri} as it is already processed.")
+        logger.info(f"───────────────────────────────")
+        return
+    
 
-    # folders = list_numbered_folders(base_uri)
+    leaf_folder_1 = leaf_folders[0]
+    pcd_URI = os.path.join(leaf_folder_1, "left-segmented-labelled.ply")
+    pcd_path = LeafFolder.download_file(pcd_URI)
+    pcd = o3d.t.io.read_point_cloud(pcd_path)
+    updated_pcd = correct_pcd_label(pcd, dairy_yaml)
+    updated_labels = updated_pcd.point['label'].numpy()
+    # get_label_distribution(updated_pcd, dairy_yaml)
+
+    # logger.info(f"───────────────────────────────")
+    # logger.info(f"fixing pcds in folder")
+    # logger.info(f"───────────────────────────────")
+    
+    
+    for folder in leaf_folders[1:]:
+        pcd_URI = os.path.join(folder, "left-segmented-labelled.ply")
+        
+        if not index.has_file(pcd_URI):
+        
+            pcd_path = LeafFolder.download_file(pcd_URI)
+            
+            # logger.warning(f"───────────────────────────────")
+            # logger.warning(f"{pcd_URI}")
+            # logger.warning(f"───────────────────────────────")
+            
+            pcd = o3d.t.io.read_point_cloud(pcd_path)
+            pcd.point['label'] = o3d.core.Tensor(updated_labels)
+            o3d.t.io.write_point_cloud(pcd_path, pcd)  # Write to local file
+            flag = LeafFolder.upload_file(pcd_path, pcd_URI)  # Upload to S3
+            
+            if flag:
+                index.add_file(pcd_URI)
+                index.save_index()
+
+
+if __name__ == "__main__":
+    logger = get_logger("update_labels")
+    base_uri = "s3://occupancy-dataset/occ-dataset/dairy"
+
+    folders = list_numbered_folders(base_uri)
 
     # logger.info("───────────────────────────────")
     # logger.info(f"len(folders): {len(folders)}")
     # logger.info("───────────────────────────────")
 
-    test_pcd_labels("s3://occupancy-dataset/occ-dataset/dairy/grimius", "config/dairy.yaml")
+    # index = JSONIndex(json_path=f"index/update-labels.json")
+
+
+    for folder in tqdm(folders, desc="Processing folders"):
+        
+        logger.info(f"───────────────────────────────")
+        logger.info(f"Processing {folder}")
+        logger.info(f"───────────────────────────────")
+        
+        fix_pcds_in_folder(folder, "config/dairy.yaml")
+
+    # test_pcd_labels("s3://occupancy-dataset/occ-dataset/dairy/grimius", "config/dairy.yaml")
+
+    # /fix_pcds_in_folder("s3://occupancy-dataset/occ-dataset/dairy/grimius/2024_02_20/front/front_2024-02-13-09-57-14.svo/148_to_290", "config/dairy.yaml")
 
     
     

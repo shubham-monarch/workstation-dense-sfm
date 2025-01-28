@@ -12,17 +12,16 @@ import json
 import logging
 
 from logger import get_logger
-# from scripts.vineyards_mask_generator import BEVGenerator
 
 
 class JSONIndex:
     def __init__(self, json_path: str = None):
-        
         assert json_path is not None, "json_path is required!"
         
         self.index_path = json_path
-        self.index = self.load_index(self.index_path)
         self.keys = ['seg-mask-mono', 'seg-mask-rgb', 'left-img', 'right-img', 'cam-extrinsics']
+        self.logger = get_logger("json-index")  # Initialize logger before using it
+        self.index = self.load_index(self.index_path)
 
     def load_index(self, json_path: str) -> dict:
         ''' Load index.json file from disk '''
@@ -32,7 +31,7 @@ class JSONIndex:
                 self.index = json.load(f)
         else:
             self.index = {}
-
+        
         return self.index
     
     def add_file(self, file_uri: str):
@@ -55,15 +54,23 @@ class JSONIndex:
 
 class LeafFolder:
     
-    def upload_file(self, src_path: str, dest_URI: str) -> bool:
+    @staticmethod
+    def upload_file(src_path: str, dest_URI: str) -> bool:
         ''' Upload a file from src_path to dest_URI'''      
+        
+        logger = get_logger("upload-file")
+        
+        # logger.info(f"───────────────────────────────")
+        # logger.info(f"Uploading file to {dest_URI}")
+        # logger.info(f"───────────────────────────────")
         
         try:
             bucket_name, key = dest_URI.replace("s3://", "").split("/", 1)
-            self.s3.upload_file(src_path, bucket_name, key)
+            s3 = boto3.client('s3')
+            s3.upload_file(src_path, bucket_name, key)
             return True
         except Exception as e:
-            self.logger.error(f"Failed to upload file {src_path} to {dest_URI}: {str(e)}")
+            logger.error(f"Failed to upload file {src_path} to {dest_URI}: {str(e)}")
             return False
 
     @staticmethod
@@ -96,9 +103,9 @@ class LeafFolder:
             tmp_path = os.path.join(tmp_folder, file_name)
             
             s3 = boto3.client('s3')
-            logger.info(f"downloading {file_name}...")
+            # logger.info(f"downloading {file_name}...")
             s3.download_file(bucket_name, key, tmp_path)
-            logger.info(f"successfully downloaded {file_name}")
+            # logger.info(f"successfully downloaded {file_name}")
             
             return tmp_path
             
