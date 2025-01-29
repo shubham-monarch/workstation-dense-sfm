@@ -150,7 +150,7 @@ def select_pcd_by_label(pcd: o3d.t.geometry.PointCloud, label: int):
     pcd_labels = pcd.select_by_index(mask.nonzero()[0])
     return pcd_labels
 
-def test_pcd_labels(src_uri: str, dairy_yaml: str):
+def test_pcd_labels(src_uri: str, dairy_yaml: str, num_samples: int = 10):
     
     logger = get_logger("test_pcd_labels")
 
@@ -164,7 +164,7 @@ def test_pcd_labels(src_uri: str, dairy_yaml: str):
     logger.info(f"───────────────────────────────")
     
     random.seed(42) # set seed for reproducibility
-    random_leaf_folders = random.sample(leaf_folders, 10)
+    random_leaf_folders = random.sample(leaf_folders, num_samples)
     
     for idx, leaf_folder in enumerate(tqdm(random_leaf_folders, desc="Processing PCDs")):
         pcd_URI = os.path.join(leaf_folder, "left-segmented-labelled.ply")
@@ -189,14 +189,15 @@ def test_pcd_labels(src_uri: str, dairy_yaml: str):
             labels = sorted(dairy_config['labels'].keys())
             # labels.append(0)
 
-            for label in labels:        
-                selected_pcd = select_pcd_by_label(updated_pcd, label)
-                output_path = os.path.join(output_dir, f"updated-pcd-{idx}-{label}.ply")
-                o3d.t.io.write_point_cloud(output_path, selected_pcd)
+            # for label in labels:        
+            #     selected_pcd = select_pcd_by_label(updated_pcd, label)
+            #     output_path = os.path.join(output_dir, f"updated-pcd-{idx}-{label}.ply")
+            #     o3d.t.io.write_point_cloud(output_path, selected_pcd)
 
         except Exception as e:
             logger.error(f"Error processing {pcd_URI}: {e}")
-            raise e
+            # Continue processing other files instead of re-raising
+            continue  # Changed from 'raise e'
 
 def fix_pcds_in_folder(folder_uri: str, dairy_yaml: str):
     """ fix pcds in a folder"""
@@ -271,28 +272,31 @@ if __name__ == "__main__":
     #     fix_pcds_in_folder(folder, "config/dairy.yaml")
 
     
-    leaf_folders = DataGeneratorS3.get_leaf_folders([base_uri])
-    random.seed(42)
-    random_leaf_folders = random.sample(leaf_folders, 100)
+    # leaf_folders = DataGeneratorS3.get_leaf_folders([base_uri])
+    # random.seed(42)
+    # random_leaf_folders = random.sample(leaf_folders, 100)
     
-    for folder in tqdm(random_leaf_folders, desc="Processing folders"):
-        # fix_pcds_in_folder(folder, "config/dairy.yaml")
-        logger.info(f"───────────────────────────────")
-        logger.info(f"Processing {folder}")
-        logger.info(f"───────────────────────────────")
+    # for folder in tqdm(random_leaf_folders, desc="Processing folders"):
+    #     # fix_pcds_in_folder(folder, "config/dairy.yaml")
+    #     logger.info(f"───────────────────────────────")
+    #     logger.info(f"Processing {folder}")
+    #     logger.info(f"───────────────────────────────")
 
-        pcd_URI = os.path.join(folder, "left-segmented-labelled.ply")
-        pcd_path = LeafFolder.download_file(pcd_URI)
-        pcd = o3d.t.io.read_point_cloud(pcd_path)
-        get_label_distribution(pcd, "config/dairy.yaml")
+    #     pcd_URI = os.path.join(folder, "left-segmented-labelled.ply")
+    #     pcd_path = LeafFolder.download_file(pcd_URI)
+    #     pcd = o3d.t.io.read_point_cloud(pcd_path)
+    #     get_label_distribution(pcd, "config/dairy.yaml")
     
+    chino_URI   = os.path.join(base_uri, "chino_valley")
+    escalon_URI = os.path.join(base_uri, "escalon")
+    ghdairy_URI = os.path.join(base_uri, "ghdairy")
+    grimius_URI = os.path.join(base_uri, "grimius")
+    mccarty_URI = os.path.join(base_uri, "mccarty")
+    mineral_URI = os.path.join(base_uri, "mineral_king")
     
-    
-    
-    
-    
-    
-    
+    # test_pcd_labels(chino_URI, "config/dairy.yaml", num_samples=10)
+    # test_pcd_labels(escalon_URI, "config/dairy.yaml", num_samples=378)
+    test_pcd_labels(ghdairy_URI, "config/dairy.yaml", num_samples=100)
     
     
     
