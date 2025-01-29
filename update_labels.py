@@ -260,29 +260,31 @@ if __name__ == "__main__":
     logger = get_logger("update_labels")
     base_uri = "s3://occupancy-dataset/occ-dataset/dairy"
 
-    folders = list_numbered_folders(base_uri)
+    # folders = list_numbered_folders(base_uri)
 
-    # logger.info("───────────────────────────────")
-    # logger.info(f"len(folders): {len(folders)}")
-    # logger.info("───────────────────────────────")
-
-    # index = JSONIndex(json_path=f"index/update-labels.json")
-
-
-    for folder in tqdm(folders, desc="Processing folders"):
+    # for folder in tqdm(folders, desc="Processing folders"):
         
+    #     logger.info(f"───────────────────────────────")
+    #     logger.info(f"Processing {folder}")
+    #     logger.info(f"───────────────────────────────")
+        
+    #     fix_pcds_in_folder(folder, "config/dairy.yaml")
+
+    
+    leaf_folders = DataGeneratorS3.get_leaf_folders([base_uri])
+    random.seed(42)
+    random_leaf_folders = random.sample(leaf_folders, 100)
+    
+    for folder in tqdm(random_leaf_folders, desc="Processing folders"):
+        # fix_pcds_in_folder(folder, "config/dairy.yaml")
         logger.info(f"───────────────────────────────")
         logger.info(f"Processing {folder}")
         logger.info(f"───────────────────────────────")
-        
-        fix_pcds_in_folder(folder, "config/dairy.yaml")
 
-    # test_pcd_labels("s3://occupancy-dataset/occ-dataset/dairy/grimius", "config/dairy.yaml")
-
-    # /fix_pcds_in_folder("s3://occupancy-dataset/occ-dataset/dairy/grimius/2024_02_20/front/front_2024-02-13-09-57-14.svo/148_to_290", "config/dairy.yaml")
-
-    
-    
+        pcd_URI = os.path.join(folder, "left-segmented-labelled.ply")
+        pcd_path = LeafFolder.download_file(pcd_URI)
+        pcd = o3d.t.io.read_point_cloud(pcd_path)
+        get_label_distribution(pcd, "config/dairy.yaml")
     
     
     
