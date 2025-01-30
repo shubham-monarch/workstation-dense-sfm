@@ -94,7 +94,7 @@ def label_PLY(pcd_path: str, dairy_yaml: str) -> None:
 					  fmt='%.6f %.6f %.6f %d %d %d %d',
 					  comments='')
 		
-		logging.info(f"Successfully labeled PLY file: {pcd_path}")
+		# logging.info(f"Successfully labeled PLY file: {pcd_path}")
 		
 	except Exception as e:
 		logging.error(f"Error processing {pcd_path}: {str(e)}")

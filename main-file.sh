@@ -14,7 +14,7 @@ FARM_TYPE=$5
 # FARM_TYPE="dairy"	
 
 # redirecting all output to a log.main 
-exec > logs/main.log 2>&1
+# exec > logs/main.log 2>&1
 
 echo -e "\n"
 echo "==============================="

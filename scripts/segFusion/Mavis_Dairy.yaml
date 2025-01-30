@@ -1,33 +1,21 @@
 # This file is covered by the LICENSE file in the root of this project.
 name: "Mavis"
 labels:
- 0: "void"
- 1: "obstacle"
+ 1: "obstacle" 
  2: "navigable_space"
  3: "feed"
- 4: "feed_pusher"
  5: "fence"
  6: "vegetation"
- 7: "tractor_hood"
- 8: "sky"
- 9: "sunglare"
  10: "cows"
  11: "gates"
- 12: "cattle_guard"
  13: "poles"
 
-color_map: # bgr
- 0: [0, 0, 0] # void
- 1: [246, 4, 228] # obstacle - pink
- 2: [178, 94, 48] # navigable space - brown
- 3: [11, 145, 212] # feed - blue
- 4: [69, 77, 74] # feed_pusher - dark blue
- 5: [143, 150, 148] # fence - light gray
- 6: [253, 75, 40] # vegetation - dark blue
- 7: [170, 60, 100] # tractor_hood - purple
- 8: [230, 230, 6] # sky - dark gray
- 9: [3, 121, 200] # sunglare - blue
- 10: [70, 80, 70] # cows - yellow
- 11: [40, 98, 176] # gates - grayish blue
- 12: [178, 148, 48] # cattle_guard - brown
- 13: [3, 42, 99] # poles - blue
+color_map:
+  1: [246, 4, 228]
+  2: [178, 94, 48]
+  3: [11, 145, 212]
+  5: [143, 150, 148]
+  6: [253, 75, 40] 
+  10: [70, 80, 70]
+  11: [40, 98, 176]
+  13: [3, 42, 99]
